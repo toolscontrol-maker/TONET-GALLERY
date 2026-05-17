@@ -727,7 +727,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         /* ── INFO PANEL ── */
         .ss-info {
           padding: 24px 20px 28px 20px;
-          background: #EEEDED;
+          background: #ffffff;
         }
 
         .ss-title {
