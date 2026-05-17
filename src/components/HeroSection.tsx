@@ -102,6 +102,7 @@ export default function HeroSection() {
           overflow: hidden;
           margin-top: -48px;
           scroll-snap-align: start;
+          scroll-snap-stop: always;
         }
 
         .hero-video {
@@ -168,6 +169,7 @@ export default function HeroSection() {
           align-items: center;
           justify-content: center;
           scroll-snap-align: start;
+          scroll-snap-stop: always;
         }
 
         .hero-dual-panel {
@@ -222,6 +224,7 @@ export default function HeroSection() {
           height: 100dvh;
           overflow: hidden;
           scroll-snap-align: start;
+          scroll-snap-stop: always;
         }
         .hero-single-panel {
           display: block;
@@ -275,6 +278,7 @@ export default function HeroSection() {
           align-items: center;
           justify-content: center;
           scroll-snap-align: start;
+          scroll-snap-stop: always;
         }
 
         .hero-triple-panel {

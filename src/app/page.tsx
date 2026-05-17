@@ -66,9 +66,9 @@ export default async function Home() {
 
       <style>{`
         /* Scroll-snap at page level for homepage — mandatory snapping */
-        html {
+        html, body {
           scroll-snap-type: y mandatory;
-          scroll-behavior: smooth;
+          overscroll-behavior: none;
         }
 
         /* ═══════════════════════════════════════════════════
@@ -80,6 +80,7 @@ export default async function Home() {
           position: relative;
           z-index: 10;
           scroll-snap-align: start;
+          scroll-snap-stop: always;
           height: 100vh;
           height: 100dvh;
           display: flex;
@@ -209,6 +210,7 @@ export default async function Home() {
           align-items: center;
           justify-content: center;
           scroll-snap-align: start;
+          scroll-snap-stop: always;
           padding: 0 40px;
           box-sizing: border-box;
         }
