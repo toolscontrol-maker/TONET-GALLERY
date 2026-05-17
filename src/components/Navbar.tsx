@@ -296,9 +296,9 @@ export default function Navbar() {
           color: #000;
         }
         .acne-logo-text {
-          font-family: var(--font-brand);
+          font-family: 'Coolvetica', var(--font-brand), sans-serif;
           font-size: 37.5px;
-          font-weight: normal;
+          font-weight: 400;
           letter-spacing: 0.01em;
           color: #000;
           line-height: 60px;
