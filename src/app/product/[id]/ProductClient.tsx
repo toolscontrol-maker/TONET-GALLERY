@@ -638,7 +638,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           flex-direction: column;
           font-family: 'Creato Display', sans-serif;
           color: #111;
-          background: #EEEDED;
+          background: #ffffff;
         }
         @media (min-width: 768px) {
           .ss-pdp-layout { background: unset; }
@@ -1202,7 +1202,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           padding-right: 1px;
         }
         @media (max-width: 767px) {
-          .rec-section { padding: 40px 0 60px; background: #EEEDED; }
+          .rec-section { padding: 40px 0 60px; background: #ffffff; }
           .rec-label { font-size: 14px; }
           .rec-carousel { padding-left: 0; }
           .rec-carousel-item {
