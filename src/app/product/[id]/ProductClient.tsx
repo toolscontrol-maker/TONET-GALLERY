@@ -35,7 +35,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
 
   useEffect(() => {
     import('@/lib/shopify').then(({ getRecommendedProducts }) => {
-      getRecommendedProducts(product.handle, 5)
+      getRecommendedProducts(product.handle, 16)
         .then(setRecommended)
         .catch(() => {});
     });
@@ -650,31 +650,6 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         </section>
       )}
 
-      {/* ── RECOMMENDED ── */}
-      {recommended.length > 0 && (
-        <section className="rec-section">
-          <h2 className="rec-label">YOU MAY ALSO LIKE</h2>
-          <div className="rec-carousel-wrap">
-            <div
-              className="rec-carousel"
-              ref={recCarouselRef}
-              onPointerDown={recPointerDown}
-              onPointerMove={recPointerMove}
-              onPointerUp={recPointerUp}
-              onPointerCancel={recPointerUp}
-              onClick={recCarouselClick}
-            >
-              <div style={{flexShrink: 0, width: 16, minWidth: 16}} />
-              {recommended.map((p) => (
-                <div className="rec-carousel-item" key={p.handle}>
-                  <RecommendedCard key={p.handle} product={p} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* ── RECENTLY VIEWED ── */}
       {recentlyViewed.length > 0 && (
         <section className="rec-section">
@@ -702,6 +677,19 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         </section>
       )}
 
+      {/* ── YOU MAY ALSO LIKE – 4×4 grid ── */}
+      {recommended.length > 0 && (
+        <section className="ymal-section">
+          <h2 className="ymal-label">YOU MAY ALSO LIKE</h2>
+          <div className="ymal-grid">
+            {recommended.slice(0, 16).map((p) => (
+              <div className="ymal-item" key={p.handle}>
+                <RecommendedCard product={p} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <style>{`
         /* ══════════════════════════════════════
@@ -1236,6 +1224,37 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         @media (min-width: 1200px) {
           .ss-info {
             padding: 80px 80px;
+          }
+        }
+
+        /* ── YOU MAY ALSO LIKE GRID ── */
+        .ymal-section {
+          padding: 60px 24px 80px;
+          font-family: 'Creato Display', sans-serif;
+          background: #fff;
+        }
+        .ymal-label {
+          font-size: 14px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: #111;
+          margin: 0 0 32px;
+          text-align: center;
+        }
+        .ymal-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 2px;
+        }
+        .ymal-item {
+          min-width: 0;
+        }
+        @media (max-width: 767px) {
+          .ymal-section { padding: 40px 0 60px; }
+          .ymal-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
           }
         }
 
