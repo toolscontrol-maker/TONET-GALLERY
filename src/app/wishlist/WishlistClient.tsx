@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { useWishlist } from '@/context/WishlistContext';
 import { useLocale } from '@/context/LocaleContext';
 import { useTranslation } from '@/lib/i18n';
+import { useAuth } from '@/context/AuthContext';
 
 export default function WishlistClient() {
   const { items, remove } = useWishlist();
   const { formatPrice } = useLocale();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <>
@@ -22,7 +24,9 @@ export default function WishlistClient() {
         </nav>
 
         <h1 className="wl-title">{t('wishlist.title')}</h1>
-        <p className="wl-subtitle"><Link href="/login" className="wl-signin">{t('wishlist.signIn')}</Link> {t('wishlist.subtitleRest')}</p>
+        {!user && (
+          <p className="wl-subtitle"><Link href="/login" className="wl-signin">{t('wishlist.signIn')}</Link> {t('wishlist.subtitleRest')}</p>
+        )}
 
         {items.length === 0 ? (
           <p className="wl-empty">{t('wishlist.empty')}</p>
