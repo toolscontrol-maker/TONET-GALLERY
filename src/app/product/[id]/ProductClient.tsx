@@ -1225,8 +1225,9 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           .ss-mobile-img-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2px;
+            gap: 6px;
             background: #fff;
+            padding: 0 20px 24px 20px;
           }
           .ss-mobile-img-cell {
             aspect-ratio: 3 / 4;
