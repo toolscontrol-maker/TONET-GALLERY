@@ -503,13 +503,13 @@ export default function Footer() {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 56px 0 72px;
+            justify-content: flex-end;
+            min-height: 320px;
+            padding: 0 0 40px;
+            border-top: 1px solid #e0e0e0;
           }
           .footer-mobile-socials-divider {
-            width: 100%;
-            height: 1px;
-            background: #e0e0e0;
-            margin-bottom: 28px;
+            display: none;
           }
           .footer-mobile-socials-icons {
             display: flex;
