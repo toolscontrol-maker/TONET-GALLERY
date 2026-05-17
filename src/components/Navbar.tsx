@@ -117,7 +117,7 @@ export default function Navbar() {
           {/* LEFT: Hamburger + Search */}
           <div className="acne-nav-left">
             <button className="acne-mob-icon" aria-label="Menu" onClick={openMenu}>
-              <Menu size={18} strokeWidth={1.4} />
+              <Menu size={18} strokeWidth={1} />
             </button>
             <button className="acne-mob-icon" aria-label="Search" onClick={openMenuWithSearch}>
               <svg width="18" height="18" viewBox="-1 -1 19 19" fill="none" stroke="currentColor" strokeWidth="1">
