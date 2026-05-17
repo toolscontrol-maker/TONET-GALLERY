@@ -529,6 +529,17 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         </div>
       </div>
 
+      {/* ── MOBILE IMAGE GRID ── */}
+      {images.length > 0 && (
+        <div className="ss-mobile-img-grid">
+          {images.slice(0, 4).map((img, i) => (
+            <div key={i} className="ss-mobile-img-cell">
+              <img src={img} alt={`${product.title} – ${i + 1}`} draggable={false} />
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── SIZE DRAWER ── */}
       <div className={`ss-size-drawer${sizeOpen && hasSizes ? ' open' : ''}`}>
         <div className="ss-size-drawer-header">
@@ -1201,6 +1212,30 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           scroll-snap-align: start;
           padding-right: 1px;
         }
+        /* ── MOBILE IMAGE GRID ── */
+        .ss-mobile-img-grid {
+          display: none;
+        }
+        @media (max-width: 767px) {
+          .ss-mobile-img-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            background: #fff;
+          }
+          .ss-mobile-img-cell {
+            aspect-ratio: 3 / 4;
+            overflow: hidden;
+            background: #EEEDED;
+          }
+          .ss-mobile-img-cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+        }
+
         @media (max-width: 767px) {
           .rec-section { padding: 40px 0 60px; background: #ffffff; }
           .rec-label { font-size: 14px; }
