@@ -506,7 +506,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
               aria-label="Add to wishlist"
               onClick={() => toggle(wishlistItem)}
             >
-              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
                 <polygon
                   fill={inWishlist ? 'currentColor' : 'none'}
                   stroke="currentColor"
