@@ -235,7 +235,7 @@ export default function CartDrawer() {
         .cd-item-img {
           width: 42%;
           flex-shrink: 0;
-          background: #ffffff;
+          background: #EEEDED;
           aspect-ratio: 3 / 4;
           display: flex;
           align-items: center;
