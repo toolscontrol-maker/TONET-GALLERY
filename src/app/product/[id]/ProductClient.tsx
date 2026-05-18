@@ -113,6 +113,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
   const outfitIsDragging = useRef(false);
   const outfitDragMoved = useRef(false);
   const [completeOutfit, setCompleteOutfit] = useState<RecommendedProduct[]>([]);
+  const recentCarouselRef = useRef<HTMLDivElement>(null);
 
   function outfitPointerDown(e: React.PointerEvent) {
     outfitDragStart.current = e.clientX;
@@ -169,6 +170,22 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const carousels = [outfitCarouselRef.current, recentCarouselRef.current];
+    const cleanups: (() => void)[] = [];
+    carousels.forEach(el => {
+      if (!el) return;
+      const handler = (e: WheelEvent) => {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+        e.preventDefault();
+        el.scrollLeft += e.deltaY;
+      };
+      el.addEventListener('wheel', handler, { passive: false });
+      cleanups.push(() => el.removeEventListener('wheel', handler));
+    });
+    return () => cleanups.forEach(fn => fn());
   }, []);
 
   useEffect(() => {
@@ -663,7 +680,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         <section className="rec-section">
           <h2 className="rec-label">RECENTLY VIEWED</h2>
           <div className="rec-carousel-wrap">
-            <div className="rec-carousel">
+            <div className="rec-carousel" ref={recentCarouselRef}>
               <div style={{flexShrink: 0, width: 16, minWidth: 16}} />
               {recentlyViewed.map((p) => (
                 <div className="rec-carousel-item" key={p.handle}>
