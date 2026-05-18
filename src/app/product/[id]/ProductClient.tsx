@@ -201,28 +201,41 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
   }, []);
 
   function makeSmoothWheelCarousel(el: HTMLDivElement) {
-    let target = el.scrollLeft;
+    let velocity = 0;
     let rafId = 0;
     let snapTimer: ReturnType<typeof setTimeout>;
+    let isAnimating = false;
+    const DAMPING = 0.88;
+    const STOP_THRESHOLD = 0.4;
     const animate = () => {
-      const diff = target - el.scrollLeft;
-      if (Math.abs(diff) < 0.5) { el.scrollLeft = target; clearTimeout(snapTimer); snapTimer = setTimeout(() => { el.style.scrollSnapType = ''; }, 80); return; }
-      el.scrollLeft += diff * 0.1;
+      velocity *= DAMPING;
+      if (Math.abs(velocity) < STOP_THRESHOLD) {
+        isAnimating = false;
+        clearTimeout(snapTimer);
+        snapTimer = setTimeout(() => { el.style.scrollSnapType = ''; }, 80);
+        return;
+      }
+      el.scrollLeft += velocity;
       rafId = requestAnimationFrame(animate);
     };
     const handler = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       const delta = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY;
       const maxScroll = el.scrollWidth - el.clientWidth;
-      const atStart = target <= 0 && delta < 0;
-      const atEnd = target >= maxScroll && delta > 0;
+      const projectedPos = el.scrollLeft + velocity;
+      const atStart = projectedPos <= 0 && delta < 0;
+      const atEnd = projectedPos >= maxScroll && delta > 0;
       if (atStart || atEnd) return;
       e.preventDefault();
       el.style.scrollSnapType = 'none';
       clearTimeout(snapTimer);
-      cancelAnimationFrame(rafId);
-      target = Math.max(0, Math.min(maxScroll, target + delta));
-      rafId = requestAnimationFrame(animate);
+      velocity += delta * 0.55;
+      velocity = Math.max(-80, Math.min(80, velocity));
+      if (!isAnimating) {
+        isAnimating = true;
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(animate);
+      }
     };
     el.addEventListener('wheel', handler, { passive: false });
   }
