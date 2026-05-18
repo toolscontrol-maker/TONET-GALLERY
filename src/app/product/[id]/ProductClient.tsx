@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Check, X, Plus, Minus } from 'lucide-react';
 import { useUI } from '@/context/UIContext';
 import { useCart } from '@/context/CartContext';
@@ -172,8 +172,8 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => {
-    const el = outfitCarouselRef.current;
+  const outfitCallbackRef = useCallback((el: HTMLDivElement | null) => {
+    outfitCarouselRef.current = el;
     if (!el) return;
     let snapTimer: ReturnType<typeof setTimeout>;
     const handler = (e: WheelEvent) => {
@@ -186,12 +186,10 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
       snapTimer = setTimeout(() => { el.style.scrollSnapType = ''; }, 120);
     };
     el.addEventListener('wheel', handler, { passive: false });
-    return () => { el.removeEventListener('wheel', handler); clearTimeout(snapTimer); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [completeOutfit.length]);
+  }, []);
 
-  useEffect(() => {
-    const el = recentCarouselRef.current;
+  const recentCallbackRef = useCallback((el: HTMLDivElement | null) => {
+    recentCarouselRef.current = el;
     if (!el) return;
     let snapTimer: ReturnType<typeof setTimeout>;
     const handler = (e: WheelEvent) => {
@@ -204,9 +202,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
       snapTimer = setTimeout(() => { el.style.scrollSnapType = ''; }, 120);
     };
     el.addEventListener('wheel', handler, { passive: false });
-    return () => { el.removeEventListener('wheel', handler); clearTimeout(snapTimer); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recentlyViewed.length]);
+  }, []);
 
   useEffect(() => {
     const el = infoRef.current;
@@ -677,7 +673,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           <div className="rec-carousel-wrap">
             <div
               className="rec-carousel"
-              ref={outfitCarouselRef}
+              ref={outfitCallbackRef}
               onPointerDown={outfitPointerDown}
               onPointerMove={outfitPointerMove}
               onPointerUp={outfitPointerUp}
@@ -700,7 +696,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         <section className="rec-section">
           <h2 className="rec-label">RECENTLY VIEWED</h2>
           <div className="rec-carousel-wrap">
-            <div className="rec-carousel" ref={recentCarouselRef}>
+            <div className="rec-carousel" ref={recentCallbackRef}>
               <div style={{flexShrink: 0, width: 16, minWidth: 16}} />
               {recentlyViewed.map((p) => (
                 <div className="rec-carousel-item" key={p.handle}>
