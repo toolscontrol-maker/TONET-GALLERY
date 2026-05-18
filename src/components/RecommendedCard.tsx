@@ -74,12 +74,7 @@ export default function RecommendedCard({ product }: Props) {
           display: block;
           text-decoration: none;
           color: inherit;
-          border: 1px solid transparent;
-          transition: border-color 0.15s;
           cursor: pointer;
-        }
-        .rec-card-wrap:hover .rec-card {
-          border-color: #e0e0e0;
         }
         .rec-img-wrap {
           position: relative;
