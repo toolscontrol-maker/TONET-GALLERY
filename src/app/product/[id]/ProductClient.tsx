@@ -172,36 +172,39 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const outfitCallbackRef = useCallback((el: HTMLDivElement | null) => {
-    outfitCarouselRef.current = el;
-    if (!el) return;
+  function makeSmoothWheelCarousel(el: HTMLDivElement) {
+    let target = el.scrollLeft;
+    let rafId = 0;
     let snapTimer: ReturnType<typeof setTimeout>;
+    const animate = () => {
+      const diff = target - el.scrollLeft;
+      if (Math.abs(diff) < 0.5) { el.scrollLeft = target; clearTimeout(snapTimer); snapTimer = setTimeout(() => { el.style.scrollSnapType = ''; }, 80); return; }
+      el.scrollLeft += diff * 0.1;
+      rafId = requestAnimationFrame(animate);
+    };
     const handler = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
       e.preventDefault();
       el.style.scrollSnapType = 'none';
-      const delta = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY;
-      el.scrollLeft += delta;
       clearTimeout(snapTimer);
-      snapTimer = setTimeout(() => { el.style.scrollSnapType = ''; }, 120);
+      cancelAnimationFrame(rafId);
+      const delta = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY;
+      target = Math.max(0, Math.min(el.scrollWidth - el.clientWidth, target + delta));
+      rafId = requestAnimationFrame(animate);
     };
     el.addEventListener('wheel', handler, { passive: false });
+  }
+
+  const outfitCallbackRef = useCallback((el: HTMLDivElement | null) => {
+    outfitCarouselRef.current = el;
+    if (!el) return;
+    makeSmoothWheelCarousel(el);
   }, []);
 
   const recentCallbackRef = useCallback((el: HTMLDivElement | null) => {
     recentCarouselRef.current = el;
     if (!el) return;
-    let snapTimer: ReturnType<typeof setTimeout>;
-    const handler = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      e.preventDefault();
-      el.style.scrollSnapType = 'none';
-      const delta = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY;
-      el.scrollLeft += delta;
-      clearTimeout(snapTimer);
-      snapTimer = setTimeout(() => { el.style.scrollSnapType = ''; }, 120);
-    };
-    el.addEventListener('wheel', handler, { passive: false });
+    makeSmoothWheelCarousel(el);
   }, []);
 
   useEffect(() => {
