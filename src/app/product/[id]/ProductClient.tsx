@@ -1406,7 +1406,15 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         }
 
         @media (max-width: 767px) {
-          .rec-section { padding: 40px 0 60px; background: #ffffff; }
+          html, body { background: #ffffff !important; }
+          .ss-gallery,
+          .ss-gallery-item,
+          .ss-info,
+          .outfit-section,
+          .rec-section,
+          .rec-img-wrap,
+          .ss-mobile-img-cell { background: #ffffff !important; }
+          .rec-section { padding: 40px 0 60px; }
           .rec-label { font-size: 14px; }
           .rec-carousel { padding-left: 0; }
           .rec-carousel-item {
