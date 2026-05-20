@@ -7,6 +7,21 @@
 }
 
 @font-face {
+  font-family: 'SaintCarell';
+  src: url('/fonts/SaintCarell.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SaintCarellClean';
+  src: url('/fonts/SaintCarellClean.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Coolvetica';
   src: url('/fonts/Coolvetica Rg.otf') format('opentype');
   font-weight: 400;
