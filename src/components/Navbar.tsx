@@ -310,7 +310,7 @@ export default function Navbar() {
           color: #000;
         }
         .acne-logo-text {
-          font-family: 'SaintCarell', 'Coolvetica', var(--font-brand), sans-serif;
+          font-family: 'SaintCarellClean', 'Coolvetica', var(--font-brand), sans-serif;
           font-size: 37.5px;
           font-weight: 400;
           letter-spacing: 0.01em;
