@@ -18,6 +18,7 @@ export default function MenuDrawer() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [collections, setCollections] = useState<CollectionNav[]>([]);
+  const [trendingTitles, setTrendingTitles] = useState<string[]>([]);
   const [activeHandle, setActiveHandle] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,6 +48,25 @@ export default function MenuDrawer() {
     closeMenu();
     router.push(`/search?q=${encodeURIComponent(term)}`);
   };
+
+  // Fetch top 3 products for trending searches
+  useEffect(() => {
+    if (trendingTitles.length > 0) return;
+    const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+    const token = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_PUBLIC_TOKEN;
+    if (!domain || !token) return;
+    fetch(`https://${domain}/api/2024-10/graphql.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Shopify-Storefront-Access-Token': token },
+      body: JSON.stringify({ query: `{ products(first: 3, sortKey: BEST_SELLING) { edges { node { title } } } }` }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        const titles: string[] = (d.data?.products?.edges ?? []).map((e: any) => e.node.title as string);
+        if (titles.length > 0) setTrendingTitles(titles);
+      })
+      .catch(() => {});
+  }, [trendingTitles.length]);
 
   // Fetch collections + their product tags
   useEffect(() => {
@@ -192,9 +212,9 @@ export default function MenuDrawer() {
               </form>
               <p className="md-search-popular-title">Trending searches</p>
               <nav className="md-sub-nav">
-                {['hoodie', 't-shirt', 'trousers'].map(term => (
+                {(trendingTitles.length > 0 ? trendingTitles : ['Hoodie', 'T-Shirt', 'Trousers']).map(term => (
                   <button key={term} className="md-sub-item md-search-tag" onClick={() => handleSearchTag(term)}>
-                    {term}
+                    {term.charAt(0).toUpperCase() + term.slice(1).toLowerCase()}
                   </button>
                 ))}
               </nav>
