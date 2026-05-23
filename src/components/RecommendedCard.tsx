@@ -58,7 +58,7 @@ export default function RecommendedCard({ product }: Props) {
           )}
         </div>
         <div className="rec-meta">
-          <span className="rec-title">{product.title}</span>
+          <span className="rec-title">{product.title.charAt(0).toUpperCase() + product.title.slice(1).toLowerCase()}</span>
           <span className="rec-price">{formatPrice(product.price, product.currencyCode)}</span>
           {colourCount > 1 && (
             <span className="rec-collection">{colourCount} Colours</span>
@@ -146,7 +146,7 @@ export default function RecommendedCard({ product }: Props) {
         .rec-title {
           font-size: 13px;
           font-weight: 500;
-          text-transform: lowercase;
+          text-transform: none;
           letter-spacing: 0.03em;
           line-height: 1.3;
           color: #111;

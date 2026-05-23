@@ -782,7 +782,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                       {p.imageUrl && <img src={p.imageUrl} alt={p.title} className="rec-img" />}
                     </div>
                     <div className="rec-meta">
-                      <span className="rec-title">{p.title}</span>
+                      <span className="rec-title">{p.title.charAt(0).toUpperCase() + p.title.slice(1).toLowerCase()}</span>
                       <span className="rec-price">
                         {(() => { const sym = p.currencyCode === 'USD' ? '$' : '€'; const n = p.price; return Number.isInteger(n) ? `${sym}${n} ${p.currencyCode}` : `${sym}${n.toFixed(2)} ${p.currencyCode}`; })()}
                       </span>
