@@ -10,7 +10,7 @@ import { useTranslation } from "@/lib/i18n";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
-  const { openCart, openMenuWithSearch, openMenu } = useUI();
+  const { openCart, openMenuWithSearch, openMenu, closeMenu } = useUI();
   const { cartCount } = useCart();
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -114,24 +114,35 @@ export default function Navbar() {
     <>
       <header className={`acne-header ${solid ? "solid" : "transparent"} ${isHome && !pastVideo ? "home-top" : ""} ${isHome && pastVideo ? "home-dark" : ""} ${isCollection && !scrolledPast ? "fullbleed-top" : ""} ${!headerVisible ? "header-hidden" : ""} ${overDark ? "over-dark" : ""}`} style={{top: `${navTop}px`}}>
         <div className="acne-header-inner">
-          {/* LEFT: Hamburger + Search */}
+          {/* LEFT: Hamburger+Search (mobile) + Nav links (desktop) */}
           <div className="acne-nav-left">
-            <button className="acne-mob-icon" aria-label="Menu" onClick={openMenu}>
+            <button className="acne-mob-icon acne-mobile-only" aria-label="Menu" onClick={openMenu}>
               <Menu size={18} strokeWidth={1} />
             </button>
-            <button className="acne-mob-icon" aria-label="Search" onClick={openMenuWithSearch}>
+            <button className="acne-mob-icon acne-mobile-only" aria-label="Search" onClick={openMenuWithSearch}>
               <svg width="18" height="18" viewBox="-1 -1 19 19" fill="none" stroke="currentColor" strokeWidth="0.7">
                 <path d="M16.604 15.868l-5.173-5.173c0.975-1.137 1.569-2.611 1.569-4.223 0-3.584-2.916-6.5-6.5-6.5-1.736 0-3.369 0.676-4.598 1.903-1.227 1.228-1.903 2.861-1.902 4.597 0 3.584 2.916 6.5 6.5 6.5 1.612 0 3.087-0.594 4.224-1.569l5.173 5.173 0.707-0.708zM6.5 11.972c-3.032 0-5.5-2.467-5.5-5.5-0.001-1.47 0.571-2.851 1.61-3.889 1.038-1.039 2.42-1.611 3.89-1.611 3.032 0 5.5 2.467 5.5 5.5 0 3.032-2.468 5.5-5.5 5.5z" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
+            <nav className="acne-nav-links acne-desktop-only">
+              <Link href="/collection/new-arrivals" onClick={closeMenu}>novedades</Link>
+              <Link href="/collection/hombre" onClick={closeMenu}>hombre</Link>
+              <Link href="/collection/gifts" onClick={closeMenu}>gifts</Link>
+              <Link href="/collection/explore" onClick={closeMenu}>explore</Link>
+            </nav>
           </div>
 
           <Link href="/" className="acne-logo">
             <span className="acne-logo-text">TONET</span>
           </Link>
 
-          {/* RIGHT: Account, Wishlist, Cart */}
+          {/* RIGHT: Nav links (desktop) + Account, Wishlist, Cart */}
           <div className="acne-nav-right">
+            <nav className="acne-nav-links acne-desktop-only">
+              <Link href="/collection/pantalones" onClick={closeMenu}>pantalones</Link>
+              <Link href="/collection/camisetas" onClick={closeMenu}>camisetas</Link>
+              <Link href="/collection/all" onClick={closeMenu}>todo</Link>
+            </nav>
             <Link href={accountHref} className="acne-right-icon" aria-label="Account">
               <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinejoin="round" strokeLinecap="round">
                 <path d="M8 7C9.65685 7 11 5.65685 11 4C11 2.34315 9.65685 1 8 1C6.34315 1 5 2.34315 5 4C5 5.65685 6.34315 7 8 7Z" fill="none"/>
@@ -326,14 +337,23 @@ export default function Navbar() {
         .acne-nav-left { display: flex; align-items: center; flex: 1; }
         .acne-nav-links { display: flex; align-items: center; gap: 28px; }
         .acne-nav-links a {
-          font-size: 11px;
+          font-size: 12px;
           font-family: var(--font-primary);
-          font-weight: 500;
-          text-transform: uppercase;
+          font-weight: 400;
+          text-transform: lowercase;
           text-decoration: none;
           color: #000;
-          letter-spacing: 0.10em;
+          letter-spacing: 0.04em;
           line-height: 1.2;
+          white-space: nowrap;
+          transition: opacity 0.15s;
+        }
+        .acne-nav-links a:hover { opacity: 0.55; }
+        .acne-mobile-only { display: flex; }
+        .acne-desktop-only { display: none; }
+        @media (min-width: 768px) {
+          .acne-mobile-only { display: none !important; }
+          .acne-desktop-only { display: flex !important; }
         }
 
         .acne-nav-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
