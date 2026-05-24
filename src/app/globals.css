@@ -155,7 +155,7 @@
 
   /* ── Typography system ─────────────────────────────────── */
   --font-brand: 'Saint Carell', 'Twilight New Moon', serif;
-  --font-primary: 'JUST Sans', -apple-system, Helvetica, Arial, sans-serif;
+  --font-primary: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
 
   /* Scale */
   --t-hero:  60px;  /* hero display */
