@@ -114,13 +114,11 @@ export default function Navbar() {
     <>
       <header className={`acne-header ${solid ? "solid" : "transparent"} ${isHome && !pastVideo ? "home-top" : ""} ${isHome && pastVideo ? "home-dark" : ""} ${isCollection && !scrolledPast ? "fullbleed-top" : ""} ${!headerVisible ? "header-hidden" : ""} ${overDark ? "over-dark" : ""}`} style={{top: `${navTop}px`}}>
         <div className="acne-header-inner">
-          {/* LEFT: Mobile text links + Desktop nav links */}
+          {/* LEFT: Hamburger+Search (mobile) + Nav links (desktop) */}
           <div className="acne-nav-left">
-            <nav className="acne-nav-links acne-mobile-only acne-mob-links">
-              <Link href="/collection/new-arrivals" onClick={closeMenu}>novedades</Link>
-              <Link href="/collection/pantalones" onClick={closeMenu}>pantalones</Link>
-              <Link href="/collection/camisetas" onClick={closeMenu}>camisetas</Link>
-            </nav>
+            <button className="acne-mob-icon acne-mobile-only" aria-label="Menu" onClick={openMenu}>
+              <Menu size={18} strokeWidth={1} />
+            </button>
             <nav className="acne-nav-links acne-desktop-only">
               <Link href="/collection/new-arrivals" onClick={closeMenu}>novedades</Link>
               <Link href="/collection/hombre" onClick={closeMenu}>hombre</Link>
@@ -353,8 +351,6 @@ export default function Navbar() {
         .acne-nav-links a:hover { opacity: 0.55; }
         .acne-mobile-only { display: flex; }
         .acne-desktop-only { display: none; }
-        .acne-mob-links { gap: 12px !important; }
-        .acne-mob-links a { font-size: 9px !important; letter-spacing: 0.02em !important; }
         @media (min-width: 768px) {
           .acne-mobile-only { display: none !important; }
           .acne-desktop-only { display: flex !important; }
