@@ -1020,7 +1020,9 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           font-weight: 400;
           color: #888;
           margin: 20px 0 0;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.06em;
+          text-align: center;
+          text-transform: uppercase;
         }
 
         /* Description plain */
