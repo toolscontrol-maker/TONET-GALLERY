@@ -647,11 +647,11 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                 <span>Description</span>
                 <span className={`ss-accordion-icon${expandedAccordion === 'description' ? ' open' : ''}`}><Plus size={12} strokeWidth={1.4} /></span>
               </button>
-              {expandedAccordion === 'description' && (
-                <div className="ss-accordion-body">
+              <div className={`ss-accordion-body${expandedAccordion === 'description' ? ' open' : ''}`}>
+                <div className="ss-accordion-body-inner">
                   <TranslatedDesc text={product.description} className="ss-accordion-text" />
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="ss-accordion-item">
@@ -659,11 +659,11 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                 <span>{t('common.detailsAndCare')}</span>
                 <span className={`ss-accordion-icon${expandedAccordion === 'details' ? ' open' : ''}`}><Plus size={12} strokeWidth={1.4} /></span>
               </button>
-              {expandedAccordion === 'details' && (
-                <div className="ss-accordion-body">
+              <div className={`ss-accordion-body${expandedAccordion === 'details' ? ' open' : ''}`}>
+                <div className="ss-accordion-body-inner">
                   <p className="ss-accordion-text">{t('common.deliveryEstimate')}</p>
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="ss-accordion-item">
@@ -671,8 +671,8 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                 <span>{t('common.deliveryAndReturns')}</span>
                 <span className={`ss-accordion-icon${expandedAccordion === 'delivery' ? ' open' : ''}`}><Plus size={12} strokeWidth={1.4} /></span>
               </button>
-              {expandedAccordion === 'delivery' && (
-                <div className="ss-accordion-body">
+              <div className={`ss-accordion-body${expandedAccordion === 'delivery' ? ' open' : ''}`}>
+                <div className="ss-accordion-body-inner">
                   <p className="ss-accordion-text">
                     <strong>{t('common.drawerDeliveryLabel')}</strong><br />
                     {t('common.drawerDeliveryBody')}
@@ -682,7 +682,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                     {t('common.drawerReturnsBody')}
                   </p>
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="ss-accordion-item">
@@ -690,13 +690,13 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                 <span>You Need to Know</span>
                 <span className={`ss-accordion-icon${expandedAccordion === 'needtoknow' ? ' open' : ''}`}><Plus size={12} strokeWidth={1.4} /></span>
               </button>
-              {expandedAccordion === 'needtoknow' && (
-                <div className="ss-accordion-body">
+              <div className={`ss-accordion-body${expandedAccordion === 'needtoknow' ? ' open' : ''}`}>
+                <div className="ss-accordion-body-inner">
                   <p className="ss-accordion-text">
                     This piece is crafted with premium materials and designed for longevity. Handle with care and refer to the care label for specific instructions. Each item is quality-checked before dispatch.
                   </p>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -1261,7 +1261,17 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         }
         .ss-accordion-icon.open { transform: rotate(45deg); }
         .ss-accordion-body {
-          padding: 0 0 16px 0;
+          display: grid;
+          grid-template-rows: 0fr;
+          transition: grid-template-rows 0.28s ease;
+        }
+        .ss-accordion-body.open {
+          grid-template-rows: 1fr;
+        }
+        .ss-accordion-body-inner {
+          min-height: 0;
+          overflow: hidden;
+          padding-bottom: 16px;
         }
         .ss-accordion-text {
           font-size: 14px;
