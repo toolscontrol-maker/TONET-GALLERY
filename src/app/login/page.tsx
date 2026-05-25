@@ -26,11 +26,14 @@ export default function LoginPage() {
     );
   }
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
     setError('');
-    if (emailExists(email)) {
+    setLoading(true);
+    const exists = await emailExists(email);
+    setLoading(false);
+    if (exists) {
       setStep('login');
     } else {
       setStep('register');

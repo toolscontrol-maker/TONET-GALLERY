@@ -31,9 +31,9 @@ export default function WelcomeClient() {
 
   if (isLoading || !user) return null;
 
-  const handleContinue = (e: React.FormEvent) => {
+  const handleContinue = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile({
+    await updateProfile({
       phone: phone || undefined,
       phonePrefix: phone ? phonePrefix : undefined,
       birthDate: birthDate || undefined,
@@ -43,8 +43,8 @@ export default function WelcomeClient() {
     router.push('/account');
   };
 
-  const handleSkip = () => {
-    updateProfile({ onboardingComplete: true });
+  const handleSkip = async () => {
+    await updateProfile({ onboardingComplete: true });
     router.push('/account');
   };
 

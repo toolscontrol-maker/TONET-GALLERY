@@ -29,9 +29,9 @@ export default function InformationClient() {
 
   if (isLoading || !user) return null;
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile({
+    await updateProfile({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       phone: phone || undefined,

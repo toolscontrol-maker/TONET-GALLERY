@@ -8,9 +8,11 @@ import {
   useCallback,
   type ReactNode,
 } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/auth';
 import * as authService from '@/lib/auth';
+import { auth } from '@/lib/firebase';
 
 // ── Context shape ──────────────────────────────────────────────────
 
@@ -21,14 +23,14 @@ interface AuthContextValue {
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<string | null>;
   /** Login with email + password */
   login: (email: string, password: string) => Promise<string | null>;
-  /** Login / register with Google (simulated in dev) */
+  /** Login / register with Google */
   loginWithGoogle: () => Promise<string | null>;
   /** Update profile fields */
-  updateProfile: (updates: Partial<Omit<User, 'id' | 'email' | 'provider' | 'createdAt'>>) => void;
+  updateProfile: (updates: Partial<Omit<User, 'id' | 'email' | 'provider' | 'createdAt'>>) => Promise<void>;
   /** Logout and redirect to home */
   logout: () => void;
   /** Check if email already registered */
-  emailExists: (email: string) => boolean;
+  emailExists: (email: string) => Promise<boolean>;
   /** Set a URL to redirect to after login */
   setRedirectAfterLogin: (url: string) => void;
 }
@@ -44,17 +46,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Rehydrate session on mount
+  // Listen to Firebase auth state
   useEffect(() => {
-    const session = authService.getSession();
-    setUser(session);
-    setIsLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const profile = await authService.getUserById(firebaseUser.uid);
+        setUser(profile);
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+    return unsubscribe;
   }, []);
 
   const handlePostLogin = useCallback((u: User, isNew?: boolean) => {
     setUser(u);
 
-    // Check if there's a redirect URL saved
     const redirectUrl = sessionStorage.getItem(REDIRECT_KEY);
     sessionStorage.removeItem(REDIRECT_KEY);
 
@@ -90,20 +98,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   }, [handlePostLogin]);
 
-  const updateProfileFn = useCallback((
+  const updateProfileFn = useCallback(async (
     updates: Partial<Omit<User, 'id' | 'email' | 'provider' | 'createdAt'>>
-  ) => {
-    const updated = authService.updateProfile(updates);
+  ): Promise<void> => {
+    const updated = await authService.updateProfile(updates);
     if (updated) setUser(updated);
   }, []);
 
-  const logoutFn = useCallback(() => {
-    authService.logout();
+  const logoutFn = useCallback(async () => {
+    await authService.logout();
     setUser(null);
     router.push('/');
   }, [router]);
 
-  const emailExistsFn = useCallback((email: string) => {
+  const emailExistsFn = useCallback((email: string): Promise<boolean> => {
     return authService.emailExists(email);
   }, []);
 
