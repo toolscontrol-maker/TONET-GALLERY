@@ -17,26 +17,26 @@ export default function Footer() {
   return (
     <footer className="ft">
 
-      {/* â”€â”€ MAIN COLUMNS â”€â”€ */}
+      {/* ── MAIN COLUMNS ── */}
       <div className="ft-main">
 
         {/* Col 1: Newsletter + Socials */}
         <div className="ft-col ft-col--wide">
-          <p className="ft-heading">SUSCRÃBASE A NUESTRO BOLETÃN</p>
+          <p className="ft-heading">SUSCRÍBETE A NUESTRO BOLETÍN</p>
           <div className="ft-nl">
             <div className="ft-nl-row">
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="Introduzca su direcciÃ³n de correo electrÃ³nico *"
+                placeholder="Introduce tu correo electrónico *"
                 className="ft-nl-input"
               />
-              <button className="ft-nl-btn" aria-label="Suscribirse">â†’</button>
+              <button className="ft-nl-btn" aria-label="Suscribirte">→</button>
             </div>
             <p className="ft-nl-disclaimer">
-              Al hacer clic en "Suscribirse" confirma que ha leÃ­do y entendido nuestra{" "}
-              <Link href="#">PolÃ­tica de Privacidad</Link>.
+              Al hacer clic en "Suscribirte" confirma que ha leído y entendido nuestra{" "}
+              <Link href="#">Política de Privacidad</Link>.
             </p>
           </div>
           <div className="ft-socials">
@@ -72,8 +72,8 @@ export default function Footer() {
         <div className={`ft-col${openSections.has(0) ? ' ft-col--open' : ''}`}>
           <p className="ft-heading" onClick={() => toggleSection(0)}>CONTÁCTENOS <span className="ft-chevron" /></p>
           <ul className="ft-links">
-            <li><Link href="mailto:info@tonetparis.com">EscrÃ­benos por Email</Link></li>
-            <li><Link href="#">EscrÃ­benos por WhatsApp</Link></li>
+            <li><Link href="mailto:info@tonetparis.com">Escríbenos por Email</Link></li>
+            <li><Link href="#">Escríbenos por WhatsApp</Link></li>
             <li><Link href="/contact">Contacto</Link></li>
             <li><Link href="#">Preguntas frecuentes</Link></li>
           </ul>
@@ -85,8 +85,8 @@ export default function Footer() {
           <ul className="ft-links">
             <li><Link href="#">Seguimiento del pedido</Link></li>
             <li><Link href="#">Devoluciones</Link></li>
-            <li><Link href="#">EnvÃ­os y entregas</Link></li>
-            <li><Link href="#">AtenciÃ³n al cliente</Link></li>
+            <li><Link href="#">Envíos y entregas</Link></li>
+            <li><Link href="#">Atención al cliente</Link></li>
           </ul>
         </div>
 
@@ -106,8 +106,8 @@ export default function Footer() {
           <p className="ft-heading" onClick={() => toggleSection(3)}>TÉRMINOS Y CONDICIONES LEGALES <span className="ft-chevron" /></p>
           <ul className="ft-links">
             <li><Link href="#">Aviso legal</Link></li>
-            <li><Link href="#">PolÃ­tica de Privacidad</Link></li>
-            <li><Link href="#">PolÃ­tica de cookies</Link></li>
+            <li><Link href="#">Política de Privacidad</Link></li>
+            <li><Link href="#">Política de cookies</Link></li>
             <li><Link href="#">Condiciones de venta</Link></li>
             <li><Link href="#">Sitemap</Link></li>
           </ul>
@@ -115,9 +115,9 @@ export default function Footer() {
 
       </div>
 
-      {/* â”€â”€ BOTTOM BAR â”€â”€ */}
+      {/* ── BOTTOM BAR ── */}
       <div className="ft-bottom">
-        <span className="ft-copy">Â©TONET PARIS 2024</span>
+        <span className="ft-copy">©TONET PARIS 2024</span>
         <div className="ft-bottom-right">
           <Link href="#" className="ft-bottom-link">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
@@ -125,7 +125,7 @@ export default function Footer() {
           </Link>
           <Link href="#" className="ft-bottom-link">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            ESPAÃ‘A / ESPAÃ‘OL
+            ESPAÑA / ESPAÑOL
           </Link>
         </div>
       </div>
@@ -143,7 +143,7 @@ export default function Footer() {
         .ft a { color: #fff; text-decoration: none; }
         .ft a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-        /* â”€â”€ MAIN GRID â”€â”€ */
+        /* ── MAIN GRID ── */
         .ft-main {
           display: grid;
           grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
@@ -166,7 +166,7 @@ export default function Footer() {
           margin: 0 0 20px;
         }
 
-        /* â”€â”€ LINKS â”€â”€ */
+        /* ── LINKS ── */
         .ft-links {
           list-style: none;
           padding: 0;
@@ -182,7 +182,7 @@ export default function Footer() {
         }
         .ft-links li a:hover { color: #fff; text-decoration: none; }
 
-        /* â”€â”€ NEWSLETTER â”€â”€ */
+        /* ── NEWSLETTER ── */
         .ft-nl { margin-bottom: 32px; }
         .ft-nl-row {
           display: flex;
@@ -221,7 +221,7 @@ export default function Footer() {
         }
         .ft-nl-disclaimer a { color: #aaa; text-decoration: underline; text-underline-offset: 2px; }
 
-        /* â”€â”€ SOCIALS â”€â”€ */
+        /* ── SOCIALS ── */
         .ft-socials {
           display: flex;
           gap: 18px;
@@ -236,7 +236,7 @@ export default function Footer() {
         }
         .ft-socials a:hover { color: #fff; text-decoration: none; }
 
-        /* â”€â”€ BOTTOM BAR â”€â”€ */
+        /* ── BOTTOM BAR ── */
         .ft-bottom {
           display: flex;
           align-items: center;
@@ -266,7 +266,7 @@ export default function Footer() {
         }
         .ft-bottom-link:hover { color: #fff !important; text-decoration: none !important; }
 
-        /* â”€â”€ MOBILE â”€â”€ */
+        /* ── MOBILE ── */
         @media (max-width: 767px) {
           .ft-main {
             grid-template-columns: 1fr;
