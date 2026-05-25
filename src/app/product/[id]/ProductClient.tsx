@@ -835,7 +835,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         .ss-pdp-layout {
           display: flex;
           flex-direction: column;
-          font-family: var(--font-primary);
+          font-family: var(--font-serif);
           color: #111;
           background: #ffffff;
         }
