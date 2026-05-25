@@ -1,578 +1,296 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useTranslation } from "@/lib/i18n";
+import { useState } from "react";
 
 export default function Footer() {
-  const pathname = usePathname();
-  const isMinimalPage = pathname === "/login"
-    || pathname === "/wishlist"
-    || pathname === "/contact"
-    || pathname.startsWith("/account");
-  const { t } = useTranslation();
+  const [email, setEmail] = useState("");
 
   return (
-    <footer className="footer">
+    <footer className="ft">
 
-      <div className="footer-bottom">
-        <div className="bottom-left">
-          <span className="copyright">{t('footer.copyright')}</span>
-          <Link href="#" className="cookie-link">{t('footer.cookieSettings')}</Link>
-        </div>
-        <div className="bottom-right socials">
-          <Link href="#">IG</Link>
-          <Link href="#">FB</Link>
-          <Link href="#">TW</Link>
-          <Link href="#">YT</Link>
-          <Link href="#">PT</Link>
-          <Link href="#">WB</Link>
-        </div>
-      </div>
+      {/* â”€â”€ MAIN COLUMNS â”€â”€ */}
+      <div className="ft-main">
 
-      {!isMinimalPage && (
-        <div className="footer-newsletter-mobile">
-          <p className="fnm-title">Be the first to access Tonet Giftings and presales</p>
-          <div className="fnm-form">
-            <input type="email" placeholder="Your Email*" className="fnm-input" />
-            <button type="submit" className="fnm-submit">SIGN UP</button>
+        {/* Col 1: Newsletter + Socials */}
+        <div className="ft-col ft-col--wide">
+          <p className="ft-heading">SUSCRÃBASE A NUESTRO BOLETÃN</p>
+          <div className="ft-nl">
+            <div className="ft-nl-row">
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="Introduzca su direcciÃ³n de correo electrÃ³nico *"
+                className="ft-nl-input"
+              />
+              <button className="ft-nl-btn" aria-label="Suscribirse">â†’</button>
+            </div>
+            <p className="ft-nl-disclaimer">
+              Al hacer clic en "Suscribirse" confirma que ha leÃ­do y entendido nuestra{" "}
+              <Link href="#">PolÃ­tica de Privacidad</Link>.
+            </p>
+          </div>
+          <div className="ft-socials">
+            <Link href="#" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+              </svg>
+            </Link>
+            <Link href="#" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V9a8.2 8.2 0 0 0 4.79 1.52V7.07a4.85 4.85 0 0 1-1.02-.38z"/>
+              </svg>
+            </Link>
+            <Link href="#" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+              </svg>
+            </Link>
+            <Link href="#" aria-label="X / Twitter">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </Link>
+            <Link href="#" aria-label="Pinterest">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
+              </svg>
+            </Link>
           </div>
         </div>
-      )}
 
-      <div className="footer-links-container">
-
-        {/* Column 1: Contact Us + Client Services stacked */}
-        <div className="footer-col">
-          <p className="col-title" style={{marginBottom:'16px'}}>{t('footer.contactUs')}</p>
-          <ul className="col-links" style={{display:'flex'}}>
-            <li><Link href="#">{t('footer.liveChat')} <span className="text-muted">{t('footer.offline')}</span></Link></li>
-            <li><Link href="#">{t('footer.callLabel')} <span className="text-muted">{t('footer.offline')}</span></Link></li>
-            <li><Link href="#">{t('footer.emailLabel')}</Link></li>
-          </ul>
-          <p className="col-title" style={{marginTop:'56px', marginBottom:'16px'}}>{t('footer.clientServices')}</p>
-          <ul className="col-links" style={{display:'flex'}}>
-            <li><Link href="#">{t('footer.services')}</Link></li>
-            <li><Link href="#">{t('footer.accountLabel')}</Link></li>
-            <li><Link href="#">{t('footer.findStore')}</Link></li>
-            <li><Link href="#">{t('footer.productCare')}</Link></li>
-            <li><Link href="#">{t('footer.giftCards')}</Link></li>
+        {/* Col 2: Contact */}
+        <div className="ft-col">
+          <p className="ft-heading">CONTÃCTENOS</p>
+          <ul className="ft-links">
+            <li><Link href="mailto:info@tonetparis.com">EscrÃ­benos por Email</Link></li>
+            <li><Link href="#">EscrÃ­benos por WhatsApp</Link></li>
+            <li><Link href="/contact">Contacto</Link></li>
+            <li><Link href="#">Preguntas frecuentes</Link></li>
           </ul>
         </div>
 
-        {/* Column 2: Help */}
-        <div className="footer-col">
-          <input type="checkbox" id="footer-col-2" className="accordion-toggle" />
-          <label htmlFor="footer-col-2" className="col-title">{t('footer.helpTitle')} <span className="chevron"></span></label>
-          <ul className="col-links">
-            <li><Link href="/contact">{t('footer.contactUsLink')}</Link></li>
-            <li><Link href="/contact/order-status">{t('footer.orderStatus')}</Link></li>
-            <li><Link href="/contact/returns">{t('footer.registerReturn')}</Link></li>
-            <li><Link href="/contact/faqs">{t('footer.faqs')}</Link></li>
+        {/* Col 3: Services */}
+        <div className="ft-col">
+          <p className="ft-heading">SERVICIOS</p>
+          <ul className="ft-links">
+            <li><Link href="#">Seguimiento del pedido</Link></li>
+            <li><Link href="#">Devoluciones</Link></li>
+            <li><Link href="#">EnvÃ­os y entregas</Link></li>
+            <li><Link href="#">AtenciÃ³n al cliente</Link></li>
           </ul>
         </div>
 
-        {/* Column 4: Company */}
-        <div className="footer-col">
-          <input type="checkbox" id="footer-col-4" className="accordion-toggle" defaultChecked />
-          <label htmlFor="footer-col-4" className="col-title">{t('footer.company')} <span className="chevron"></span></label>
-          <ul className="col-links">
-            <li><Link href="#">{t('footer.about')}</Link></li>
-            <li><Link href="#">{t('footer.press')}</Link></li>
-            <li><Link href="#">{t('footer.careers')}</Link></li>
-            <li><Link href="#">{t('footer.sustainability')}</Link></li>
-            <li><Link href="#">{t('footer.legalPrivacy')}</Link></li>
+        {/* Col 4: Company */}
+        <div className="ft-col">
+          <p className="ft-heading">EMPRESA</p>
+          <ul className="ft-links">
+            <li><Link href="#">Sobre Tonet</Link></li>
+            <li><Link href="#">Press</Link></li>
+            <li><Link href="#">Sostenibilidad</Link></li>
+            <li><Link href="#">Trabaja con nosotros</Link></li>
           </ul>
         </div>
 
-        {/* Column 5: World of Tonet */}
-        <div className="footer-col">
-          <input type="checkbox" id="footer-col-5" className="accordion-toggle" defaultChecked />
-          <label htmlFor="footer-col-5" className="col-title">World of Tonet <span className="chevron"></span></label>
-          <ul className="col-links">
-            <li><Link href="#">Founder</Link></li>
-            <li><Link href="#">Heritage</Link></li>
-            <li><Link href="#">Savoir-Faire</Link></li>
-            <li><Link href="#">Timeline</Link></li>
-            <li><Link href="#">Careers</Link></li>
+        {/* Col 5: Legal */}
+        <div className="ft-col">
+          <p className="ft-heading">TÃ‰RMINOS Y CONDICIONES LEGALES</p>
+          <ul className="ft-links">
+            <li><Link href="#">Aviso legal</Link></li>
+            <li><Link href="#">PolÃ­tica de Privacidad</Link></li>
+            <li><Link href="#">PolÃ­tica de cookies</Link></li>
+            <li><Link href="#">Condiciones de venta</Link></li>
+            <li><Link href="#">Sitemap</Link></li>
           </ul>
         </div>
 
+      </div>
 
+      {/* â”€â”€ BOTTOM BAR â”€â”€ */}
+      <div className="ft-bottom">
+        <span className="ft-copy">Â©TONET PARIS 2024</span>
+        <div className="ft-bottom-right">
+          <Link href="#" className="ft-bottom-link">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            LOCALIZADOR DE TIENDAS
+          </Link>
+          <Link href="#" className="ft-bottom-link">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            ESPAÃ‘A / ESPAÃ‘OL
+          </Link>
+        </div>
       </div>
 
       <style>{`
-        .footer {
-          background-color: #fff;
-          color: #000;
+        .ft {
+          background: #111;
+          color: #fff;
           font-family: var(--font-primary);
           font-size: 11px;
           font-weight: 400;
           line-height: 1.6;
           letter-spacing: 0.02em;
-          border-top: 1px solid #ddd;
-          scroll-snap-align: start;
-          min-height: unset;
-          display: flex;
-          flex-direction: column;
-          justify-content: flex-start;
         }
-        
-        .footer a {
-          color: #000;
-          text-decoration: none;
-        }
+        .ft a { color: #fff; text-decoration: none; }
+        .ft a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-        .footer a:hover {
-          color: #333;
-          text-decoration: underline;
-        }
-
-        .text-muted {
-          color: #777;
-          font-size: 10px;
-          margin-left: 4px;
-        }
-
-        /* Promo Block */
-        .footer-promos {
+        /* â”€â”€ MAIN GRID â”€â”€ */
+        .ft-main {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          border-bottom: 1px solid rgba(255,255,255,0.12);
-          padding: 2vw 2vw 0 2vw;
+          grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
           gap: 0;
-          width: 100%;
-          box-sizing: border-box;
+          padding: 56px 48px 64px;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
-        .promo-card {
-          display: flex;
-          flex-direction: column;
-          text-decoration: none;
-          color: inherit;
+        .ft-col {
+          padding-right: 32px;
         }
-
-        .promo-card:hover h4 {
-          text-decoration: underline;
+        .ft-col--wide {
+          padding-right: 48px;
         }
-
-        .promo-image {
-          width: 100%;
-          box-sizing: border-box;
-          overflow: hidden;
-        }
-
-        .promo-image img {
-          width: 100%;
-          aspect-ratio: 10/16;
-          object-fit: cover;
-          display: block;
-        }
-
-        .promo-content {
-          padding: 8px 8px 24px 8px;
-          flex: 1;
-        }
-
-        .promo-content h4 {
+        .ft-heading {
+          font-size: 10px;
+          font-weight: 500;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
           color: #fff;
-          font-size: 11px;
-          font-weight: 500;
-          text-transform: uppercase;
-          margin: 0 0 10px 0;
-          letter-spacing: 0.10em;
-          line-height: 1.2;
+          margin: 0 0 20px;
         }
 
-        .promo-content p {
-          color: #999;
-          font-size: 11px;
-          line-height: 1.6;
-          margin: 0;
-        }
-
-        /* Newsletter Mobile Standalone */
-        .footer-newsletter-mobile {
-          display: none;
-        }
-
-        /* Newsletter Compact (desktop column) */
-        .footer-newsletter-compact {
-          margin-top: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .fnc-title {
-          font-size: 11px;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          margin: 0;
-          color: #555;
-        }
-        .fnc-form {
-          display: flex;
-          border: 1px solid #ccc;
-          border-radius: 0;
-          min-height: 60px;
-          align-items: stretch;
-        }
-        .fnc-input {
-          flex: 1;
-          background: transparent !important;
-          border: none !important;
-          padding: 10px 12px !important;
-          font-family: inherit;
-          font-size: 11px;
-          outline: none;
-          color: #000 !important;
-          align-self: stretch;
-        }
-        .fnc-input::placeholder {
-          color: #666;
-        }
-        .fnc-submit {
-          background: transparent !important;
-          border: none !important;
-          border-left: 1px solid #ccc !important;
-          border-radius: 0 !important;
-          font-family: inherit;
-          font-size: 11px;
-          font-weight: 600;
-          cursor: pointer;
-          padding: 10px 16px !important;
-          color: #000 !important;
-          text-transform: uppercase;
-          white-space: nowrap;
-          letter-spacing: 0.08em;
-        }
-        .fnc-submit:hover {
-          color: #666 !important;
-        }
-
-        /* Columns Desktop */
-        .footer-links-container {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          padding: 60px 60px 80px 60px;
-          border-bottom: none;
-          width: 100%;
-          box-sizing: border-box;
-        }
-
-        .footer-col {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .accordion-toggle {
-          display: none;
-        }
-
-        .col-title {
-          font-size: 11px;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          margin-bottom: 16px;
-          cursor: default;
-          color: #555;
-        }
-
-        .col-links {
+        /* â”€â”€ LINKS â”€â”€ */
+        .ft-links {
           list-style: none;
           padding: 0;
           margin: 0;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 10px;
+        }
+        .ft-links li a {
           font-size: 11px;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
+          color: #bbb;
+          transition: color 0.15s;
         }
+        .ft-links li a:hover { color: #fff; text-decoration: none; }
 
-        .chevron {
-          display: none;
-        }
-
-        /* Bottom Bar */
-        .footer-bottom {
-          display: none;
-        }
-
-        .bottom-left {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .bottom-right.socials {
+        /* â”€â”€ NEWSLETTER â”€â”€ */
+        .ft-nl { margin-bottom: 32px; }
+        .ft-nl-row {
           display: flex;
           align-items: center;
-          gap: 16px;
+          border-bottom: 1px solid rgba(255,255,255,0.35);
+          padding-bottom: 8px;
+          margin-bottom: 12px;
         }
-
-        .copyright {
-          font-family: var(--font-brand);
-          font-size: 14px;
-          text-transform: none;
-          color: #000;
-        }
-        
-        .shipping-link, .cookie-link {
-          text-transform: uppercase;
-        }
-        button.shipping-link {
-          background: none;
+        .ft-nl-input {
+          flex: 1;
+          background: transparent;
           border: none;
-          cursor: pointer;
-          font: inherit;
-          color: inherit;
+          outline: none;
+          font-family: inherit;
+          font-size: 11px;
+          color: #fff;
           padding: 0;
-          text-decoration: underline;
-          text-underline-offset: 2px;
         }
-
-        .mobile-only, .mobile-only-block {
-          display: none;
+        .ft-nl-input::placeholder { color: #888; }
+        .ft-nl-btn {
+          background: transparent;
+          border: none;
+          color: #fff;
+          font-size: 18px;
+          cursor: pointer;
+          padding: 0 0 0 8px;
+          line-height: 1;
+          transition: opacity 0.15s;
         }
+        .ft-nl-btn:hover { opacity: 0.6; }
+        .ft-nl-disclaimer {
+          font-size: 10px;
+          color: #777;
+          line-height: 1.5;
+          margin: 0;
+        }
+        .ft-nl-disclaimer a { color: #aaa; text-decoration: underline; text-underline-offset: 2px; }
 
-        /* ── MOBILE ── */
+        /* â”€â”€ SOCIALS â”€â”€ */
+        .ft-socials {
+          display: flex;
+          gap: 18px;
+          align-items: center;
+          margin-top: 32px;
+        }
+        .ft-socials a {
+          color: #bbb;
+          display: flex;
+          align-items: center;
+          transition: color 0.15s;
+        }
+        .ft-socials a:hover { color: #fff; text-decoration: none; }
+
+        /* â”€â”€ BOTTOM BAR â”€â”€ */
+        .ft-bottom {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 18px 48px;
+          background: #0a0a0a;
+        }
+        .ft-copy {
+          font-size: 10px;
+          color: #666;
+          letter-spacing: 0.04em;
+        }
+        .ft-bottom-right {
+          display: flex;
+          gap: 32px;
+          align-items: center;
+        }
+        .ft-bottom-link {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 10px;
+          color: #888 !important;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          transition: color 0.15s;
+        }
+        .ft-bottom-link:hover { color: #fff !important; text-decoration: none !important; }
+
+        /* â”€â”€ MOBILE â”€â”€ */
         @media (max-width: 767px) {
-          .desktop-only, .desktop-only-block { display: none !important; }
-          .mobile-only { display: inline-block; }
-          .mobile-only-block { display: block; }
-
-          .footer {
-            min-height: unset;
-          }
-
-          /* Accordion columns */
-          .footer-links-container {
-            display: flex;
-            flex-direction: column;
+          .ft-main {
+            grid-template-columns: 1fr;
             padding: 0;
             border-bottom: none;
+          }
+          .ft-col, .ft-col--wide {
+            padding: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+          }
+          .ft-col--wide {
+            padding: 28px 20px 24px;
+          }
+          .ft-col:not(.ft-col--wide) .ft-heading {
+            padding: 18px 20px;
             margin: 0;
-            max-width: 100%;
-            text-align: left;
-          }
-          .footer-links-container::after {
-            content: '';
-            display: block;
-            height: 1px;
-            background: #ededed;
-            margin: 0 16px;
-          }
-
-          .footer-col {
-            border-bottom: none;
-            position: relative;
-          }
-          .footer-col::after {
-            content: '';
-            display: block;
-            height: 1px;
-            background: #ededed;
-            margin: 0 16px;
-          }
-          .footer-col:last-child::after { display: none; }
-
-          .col-title {
-            margin: 0;
-            padding: 18px 16px;
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             cursor: pointer;
-            text-align: left;
           }
-
-          .chevron {
-            display: inline-block;
-            width: 7px;
-            height: 7px;
-            border-right: 1px solid #000;
-            border-bottom: 1px solid #000;
-            transform: rotate(45deg);
-            transition: transform 0.25s;
-            flex-shrink: 0;
-          }
-
-          .accordion-toggle:checked + .col-title .chevron {
-            transform: rotate(-135deg);
-          }
-
-          .col-links {
-            display: none;
-            flex-direction: column;
-            gap: 0;
-            padding: 0 16px 16px;
-            text-align: left;
-          }
-
-          .col-links li a {
-            display: block;
-            padding: 9px 0;
-            font-size: 10px;
-            color: #444;
-            border-bottom: 1px solid #f3f3f3;
-          }
-          .col-links li:last-child a { border-bottom: none; }
-
-          .accordion-toggle:checked ~ .col-links {
-            display: flex;
-          }
-
-          /* Newsletter standalone mobile */
-          .footer-newsletter-mobile {
-            display: block;
-            padding: 24px 16px;
-            border-top: 1px solid #ddd;
-            border-bottom: 1px solid #ddd;
-          }
-          .fnm-title {
-            font-size: 10px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #555;
-            margin: 0 0 16px;
-          }
-          .fnm-form {
-            display: flex;
-            border: 1px solid #ccc;
-            border-radius: 0;
-            min-height: 60px;
-            align-items: stretch;
-          }
-          .fnm-input {
-            flex: 1;
-            padding: 12px 14px;
-            border: none;
-            outline: none;
-            background: transparent;
-            font-family: inherit;
-            font-size: 10px;
-            color: #111;
-            align-self: stretch;
-          }
-          .fnm-submit {
-            padding: 12px 18px;
-            background: transparent;
-            border: none;
-            border-left: 1px solid #ccc;
-            border-radius: 0;
-            font-family: inherit;
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            cursor: pointer;
-            color: #111;
-            white-space: nowrap;
-          }
-
-          /* Bottom bar */
-          .footer-bottom {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 24px 16px 32px;
-            margin: 0;
-            max-width: 100%;
-          }
-
-          .bottom-right.socials {
+          .ft-links {
+            padding: 0 20px 16px;
             gap: 12px;
           }
-
-          .bottom-left {
-            gap: 4px;
-          }
-
-          .copyright {
-            font-size: 13px;
-            color: #888;
-            font-family: var(--font-primary);
-          }
-
-          .cookie-link {
-            font-size: 13px;
-            color: #888;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-          }
-        }
-        .footer-mobile-socials {
-          display: none;
-        }
-        @media (max-width: 767px) {
-          .footer-mobile-socials {
-            display: flex;
+          .ft-bottom {
             flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            min-height: 320px;
-            padding: 0 0 40px;
-            border-top: none;
-            position: relative;
+            gap: 14px;
+            padding: 20px;
+            text-align: center;
           }
-          .footer-mobile-socials-divider {
-            display: none;
-          }
-          .footer-mobile-socials::before {
-            content: '';
-            display: block;
-            height: 1px;
-            background: #e0e0e0;
-            width: calc(100% - 32px);
-            margin-bottom: auto;
-          }
-          .footer-mobile-socials-icons {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-          }
-          .footer-mobile-socials-icons a {
-            color: #111;
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            transition: opacity 0.15s;
-          }
-          .footer-mobile-socials-icons a:hover { opacity: 0.5; }
+          .ft-bottom-right { gap: 20px; flex-wrap: wrap; justify-content: center; }
         }
       `}</style>
 
-      <div className="footer-mobile-socials">
-        <div className="footer-mobile-socials-divider" />
-        <div className="footer-mobile-socials-icons">
-          <Link href="#" aria-label="Facebook">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-            </svg>
-          </Link>
-          <Link href="#" aria-label="Twitter / X">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-          </Link>
-          <Link href="#" aria-label="Instagram">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-              <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
-            </svg>
-          </Link>
-        </div>
-      </div>
     </footer>
   );
 }
