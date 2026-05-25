@@ -67,8 +67,15 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     setLoading(true);
     setError('');
-    const err = await loginWithGoogle();
-    if (err) { setError(err); setLoading(false); }
+    try {
+      const err = await loginWithGoogle();
+      console.log('[Google auth] result:', err ?? 'success');
+      if (err) { setError(err); setLoading(false); }
+    } catch (e: any) {
+      console.error('[Google auth] unexpected error:', e);
+      setError(e?.message ?? 'Unexpected error');
+      setLoading(false);
+    }
   };
 
   return (

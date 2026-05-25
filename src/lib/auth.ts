@@ -123,6 +123,7 @@ export async function loginWithGoogle(): Promise<AuthResult> {
     await setDoc(doc(db, 'users', cred.user.uid), user);
     return { success: true, user, isNew: true };
   } catch (err: any) {
+    console.error('[loginWithGoogle] error:', err.code, err.message);
     if (
       err.code === 'auth/popup-closed-by-user' ||
       err.code === 'auth/cancelled-popup-request'
