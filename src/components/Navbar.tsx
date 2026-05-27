@@ -7,16 +7,12 @@ import { usePathname } from "next/navigation";
 import { useUI } from "@/context/UIContext";
 import { useCart } from "@/context/CartContext";
 import { useTranslation } from "@/lib/i18n";
-import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
   const { openCart, openMenuWithSearch, openMenu, closeMenu } = useUI();
   const { cartCount } = useCart();
   const { t } = useTranslation();
-  const { user } = useAuth();
   const pathname = usePathname();
-  const accountHref = user ? '/account' : '/login';
-  const accountLabel = user ? user.firstName : t('nav.account');
 
   const isHome = pathname === "/";
   const isProduct = pathname.startsWith("/product/");
@@ -120,10 +116,8 @@ export default function Navbar() {
               <Menu size={18} strokeWidth={1} />
             </button>
             <nav className="acne-nav-links acne-desktop-only">
-              <Link href="/collection/new-arrivals" onClick={closeMenu}>New Arrivals</Link>
-              <Link href="/collection/hombre" onClick={closeMenu}>Men</Link>
-              <Link href="/collection/gifts" onClick={closeMenu}>Gifts</Link>
-              <Link href="/collection/explore" onClick={closeMenu}>Explore</Link>
+              <Link href="/collections" onClick={closeMenu}>The Collection</Link>
+              <Link href="/about" onClick={closeMenu}>The House</Link>
             </nav>
           </div>
 
@@ -139,17 +133,6 @@ export default function Navbar() {
                   <path d="M16.604 15.868l-5.173-5.173c0.975-1.137 1.569-2.611 1.569-4.223 0-3.584-2.916-6.5-6.5-6.5-1.736 0-3.369 0.676-4.598 1.903-1.227 1.228-1.903 2.861-1.902 4.597 0 3.584 2.916 6.5 6.5 6.5 1.612 0 3.087-0.594 4.224-1.569l5.173 5.173 0.707-0.708zM6.5 11.972c-3.032 0-5.5-2.467-5.5-5.5-0.001-1.47 0.571-2.851 1.61-3.889 1.038-1.039 2.42-1.611 3.89-1.611 3.032 0 5.5 2.467 5.5 5.5 0 3.032-2.468 5.5-5.5 5.5z" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
-              <Link href={accountHref} className="acne-right-icon" aria-label="Account">
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinejoin="round" strokeLinecap="round">
-                  <path d="M8 7C9.65685 7 11 5.65685 11 4C11 2.34315 9.65685 1 8 1C6.34315 1 5 2.34315 5 4C5 5.65685 6.34315 7 8 7Z" fill="none"/>
-                  <path d="M14 12C14 10.3431 12.6569 9 11 9H5C3.34315 9 2 10.3431 2 12V15H14V12Z" fill="none"/>
-                </svg>
-              </Link>
-              <Link href="/wishlist" className="acne-right-icon" aria-label="Wishlist">
-                <svg width="18" height="18" viewBox="0 0 12 12" fill="none">
-                  <polygon fill="none" stroke="currentColor" strokeWidth="0.8" strokeLinejoin="round" points="1.5,0 1.5,12 6,9.8181763 10.5,12 10.5,0 "/>
-                </svg>
-              </Link>
               <button className="acne-right-icon" onClick={openCart} aria-label="Open bag">
                 <div className="cart-icon-wrap">
                   <svg width="18" height="18" viewBox="3 2 18 20" fill="none" stroke="currentColor" strokeWidth="1" strokeLinejoin="round">
@@ -198,188 +181,118 @@ export default function Navbar() {
       </header>
 
       <style>{`
+        /* ══ BASE ══ */
         .acne-header {
           position: fixed;
           top: 0;
           left: 0; right: 0;
           z-index: 500;
-          transition: transform 0.3s ease, background-color 0.25s ease, border-bottom-color 0.25s ease;
-        }
-        .acne-header.header-hidden {
-          transform: translateY(-100%);
-        }
-        .acne-header.transparent {
           background: transparent;
-          border-bottom: none;
+          border-bottom: 1px solid transparent;
+          transition:
+            background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.45s ease;
         }
-        /* Fullbleed pages (collection/product): white icons/text on transparent */
-        .acne-header.transparent .acne-nav-links a,
-        .acne-header.transparent .acne-mob-icon,
-        .acne-header.transparent .acne-right-icon,
-        .acne-header.transparent .acne-logo-text {
-          color: #000;
-        }
-        .acne-header.transparent .acne-icon-sep {
-          background: #ededed;
-        }
-        .acne-header.transparent svg {
-          stroke: #000;
-        }
+        .acne-header.header-hidden { transform: translateY(-100%); }
 
-        /* Fullbleed pages (collection/product) at top: white icons over hero image */
-        .acne-header.fullbleed-top .acne-nav-links a,
-        .acne-header.fullbleed-top .acne-mob-icon,
-        .acne-header.fullbleed-top .acne-right-icon,
-        .acne-header.fullbleed-top .acne-logo-text {
-          color: #fff;
-        }
-        .acne-header.fullbleed-top .acne-icon-sep {
-          background: rgba(255,255,255,0.3);
-        }
-        .acne-header.fullbleed-top svg {
-          stroke: #fff;
-        }
+        /* ══ ALL STATES: white text ══ */
+        .acne-header .acne-nav-links a,
+        .acne-header .acne-mob-icon,
+        .acne-header .acne-right-icon,
+        .acne-header .acne-logo-text { color: rgba(255,255,255,0.82); }
+        .acne-header svg { stroke: rgba(255,255,255,0.82); }
 
-        /* Home page at top: transparent with WHITE icons/text (over video) */
-        .acne-header.home-top .acne-nav-links a,
-        .acne-header.home-top .acne-mob-icon,
-        .acne-header.home-top .acne-right-icon,
-        .acne-header.home-top .acne-logo-text {
-          color: #fff;
+        /* ══ SCROLL STATES ══ */
+        .acne-header.home-dark {
+          background: rgba(4,4,4,0.5);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+          border-bottom-color: rgba(255,255,255,0.04);
         }
-        .acne-header.home-top .acne-icon-sep {
-          background: rgba(255,255,255,0.3);
-        }
-        .acne-header.home-top svg {
-          stroke: #fff;
-        }
-
-        /* Home page past video: transparent with BLACK icons/text */
-        .acne-header.home-dark .acne-nav-links a,
-        .acne-header.home-dark .acne-mob-icon,
-        .acne-header.home-dark .acne-right-icon,
-        .acne-header.home-dark .acne-logo-text {
-          color: #000;
-        }
-        .acne-header.home-dark .acne-icon-sep {
-          background: #ededed;
-        }
-        .acne-header.home-dark svg {
-          stroke: #000;
-        }
-
-        /* Over dark section: force white text/icons */
-        .acne-header.over-dark .acne-nav-links a,
-        .acne-header.over-dark .acne-mob-icon,
-        .acne-header.over-dark .acne-right-icon,
-        .acne-header.over-dark .acne-logo-text {
-          color: #fff !important;
-        }
-        .acne-header.over-dark .acne-icon-sep {
-          background: rgba(255,255,255,0.3) !important;
-        }
-        .acne-header.over-dark svg {
-          stroke: #fff !important;
-        }
-
         .acne-header.solid {
-          background: #ffffff;
-          border-bottom: 1px solid #ededed;
+          background: rgba(4,4,4,0.9);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-bottom-color: rgba(255,255,255,0.05);
         }
 
+        /* ══ LAYOUT ══ */
         .acne-header-inner {
-          display: flex;
-          align-items: stretch;
-          justify-content: flex-start;
-          height: 60px;
-          padding: 0 20px 0 28px;
-          position: relative;
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          align-items: center;
+          height: 56px;
+          padding: 0 40px;
         }
 
+        /* ══ LOGO ══ */
         .acne-logo {
-          position: static;
-          transform: none;
+          grid-column: 2;
           text-decoration: none;
           display: flex;
-          align-items: baseline;
-          gap: 8px;
-          color: #000;
-          white-space: nowrap;
-          line-height: 1;
-          order: 0;
-        }
-        .acne-logo-star {
-          font-size: 34px;
-          line-height: 1;
-          color: #000;
+          align-items: center;
+          justify-content: center;
         }
         .acne-logo-text {
-          font-family: var(--font-brand);
-          font-size: 37.5px;
-          font-weight: normal;
-          letter-spacing: 0.01em;
-          color: #000;
-          line-height: 60px;
+          font-family: var(--font-primary);
+          font-size: 13px;
+          font-weight: 300;
+          letter-spacing: 0.52em;
+          padding-right: 0.52em;
+          color: rgba(255,255,255,0.82);
+          text-transform: uppercase;
+          line-height: 1;
+          transition: opacity 0.6s;
         }
-        .acne-logo-text sup {
-          font-size: 9px;
-          vertical-align: super;
-          letter-spacing: 0.04em;
-        }
+        .acne-logo:hover .acne-logo-text { opacity: 0.38; }
 
-        .acne-nav-left { display: flex; align-items: center; flex: 0 0 auto; justify-content: flex-start; order: -1; }
-        .acne-nav-links { display: flex; align-items: center; gap: 28px; }
+        /* ══ LEFT NAV ══ */
+        .acne-nav-left {
+          grid-column: 1;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+        }
+        .acne-nav-links { display: flex; align-items: center; gap: 36px; }
         .acne-nav-links a {
-          font-size: 12px;
-          font-family: var(--font-ui);
-          font-weight: 400;
+          font-family: var(--font-primary);
+          font-size: 9px;
+          font-weight: 300;
           text-transform: uppercase;
           text-decoration: none;
-          color: #000;
-          letter-spacing: 0.04em;
-          line-height: 1.2;
+          color: rgba(255,255,255,0.82);
+          letter-spacing: 0.38em;
+          line-height: 1;
           white-space: nowrap;
-          transition: opacity 0.15s;
+          transition: opacity 0.6s;
         }
-        .acne-nav-links a:hover { opacity: 0.55; }
+        .acne-nav-links a:hover { opacity: 0.32; }
         .acne-mobile-only { display: flex; }
         .acne-desktop-only { display: none; }
-        @media (min-width: 768px) {
-          .acne-mobile-only { display: none !important; }
-          .acne-desktop-only { display: flex !important; }
-          .acne-header-inner { padding-left: 48px; }
-          .acne-logo {
-            order: -1;
-            margin-right: 24px;
-          }
-          .acne-nav-left {
-            flex: 0 0 auto;
-            justify-content: flex-start;
-            order: 0;
-          }
-          .acne-nav-right {
-            flex: 1;
-            justify-content: flex-start;
-            margin-left: 0;
-          }
-          .acne-nav-right > .acne-nav-links {
-            margin-left: 28px;
-          }
-        }
 
-        .acne-nav-right { flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-start; gap: 6px; margin-left: auto; }
-        .acne-nav-right .acne-right-icons { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+        /* ══ RIGHT ICONS ══ */
+        .acne-nav-right {
+          grid-column: 3;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+        }
+        .acne-right-icons { display: flex; align-items: center; gap: 2px; }
         .acne-right-icon {
           display: flex; align-items: center; justify-content: center;
-          width: 36px; height: 36px;
-          background: none; border: none; border-radius: 0;
-          cursor: pointer; color: #000;
+          width: 40px; height: 40px;
+          background: none; border: none;
+          cursor: pointer;
+          color: rgba(255,255,255,0.82);
           text-decoration: none;
           padding: 0;
-          transition: opacity 0.15s;
+          transition: opacity 0.6s;
         }
-        .acne-right-icon:hover { opacity: 0.6; }
+        .acne-right-icon:hover { opacity: 0.32; }
+        .acne-right-icon svg { stroke: rgba(255,255,255,0.82); }
 
+        /* ══ CART ══ */
         .cart-icon-wrap {
           position: relative;
           display: flex;
@@ -388,147 +301,40 @@ export default function Navbar() {
         }
         .cart-badge {
           position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: transparent;
-          color: #1D1D1B;
-          font-size: 8px;
-          font-weight: 600;
-          line-height: 1;
+          top: 6px; right: 6px;
+          width: 4px; height: 4px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.65);
           pointer-events: none;
         }
 
+        /* ══ MOB ICON ══ */
         .acne-mob-icon {
           display: flex; align-items: center; justify-content: center;
-          width: 40px; height: 48px;
-          background: none; border: none; border-radius: 0;
-          cursor: pointer; color: #000; padding: 0;
-        }
-        .acne-mobile-left { display: flex; align-items: center; gap: 0; }
-
-        /* ── SUBNAV ── */
-        .acne-subnav {
-          height: 40px;
-          background: #ffffff;
-          border-top: 1px solid #ededed;
-          border-bottom: 1px solid #ededed;
-          display: flex;
-          align-items: center;
-        }
-        .acne-subnav-inner {
-          max-width: 100%;
-          width: 100%;
-          padding: 0 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          position: relative;
-        }
-        .back-link {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 11px;
-          font-weight: 400;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: #000;
-        }
-        .subnav-right {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .subnav-current {
-          font-size: 11px;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: #000;
-        }
-        .subnav-toggle {
-          background: none;
-          border: none;
+          width: 40px; height: 40px;
+          background: none; border: none;
           cursor: pointer;
-          padding: 4px;
-          display: flex;
-          align-items: center;
-          color: #000;
+          color: rgba(255,255,255,0.82);
+          padding: 0;
+          transition: opacity 0.6s;
         }
-        .subnav-dropdown {
-          position: absolute;
-          top: 100%;
-          right: 0;
-          background: #ffffff;
-          border: 1px solid #ededed;
-          border-top: none;
-          display: flex;
-          flex-direction: column;
-          min-width: 200px;
-          z-index: 600;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        .subnav-drop-item {
-          padding: 12px 20px;
-          font-size: 11px;
-          font-weight: 400;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: #768194;
-          text-decoration: none;
-          border-bottom: 1px solid #f0f0f0;
-          transition: background 0.12s, color 0.12s;
-        }
-        .subnav-drop-item:last-child { border-bottom: none; }
-        .subnav-drop-item:hover { background: #f8f8f8; color: #000; }
-        .subnav-drop-item.active { color: #000; font-weight: 500; }
+        .acne-mob-icon:hover { opacity: 0.32; }
+        .acne-mobile-left { display: flex; align-items: center; }
 
-        .desktop-only { display: flex !important; }
-        .mobile-only  { display: none !important; }
+        /* ══ DESKTOP ══ */
+        @media (min-width: 768px) {
+          .acne-mobile-only { display: none !important; }
+          .acne-desktop-only { display: flex !important; }
+          .acne-header-inner { padding: 0 64px; }
+        }
 
+        /* ══ MOBILE ══ */
         @media (max-width: 767px) {
-          .desktop-only { display: none !important; }
-          .mobile-only  { display: flex !important; }
-          .acne-header-inner {
-            padding: 0 4px;
-            height: 48px;
-          }
-          .acne-logo {
-            gap: 0;
-            max-width: calc(100vw - 120px);
-            overflow: hidden;
-          }
-          .acne-logo-text {
-            font-size: 24px;
-            letter-spacing: 0.01em;
-            white-space: nowrap;
-            line-height: 48px;
-            overflow: hidden;
-            text-overflow: clip;
-          }
-          .acne-mob-icon {
-            width: 28px;
-          }
-          .acne-mob-icon svg {
-            width: 18px;
-            height: auto;
-          }
-          .acne-nav-right {
-            gap: 0;
-          }
-          .acne-nav-right .acne-right-icon:first-child {
-            display: none;
-          }
-          .acne-right-icon {
-            width: 28px;
-            height: 48px;
-          }
-          .acne-right-icon svg {
-            width: 18px;
-            height: 18px;
-          }
-          .acne-subnav-inner { padding: 0 16px; }
+          .acne-header-inner { padding: 0 20px; height: 52px; }
+          .acne-logo-text { font-size: 11px; letter-spacing: 0.44em; }
+          .acne-mob-icon { width: 32px; height: 52px; }
+          .acne-right-icon { width: 32px; height: 52px; }
+          .acne-right-icon:first-child { display: none; }
         }
       `}</style>
     </>
