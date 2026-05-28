@@ -372,13 +372,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     ? `${currencySymbol}${priceNum} ${currencyCode}`
     : `${currencySymbol}${priceNum.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencyCode}`;
 
-  const allSizes = useMemo(() => {
-    if (!sizeOptionName) return sizeOptions;
-    if (product.handle === 'e-gift-card') return sizeOptions;
-    const norm = sizeOptions.map(s => s.toUpperCase());
-    if (norm.includes('XS') || norm.includes('X-SMALL')) return sizeOptions;
-    return ['XS', ...sizeOptions];
-  }, [sizeOptions, sizeOptionName]);
+  const allSizes = sizeOptions;
 
   const isGiftCard = product.handle === 'e-gift-card';
   const hasMultipleVariants = product.variants.length > 1;
