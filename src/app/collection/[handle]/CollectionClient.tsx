@@ -10,6 +10,7 @@ import { useLocale } from '@/context/LocaleContext';
 import NotifyMeModal from '@/components/NotifyMeModal';
 import { useTranslatedText } from '@/hooks/useTranslatedText';
 import { useWishlist } from '@/context/WishlistContext';
+import Link from 'next/link';
 
 const YmalCarousel = memo(function YmalCarousel({ recommended }: { recommended: RecommendedProduct[]; toggle: (item: any) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -130,7 +131,21 @@ export default function CollectionClient({ collection }: { collection: Collectio
   const { openCart } = useUI();
   const { t } = useTranslation();
   const { formatPrice } = useLocale();
-  const { toggle, has } = useWishlist();
+  const { toggle, has, items } = useWishlist();
+  const [ceremonyOpen, setCeremonyOpen] = useState(false);
+
+  const getHouseState = (handle: string) => {
+    const hash = handle.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    if (hash % 3 === 0) return 'HOUSE_01 — PERMANENCE';
+    if (hash % 3 === 1) return 'HOUSE_02 — REPLICA';
+    return 'HOUSE_03 — INHERITANCE';
+  };
+
+  const getArchiveRef = (handle: string) => {
+    const hash = handle.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    const num = String((hash % 9000) + 1000).padStart(4, '0');
+    return `ARC-26-${num}`;
+  };
 
   const selectedProduct: Product | undefined = collection.products[selectedIdx];
 
@@ -287,7 +302,22 @@ export default function CollectionClient({ collection }: { collection: Collectio
               <button
                 className="col-bookmark"
                 aria-label="Add to wishlist"
-                onClick={() => selectedProduct && toggle({ handle: selectedProduct.handle, title: selectedProduct.title, imageUrl: selectedProduct.imageUrl, price: selectedProduct.price, currencyCode: selectedProduct.currencyCode, collectionTitle: collection.title })}
+                onClick={() => {
+                  if (selectedProduct) {
+                    const isBookmarked = has(selectedProduct.handle);
+                    toggle({
+                      handle: selectedProduct.handle,
+                      title: selectedProduct.title,
+                      imageUrl: selectedProduct.imageUrl,
+                      price: selectedProduct.price,
+                      currencyCode: selectedProduct.currencyCode,
+                      collectionTitle: collection.title
+                    });
+                    if (!isBookmarked) {
+                      setCeremonyOpen(true);
+                    }
+                  }
+                }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill={selectedProduct && has(selectedProduct.handle) ? '#111' : 'none'} stroke="#111" strokeWidth="1.5">
                   <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
@@ -443,7 +473,22 @@ export default function CollectionClient({ collection }: { collection: Collectio
           <button
             className="col-mfb-bookmark"
             aria-label="Add to wishlist"
-            onClick={() => selectedProduct && toggle({ handle: selectedProduct.handle, title: selectedProduct.title, imageUrl: selectedProduct.imageUrl, price: selectedProduct.price, currencyCode: selectedProduct.currencyCode, collectionTitle: collection.title })}
+            onClick={() => {
+              if (selectedProduct) {
+                const isBookmarked = has(selectedProduct.handle);
+                toggle({
+                  handle: selectedProduct.handle,
+                  title: selectedProduct.title,
+                  imageUrl: selectedProduct.imageUrl,
+                  price: selectedProduct.price,
+                  currencyCode: selectedProduct.currencyCode,
+                  collectionTitle: collection.title
+                });
+                if (!isBookmarked) {
+                  setCeremonyOpen(true);
+                }
+              }
+            }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill={selectedProduct && has(selectedProduct.handle) ? '#111' : 'none'} stroke="#111" strokeWidth="1.5">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
@@ -469,7 +514,520 @@ export default function CollectionClient({ collection }: { collection: Collectio
         </div>
       </div>
 
+      {/* ══ CINEMATIC ARCHIVAL CEREMONY MODAL ══ */}
+      {ceremonyOpen && selectedProduct && (
+        <div className="ac-overlay" onClick={() => setCeremonyOpen(false)}>
+          <div className="ac-modal" onClick={e => e.stopPropagation()}>
+            <button className="ac-close" onClick={() => setCeremonyOpen(false)} aria-label="Close Ceremony">
+              <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1">
+                <line x1="1" y1="1" x2="13" y2="13" />
+                <line x1="13" y1="1" x2="1" y2="13" />
+              </svg>
+            </button>
+
+            <div className="ac-header">
+              <span className="ac-supra">ARCHIVE RECORD</span>
+              <h2 className="ac-title">Archive Entry Created</h2>
+              <p className="ac-desc">
+                This garment has been preserved within your private archive and will remain accessible while availability permits.
+              </p>
+            </div>
+
+            <div className="ac-split">
+              <div className="ac-image-panel">
+                {selectedProduct.imageUrl && (
+                  <img src={selectedProduct.imageUrl} alt={selectedProduct.title} className="ac-garment-img" />
+                )}
+              </div>
+
+              <div className="ac-details-panel">
+                <div className="ac-tech-grid">
+                  <div className="ac-tech-item">
+                    <span className="ac-tech-label">Garment Name</span>
+                    <span className="ac-tech-value ac-tech-value--name">{selectedProduct.title.toUpperCase()}</span>
+                  </div>
+
+                  <div className="ac-tech-item">
+                    <span className="ac-tech-label">Collection</span>
+                    <span className="ac-tech-value">{getHouseState(selectedProduct.handle)}</span>
+                  </div>
+
+                  <div className="ac-tech-item">
+                    <span className="ac-tech-label">Archive Reference</span>
+                    <span className="ac-tech-value ac-tech-value--ref">{getArchiveRef(selectedProduct.handle)}</span>
+                  </div>
+
+                  <div className="ac-tech-item">
+                    <span className="ac-tech-label">Date Preserved</span>
+                    <span className="ac-tech-value">
+                      {new Date().toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      }).toUpperCase()}
+                    </span>
+                  </div>
+
+                  <div className="ac-tech-item">
+                    <span className="ac-tech-label">Archive Position</span>
+                    <span className="ac-tech-value">
+                      Position {items.findIndex(i => i.handle === selectedProduct.handle) + 1 > 0 ? items.findIndex(i => i.handle === selectedProduct.handle) + 1 : items.length + 1} of {Math.max(items.length, items.findIndex(i => i.handle === selectedProduct.handle) + 1)}
+                    </span>
+                  </div>
+
+                  <div className="ac-tech-item">
+                    <span className="ac-tech-label">Collection Status</span>
+                    <span className="ac-tech-value">
+                      {selectedProduct.variants.some(v => v.availableForSale) ? 'ACTIVE COLLECTION' : 'PERMANENT ARCHIVE'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="ac-divider" />
+
+                <div className="ac-avail-section">
+                  <span className="ac-section-label">Archive Availability</span>
+                  <p className="ac-avail-desc">
+                    This garment remains available for acquisition while inventory permits.
+                  </p>
+
+                  <div className="ac-avail-status-block">
+                    <div className="ac-status-row">
+                      <span className="ac-status-label">Availability State</span>
+                      <span className={`ac-status-value ${!selectedProduct.variants.some(v => v.availableForSale) ? 'ac-status-value--closed' : ''}`}>
+                        {selectedProduct.variants.some(v => v.availableForSale) ? 'AVAILABLE' : 'PERMANENTLY ARCHIVED'}
+                      </span>
+                    </div>
+
+                    <div className="ac-status-row">
+                      <span className="ac-status-label">Estimated Window</span>
+                      <span className="ac-status-value">
+                        {selectedProduct.variants.some(v => v.availableForSale) ? 'APPROXIMATELY 12 DAYS REMAINING' : 'CLOSED'}
+                      </span>
+                    </div>
+
+                    {selectedProduct.variants.some(v => v.availableForSale) && (
+                      <div className="ac-timeline-wrap">
+                        <span className="ac-timeline-label">Preservation Window Timeline</span>
+                        <div className="ac-timeline">
+                          {[...Array(14)].map((_, i) => (
+                            <div key={i} className={`ac-timeline-tick ${i < 12 ? 'active' : ''}`} />
+                          ))}
+                        </div>
+                        <div className="ac-timeline-footer">
+                          <span>Today</span>
+                          <span>12 June 2026</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="ac-divider" />
+
+                <div className="ac-notes-section">
+                  <span className="ac-section-label">House Notes</span>
+                  <p className="ac-notes-text">
+                    Archived garments remain accessible for future consideration. Availability is not guaranteed and may change as pieces enter permanent archive status.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="ac-actions">
+              <Link href="/archive" className="ac-btn-primary">
+                View Archive
+              </Link>
+              <button className="ac-btn-secondary" onClick={() => setCeremonyOpen(false)}>
+                Continue Through The House
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
+        /* ══════════════════════════════════════
+           CINEMATIC ARCHIVAL CEREMONY MODAL
+        ══════════════════════════════════════ */
+
+        .ac-overlay {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(12, 12, 12, 0.96);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10000;
+          opacity: 0;
+          animation: ac-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .ac-modal {
+          background: #111111;
+          border: 1px solid rgba(243, 240, 234, 0.08);
+          width: 100%;
+          max-width: 820px;
+          padding: 48px;
+          position: relative;
+          color: rgba(255, 255, 255, 0.85);
+          box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+          box-sizing: border-box;
+          opacity: 0;
+          transform: translateY(20px);
+          animation: ac-slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+        }
+
+        .ac-close {
+          position: absolute;
+          top: 28px;
+          right: 28px;
+          background: none;
+          border: none;
+          color: rgba(255, 255, 255, 0.3);
+          cursor: pointer;
+          padding: 8px;
+          transition: color 0.4s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .ac-close:hover {
+          color: #ffffff;
+        }
+
+        .ac-header {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          border-bottom: 1px solid rgba(243, 240, 234, 0.05);
+          padding-bottom: 24px;
+        }
+
+        .ac-supra {
+          font-size: 7px;
+          font-weight: 300;
+          letter-spacing: 0.4em;
+          color: rgba(255, 255, 255, 0.35);
+          text-transform: uppercase;
+        }
+
+        .ac-title {
+          font-family: var(--font-brand);
+          font-size: clamp(20px, 3.5vw, 26px);
+          font-weight: 300;
+          letter-spacing: 0.12em;
+          color: rgba(255, 255, 255, 0.85);
+          margin: 0;
+        }
+
+        .ac-desc {
+          font-size: 10px;
+          font-weight: 300;
+          letter-spacing: 0.06em;
+          line-height: 1.6;
+          color: rgba(255, 255, 255, 0.4);
+          margin: 0;
+          max-width: 600px;
+        }
+
+        .ac-split {
+          display: grid;
+          grid-template-columns: 220px 1fr;
+          gap: 48px;
+          align-items: start;
+        }
+
+        .ac-image-panel {
+          aspect-ratio: 3 / 4;
+          background: rgba(255, 255, 255, 0.015);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          border: 1px solid rgba(243, 240, 234, 0.04);
+          opacity: 0;
+          transform: scale(0.97);
+          animation: ac-img-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+        }
+
+        .ac-garment-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          filter: grayscale(0.15);
+          transition: filter 0.5s;
+        }
+        .ac-garment-img:hover {
+          filter: grayscale(0);
+        }
+
+        .ac-details-panel {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .ac-tech-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px 24px;
+        }
+
+        .ac-tech-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .ac-tech-label {
+          font-size: 7px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.25em;
+          color: rgba(255, 255, 255, 0.3);
+        }
+
+        .ac-tech-value {
+          font-size: 10px;
+          font-weight: 300;
+          letter-spacing: 0.05em;
+          color: rgba(255, 255, 255, 0.65);
+        }
+        .ac-tech-value--name {
+          font-family: var(--font-brand);
+          letter-spacing: 0.08em;
+          color: rgba(255, 255, 255, 0.8);
+        }
+        .ac-tech-value--ref {
+          font-family: monospace;
+          letter-spacing: 0.1em;
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        .ac-divider {
+          height: 1px;
+          background: rgba(243, 240, 234, 0.05);
+        }
+
+        .ac-section-label {
+          font-size: 7px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.25em;
+          color: rgba(255, 255, 255, 0.35);
+          display: block;
+          margin-bottom: 8px;
+        }
+
+        .ac-avail-section {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .ac-avail-desc {
+          font-size: 9px;
+          font-weight: 300;
+          letter-spacing: 0.06em;
+          line-height: 1.5;
+          color: rgba(255, 255, 255, 0.35);
+          margin: 0;
+        }
+
+        .ac-avail-status-block {
+          background: rgba(255, 255, 255, 0.01);
+          border: 1px solid rgba(243, 240, 234, 0.03);
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 8px;
+        }
+
+        .ac-status-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid rgba(243, 240, 234, 0.03);
+          padding-bottom: 8px;
+        }
+        .ac-status-row:last-of-type {
+          border-bottom: none;
+          padding-bottom: 0;
+        }
+
+        .ac-status-label {
+          font-size: 7px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          color: rgba(255, 255, 255, 0.3);
+        }
+
+        .ac-status-value {
+          font-size: 8px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          color: rgba(255, 255, 255, 0.7);
+        }
+        .ac-status-value--closed {
+          color: #db4437;
+          opacity: 0.8;
+        }
+
+        .ac-timeline-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          margin-top: 4px;
+        }
+
+        .ac-timeline-label {
+          font-size: 7px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          color: rgba(255, 255, 255, 0.25);
+        }
+
+        .ac-timeline {
+          display: flex;
+          gap: 3px;
+          width: 100%;
+          margin: 4px 0;
+        }
+
+        .ac-timeline-tick {
+          flex: 1;
+          height: 3px;
+          background: rgba(255, 255, 255, 0.05);
+        }
+        .ac-timeline-tick.active {
+          background: rgba(255, 255, 255, 0.25);
+        }
+
+        .ac-timeline-footer {
+          display: flex;
+          justify-content: space-between;
+          font-size: 6px;
+          font-weight: 300;
+          letter-spacing: 0.1em;
+          color: rgba(255, 255, 255, 0.2);
+          text-transform: uppercase;
+        }
+
+        .ac-notes-section {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .ac-notes-text {
+          font-size: 9px;
+          font-weight: 300;
+          letter-spacing: 0.06em;
+          line-height: 1.6;
+          color: rgba(255, 255, 255, 0.3);
+          margin: 0;
+        }
+
+        .ac-actions {
+          display: flex;
+          gap: 16px;
+          border-top: 1px solid rgba(243, 240, 234, 0.05);
+          padding-top: 24px;
+          margin-top: 12px;
+        }
+
+        .ac-btn-primary {
+          flex: 1;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          text-align: center;
+          text-decoration: none;
+          padding: 14px;
+          font-size: 9px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.3em;
+          color: rgba(255, 255, 255, 0.85);
+          cursor: pointer;
+          transition: border-color 0.4s, color 0.4s, background 0.4s;
+        }
+        .ac-btn-primary:hover {
+          border-color: rgba(255, 255, 255, 0.6);
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.02);
+        }
+
+        .ac-btn-secondary {
+          flex: 1.2;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          padding: 14px;
+          font-size: 9px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.3em;
+          color: rgba(255, 255, 255, 0.45);
+          cursor: pointer;
+          transition: border-color 0.4s, color 0.4s;
+        }
+        .ac-btn-secondary:hover {
+          border-color: rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.85);
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes ac-fade-in {
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes ac-slide-up {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes ac-img-fade {
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @media (max-width: 767px) {
+          .ac-modal {
+            padding: 24px;
+            gap: 20px;
+            overflow-y: auto;
+            max-height: 90vh;
+            margin: 16px;
+          }
+          .ac-split {
+            grid-template-columns: 1fr;
+            gap: 24px;
+          }
+          .ac-image-panel {
+            max-width: 140px;
+            margin: 0 auto;
+          }
+          .ac-actions {
+            flex-direction: column;
+            gap: 10px;
+          }
+        }
+
         /* ══════════════════════════════════════
            SUITSUPPLY-STYLE COLLECTION/PRODUCT
         ══════════════════════════════════════ */
