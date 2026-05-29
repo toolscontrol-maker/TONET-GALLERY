@@ -42,6 +42,7 @@ interface CartContextType {
   addToCart: (variantId: string, quantity: number) => Promise<void>;
   removeFromCart: (lineId: string) => Promise<void>;
   updateQty: (lineId: string, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 const EMPTY_CART: CartState = {
@@ -243,11 +244,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [cart.id, removeFromCart]
   );
 
+  const clearCart = useCallback(async () => {
+    if (!cart.id || cart.lines.length === 0) return;
+    setIsLoading(true);
+    try {
+      const lineIds = cart.lines.map(l => l.id);
+      const data = await storefrontFetch<{
+        cartLinesRemove: { cart: Record<string, any> };
+      }>(
+        `mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+          cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+            cart { ${CART_FRAGMENT} }
+            userErrors { field message }
+          }
+        }`,
+        { cartId: cart.id, lineIds }
+      );
+      setCart(normalizeCart(data.cartLinesRemove.cart));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [cart.id, cart.lines]);
+
   const cartCount = cart.lines.reduce((sum, l) => sum + l.quantity, 0);
 
   return (
     <CartContext.Provider
-      value={{ cart, cartCount, isLoading, addToCart, removeFromCart, updateQty }}
+      value={{ cart, cartCount, isLoading, addToCart, removeFromCart, updateQty, clearCart }}
     >
       {children}
     </CartContext.Provider>
