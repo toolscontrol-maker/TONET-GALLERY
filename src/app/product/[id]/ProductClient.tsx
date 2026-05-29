@@ -780,7 +780,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           <span className="ss-size-drawer-title">{product.title}</span>
           <div className="ss-size-header-right">
             <button className="ss-size-guide" onClick={() => setSizeGuideOpen(true)} aria-label="Size information">Sizing</button>
-            <button className="ss-size-close" onClick={() => setSizeOpen(false)} aria-label="Close">
+            <button className="ss-size-close" onClick={() => { setSizeOpen(false); setSelectedSize(''); }} aria-label="Close">
               <X size={16} strokeWidth={1.4} />
             </button>
           </div>
