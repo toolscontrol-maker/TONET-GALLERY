@@ -1681,7 +1681,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           align-items: center;
           justify-content: center;
           gap: 16px;
-          margin-bottom: 28px;
+          margin-bottom: 22px; /* reduced vertical gap (from 28px) */
         }
         .ss-price {
           font-size: 10px;
@@ -1722,7 +1722,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
 
         /* Refined Shade Selection */
         .ss-shade-section {
-          margin-top: 24px;
+          margin-top: 18px; /* reduced vertical gap (from 24px) */
           margin-bottom: 40px;
           font-family: var(--font-primary);
           display: flex;
@@ -1736,12 +1736,12 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         }
         .ss-shade-label {
           display: block;
-          font-size: 9px;
+          font-size: 8px; /* technical, extremely precise size */
           font-weight: 400;
-          letter-spacing: 0.4em;
-          color: rgba(0, 0, 0, 0.45);
+          letter-spacing: 0.42em; /* wider technical letter tracking */
+          color: rgba(0, 0, 0, 0.48); /* slightly more authoritative metadata tone */
           text-transform: uppercase;
-          margin-bottom: 20px;
+          margin-bottom: 18px; /* intentional spacing to list */
         }
         .ss-shade-list {
           display: flex;
@@ -1760,10 +1760,10 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           gap: 12px;
           background: transparent;
           border: none;
-          padding: 10px 0;
+          padding: 10px 0; /* generous tap-targets for mobile consistency */
           cursor: pointer;
           text-align: left;
-          opacity: 0.35;
+          opacity: 0.45; /* increased opacity from 0.35 (+10% visibility) */
           transition: opacity 0.25s ease;
           width: fit-content;
         }
@@ -1774,8 +1774,8 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           opacity: 1;
         }
         .ss-shade-swatch {
-          width: 10px;
-          height: 10px;
+          width: 8px; /* precise metadata-aligned 8px swatch */
+          height: 8px;
           display: inline-block;
           flex-shrink: 0;
           border: 1px solid rgba(0, 0, 0, 0.15);
@@ -1785,26 +1785,27 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           border-color: rgba(0, 0, 0, 0.8);
         }
         .ss-shade-name {
-          font-size: 10px;
+          font-size: 9.5px; /* microtypography rhythm adjustment */
           font-weight: 300;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #111111;
+          color: rgba(0, 0, 0, 0.7); /* restrained secondary contrast */
           display: inline-flex;
           align-items: center;
-          transition: font-weight 0.25s ease;
+          transition: color 0.25s ease, font-weight 0.25s ease;
         }
         .ss-shade-option.active .ss-shade-name {
-          font-weight: 400;
+          font-weight: 400; /* subtle weight shift */
+          color: #111111; /* full contrast when active */
           text-decoration: underline;
           text-underline-offset: 4px;
           text-decoration-thickness: 1px;
         }
         .ss-shade-selected-tag {
-          font-size: 8px;
-          letter-spacing: 0.15em;
-          color: rgba(0, 0, 0, 0.35);
-          margin-left: 10px;
+          font-size: 7.5px; /* micro miniature size */
+          letter-spacing: 0.18em;
+          color: rgba(0, 0, 0, 0.22); /* extremely restrained, quiet selected word */
+          margin-left: 12px;
           font-weight: 300;
         }
 
