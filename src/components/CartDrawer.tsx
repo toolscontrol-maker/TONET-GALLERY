@@ -84,7 +84,7 @@ export default function CartDrawer() {
         <div className="cd-body">
           {items.length === 0 ? (
             <div className="cd-empty-state">
-              <p className="cd-empty-text">The selection is empty</p>
+              <p className="cd-empty-text">No garments have been selected.</p>
               <button className="cd-continue-btn" onClick={closeCart}>
                 Return to the House
               </button>

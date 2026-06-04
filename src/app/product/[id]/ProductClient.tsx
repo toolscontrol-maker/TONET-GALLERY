@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Check, X, Plus, Minus } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { useUI } from '@/context/UIContext';
 import { useCart } from '@/context/CartContext';
 import { useTranslation } from '@/lib/i18n';
@@ -22,6 +22,34 @@ function TranslatedDesc({ text, className }: { text?: string | null; className?:
   const translated = useTranslatedText(text);
   if (!translated) return null;
   return <p className={className}>{translated}</p>;
+}
+
+function parseMetadata(desc?: string | null): Record<string, string> {
+  if (!desc) return {};
+  const regex = /(Item Number|Gender|Fabric Weight|Fabric Thickness|Fabric Stretch|Fabric|Care Instructions|Features|Print Size|Notes):\s*/gi;
+  const matches: { key: string; index: number; length: number }[] = [];
+  let match;
+  while ((match = regex.exec(desc)) !== null) {
+    matches.push({
+      key: match[1],
+      index: match.index,
+      length: match[0].length
+    });
+  }
+  
+  const result: Record<string, string> = {};
+  for (let i = 0; i < matches.length; i++) {
+    const current = matches[i];
+    const next = matches[i + 1];
+    const start = current.index + current.length;
+    const end = next ? next.index : desc.length;
+    let keyName = current.key.trim();
+    if (keyName.toLowerCase() === 'fabric strench') {
+      keyName = 'Fabric Stretch';
+    }
+    result[keyName] = desc.substring(start, end).trim();
+  }
+  return result;
 }
 
 const RECENTLY_VIEWED_KEY = 'rv_products';
@@ -101,6 +129,67 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     const num = String((hash % 9000) + 1000).padStart(4, '0');
     return `ARC-26-${num}`;
   };
+
+  const metadata = useMemo(() => parseMetadata(product.description), [product.description]);
+
+  const editorialNote = useMemo(() => {
+    const notes = [
+      "An archival piece designed for daily calm.",
+      "A garment shaped by silence.",
+      "A quiet layer preserved within the House.",
+      "A structured piece designed for daily permanence.",
+      "A restrained garment for permanent rotation.",
+      "A daily layer composed with quiet intention."
+    ];
+    let hash = 0;
+    for (let i = 0; i < product.title.length; i++) {
+      hash = ((hash * 31) + product.title.charCodeAt(i)) >>> 0;
+    }
+    return notes[hash % notes.length];
+  }, [product.title]);
+
+  const conciseDescription = useMemo(() => {
+    if (!product.description) return '';
+    const fabric = (metadata['Fabric'] || 'premium fibers').replace(/,\s*$/, '');
+    const thickness = (metadata['Fabric Thickness'] || 'moderate').toLowerCase();
+    const features = (metadata['Features'] || '').split(',').map(f => f.trim().toLowerCase());
+    const fit = features.find(f => ['loose', 'oversized', 'regular', 'slim', 'boxy'].includes(f)) || 'relaxed';
+    
+    return `This garment is meticulously crafted from a premium blend containing ${fabric}, offering a ${thickness} weave that balances form and comfort. Designed with a ${fit} silhouette, it stands as a testament to the House's focus on functional elegance and longevity.`;
+  }, [product.description, metadata]);
+
+  const detailsRows = useMemo(() => {
+    const features = (metadata['Features'] || '').split(',').map(f => f.trim());
+    
+    const fitKeywords = ['loose', 'regular', 'oversized', 'slim', 'boxy', 'cropped', 'structured', 'relaxed', 'fit'];
+    const foundFit = features
+      .filter(f => fitKeywords.includes(f.toLowerCase()))
+      .map(f => f.charAt(0).toUpperCase() + f.slice(1).toLowerCase());
+    const fitValue = foundFit.length > 0 ? foundFit.join(' / ') : 'Structured / relaxed';
+
+    const finishKeywords = ['washed', 'ripped', 'pleated', 'drawstring', 'pocket', 'raw edge', 'hooded', 'button', 'zipper', 'embroidered'];
+    const foundFinish = features
+      .filter(f => finishKeywords.includes(f.toLowerCase()))
+      .map(f => f.charAt(0).toUpperCase() + f.slice(1).toLowerCase());
+    const finishValue = foundFinish.length > 0 ? foundFinish.join(' / ') : 'Soft garment wash';
+
+    const rawFabric = metadata['Fabric'] || '';
+    const formattedFabric = rawFabric ? rawFabric.replace(/,\s*/g, ' / ') : '';
+
+    return [
+      { label: 'Fabric', value: formattedFabric },
+      { label: 'Weight', value: metadata['Fabric Weight'] || '240 GSM' },
+      { label: 'Fit', value: fitValue },
+      { label: 'Finish', value: finishValue },
+      { label: 'Production', value: 'Limited garment production' }
+    ].filter(r => r.value);
+  }, [metadata]);
+
+  const careLines = useMemo(() => {
+    const careStr = metadata['Care Instructions'] || '';
+    if (!careStr) return ['Dry clean only'];
+    return careStr.split(';').map(l => l.trim()).filter(Boolean);
+  }, [metadata]);
 
   const wishlistItem = {
     handle: product.handle,
@@ -412,8 +501,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
 
   async function handleAddToBag() {
     if (!selectedVariant.id || adding) return;
-    if (needsSizeSelection) { setSizeOpen(true); return; }
-    setSizeOpen(false);
+    if (needsSizeSelection) return;
     setAdding(true);
     try {
       await addToCart(selectedVariant.id, 1);
@@ -626,28 +714,26 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           {/* Title */}
           <h1 className="ss-title">{product.title}</h1>
 
-          <p className="ss-editorial-subtext">A garment shaped by silence.</p>
+          {/* Editorial Note */}
+          <p className="ss-editorial-subtext">{editorialNote}</p>
 
           {/* Price + selected shade metadata */}
           <div className="ss-price-row">
             <span className="ss-price">{priceFormatted}</span>
-            {selectedColor ? (
+            {selectedColor && (
               <span className="ss-selected-shade-metadata">
                 <span className="ss-metadata-swatch" style={{ background: colorNameToCSS(selectedColor) }} />
                 <span className="ss-metadata-name">{selectedColor}</span>
               </span>
-            ) : descriptionFirstLine ? (
-              <span className="ss-subtitle">
-                {descriptionFirstLine}
-              </span>
-            ) : null}
+            )}
+            <span className="ss-minimal-metadata">— {getArchiveRef(product.handle)}</span>
           </div>
 
           {/* Refined color/shade selection system */}
           {colorOptions.length > 1 && (
             <div className="ss-shade-section">
               <span className="ss-shade-label">GARMENT SHADE</span>
-              <div className="ss-shade-list">
+              <div className="ss-shade-grid">
                 {colorOptions.map((co) => {
                   const isSelected = selectedColor === co.value;
                   return (
@@ -658,10 +744,6 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                       aria-label={`Select shade ${co.value}`}
                     >
                       <span className="ss-shade-swatch" style={{ background: colorNameToCSS(co.value) }} />
-                      <span className="ss-shade-name">
-                        {co.value.toUpperCase()}
-                        {isSelected && <span className="ss-shade-selected-tag">— SELECTED</span>}
-                      </span>
                     </button>
                   );
                 })}
@@ -669,20 +751,50 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
             </div>
           )}
 
-          {/* Action row: select size | add to favorites — 50/50 */}
+          {/* Select Size Grid */}
+          {hasSizes && (
+            <div className="ss-sizes-select-area">
+              <span className="ss-shade-label">SELECT SIZE</span>
+              <div className="ss-inline-sizes">
+                {sizeOptions.map((size) => {
+                  const isSelected = selectedSize === size;
+                  const variantForSize = findVariant(selectedColor, size);
+                  const isOutOfStock = variantForSize ? !variantForSize.availableForSale : true;
+                  return (
+                    <button
+                      key={size}
+                      className={`ss-inline-size ${isSelected ? 'active' : ''} ${isOutOfStock ? 'sold-out' : ''}`}
+                      onClick={() => {
+                        if (isOutOfStock) {
+                          openAvailModal(size);
+                        } else {
+                          handleSizeSelectInDrawer(size);
+                        }
+                      }}
+                      aria-label={isOutOfStock ? `Request size ${size} availability` : `Select size ${size}`}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Action row */}
           <div className="ss-actions">
             <button
               className="ss-cta-btn"
               onClick={handleAddToBag}
-              disabled={adding || !selectedVariant.availableForSale}
+              disabled={adding || !selectedVariant.availableForSale || needsSizeSelection}
             >
               {adding
-                ? 'Adding…'
+                ? 'ADDING…'
                 : !selectedVariant.availableForSale
-                ? 'Unavailable'
+                ? 'UNAVAILABLE'
                 : needsSizeSelection
-                ? (isGiftCard ? 'Select Amount' : 'Select Size')
-                : 'Add to Selection'}
+                ? (isGiftCard ? 'SELECT AMOUNT' : 'SELECT A SIZE')
+                : 'ADD TO SELECTION'}
             </button>
             <button
               className={`ss-archive-btn${inWishlist ? ' ss-archive-btn--in' : ''}`}
@@ -697,86 +809,100 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
             </button>
           </div>
 
-          {/* Description — uppercase below actions */}
-          {product.description && (
-            <p className="ss-desc-plain">{product.description}</p>
-          )}
-
-          {/* Delivery info */}
-          {/* <div className="ss-delivery">
-            <Check size={13} strokeWidth={1.5} color="#111" />
-            <span>{t('common.freeDeliveryShort')}</span>
-          </div> */}
-
           {/* Accordion sections */}
           <div className="ss-accordions">
-            <div className="ss-accordion-item">
-              <button className="ss-accordion-header" onClick={() => toggleAccordion('description')}>
-                <span>Description</span>
-                <span className={`ss-accordion-icon${expandedAccordion === 'description' ? ' open' : ''}`}><Plus size={12} strokeWidth={1.4} /></span>
-              </button>
-              <div className={`ss-accordion-body${expandedAccordion === 'description' ? ' open' : ''}`}>
-                <div className="ss-accordion-body-inner">
-                  <TranslatedDesc text={product.description} className="ss-accordion-text" />
+            {/* GARMENT NOTES */}
+            {product.description && (
+              <div className="ss-accordion-item">
+                <button className="ss-accordion-header" onClick={() => toggleAccordion('notes')}>
+                  <span>GARMENT NOTES</span>
+                  <span className={`ss-accordion-icon${expandedAccordion === 'notes' ? ' open' : ''}`}>
+                    <Plus size={10} strokeWidth={1} />
+                  </span>
+                </button>
+                <div className={`ss-accordion-body${expandedAccordion === 'notes' ? ' open' : ''}`}>
+                  <div className="ss-accordion-body-inner">
+                    <p className="ss-accordion-text">{conciseDescription}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="ss-accordion-item">
-              <button className="ss-accordion-header" onClick={() => toggleAccordion('details')}>
-                <span>{t('common.detailsAndCare')}</span>
-                <span className={`ss-accordion-icon${expandedAccordion === 'details' ? ' open' : ''}`}><Plus size={12} strokeWidth={1.4} /></span>
-              </button>
-              <div className={`ss-accordion-body${expandedAccordion === 'details' ? ' open' : ''}`}>
-                <div className="ss-accordion-body-inner">
-                  <p className="ss-accordion-text">{t('common.deliveryEstimate')}</p>
+            {/* GARMENT RECORD */}
+            {detailsRows.length > 0 && (
+              <div className="ss-accordion-item">
+                <button className="ss-accordion-header" onClick={() => toggleAccordion('record')}>
+                  <span>GARMENT RECORD</span>
+                  <span className={`ss-accordion-icon${expandedAccordion === 'record' ? ' open' : ''}`}>
+                    <Plus size={10} strokeWidth={1} />
+                  </span>
+                </button>
+                <div className={`ss-accordion-body${expandedAccordion === 'record' ? ' open' : ''}`}>
+                  <div className="ss-accordion-body-inner">
+                    <div className="ss-details-table" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {detailsRows.map((row, idx) => (
+                        <div key={idx} className="ss-details-row" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <span className="ss-details-label" style={{ fontWeight: 400, textTransform: 'uppercase', fontSize: '8px', letterSpacing: '0.25em', color: 'rgba(0, 0, 0, 0.45)' }}>{row.label}</span>
+                          <span className="ss-details-value" style={{ fontWeight: 300, fontSize: '10px', color: 'rgba(0, 0, 0, 0.7)', letterSpacing: '0.05em' }}>{row.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="ss-accordion-item">
-              <button className="ss-accordion-header" onClick={() => toggleAccordion('delivery')}>
-                <span>{t('common.deliveryAndReturns')}</span>
-                <span className={`ss-accordion-icon${expandedAccordion === 'delivery' ? ' open' : ''}`}><Plus size={12} strokeWidth={1.4} /></span>
-              </button>
-              <div className={`ss-accordion-body${expandedAccordion === 'delivery' ? ' open' : ''}`}>
-                <div className="ss-accordion-body-inner">
-                  <p className="ss-accordion-text">
-                    <strong>{t('common.drawerDeliveryLabel')}</strong><br />
-                    {t('common.drawerDeliveryBody')}
-                  </p>
-                  <p className="ss-accordion-text" style={{ marginTop: 12 }}>
-                    <strong>{t('common.drawerReturnsLabel')}</strong><br />
-                    {t('common.drawerReturnsBody')}
-                  </p>
+            {/* CARE */}
+            {careLines.length > 0 && (
+              <div className="ss-accordion-item">
+                <button className="ss-accordion-header" onClick={() => toggleAccordion('care')}>
+                  <span>CARE</span>
+                  <span className={`ss-accordion-icon${expandedAccordion === 'care' ? ' open' : ''}`}>
+                    <Plus size={10} strokeWidth={1} />
+                  </span>
+                </button>
+                <div className={`ss-accordion-body${expandedAccordion === 'care' ? ' open' : ''}`}>
+                  <div className="ss-accordion-body-inner">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {careLines.map((line, idx) => (
+                        <span key={idx} className="ss-accordion-text" style={{ display: 'block' }}>
+                          {line}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
+            {/* HOUSE POLICY */}
             <div className="ss-accordion-item">
-              <button className="ss-accordion-header" onClick={() => toggleAccordion('needtoknow')}>
-                <span>The Essentials</span>
-                <span className={`ss-accordion-icon${expandedAccordion === 'needtoknow' ? ' open' : ''}`}><Plus size={12} strokeWidth={1.4} /></span>
+              <button className="ss-accordion-header" onClick={() => toggleAccordion('policy')}>
+                <span>HOUSE POLICY</span>
+                <span className={`ss-accordion-icon${expandedAccordion === 'policy' ? ' open' : ''}`}>
+                  <Plus size={10} strokeWidth={1} />
+                </span>
               </button>
-              <div className={`ss-accordion-body${expandedAccordion === 'needtoknow' ? ' open' : ''}`}>
+              <div className={`ss-accordion-body${expandedAccordion === 'policy' ? ' open' : ''}`}>
                 <div className="ss-accordion-body-inner">
-                  <p className="ss-accordion-text">
-                    This piece is crafted with premium materials and designed for longevity. Handle with care and refer to the care label for specific instructions. Each item is quality-checked before dispatch.
-                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span className="ss-details-label" style={{ fontWeight: 400, textTransform: 'uppercase', fontSize: '8px', letterSpacing: '0.25em', color: 'rgba(0, 0, 0, 0.45)' }}>DELIVERY</span>
+                      <span className="ss-accordion-text" style={{ fontSize: '10px', color: 'rgba(0, 0, 0, 0.7)' }}>
+                        Free standard delivery on all selections. Prepared with care inside our Parisian studio. Estimated delivery within 2–4 business days.
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span className="ss-details-label" style={{ fontWeight: 400, textTransform: 'uppercase', fontSize: '8px', letterSpacing: '0.25em', color: 'rgba(0, 0, 0, 0.45)' }}>RETURNS</span>
+                      <span className="ss-accordion-text" style={{ fontSize: '10px', color: 'rgba(0, 0, 0, 0.7)' }}>
+                        Complimentary returns within 14 days of receipt. Garments must remain in their original, unworn state with archival labels intact.
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Estimated delivery */}
-          <p className="ss-delivery-estimate">
-            {(() => {
-              const d = new Date();
-              d.setDate(d.getDate() + 25);
-              return `Estimated delivery: ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-            })()}
-          </p>
-
         </div>
 
         {/* ── MOBILE IMAGE GRID ── */}
@@ -2779,9 +2905,279 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
             animation: modal-slide-up 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
           }
         }
-        @keyframes modal-slide-up {
-          from { transform: translateY(100%); }
-          to   { transform: translateY(0); }
+        .ss-shade-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          width: 100%;
+          margin-top: 12px;
+        }
+        @media (max-width: 767px) {
+          .ss-shade-grid {
+            justify-content: center;
+          }
+        }
+        .ss-shade-section .ss-shade-option {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          background: transparent;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          padding: 0;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+          opacity: 1;
+        }
+        .ss-shade-section .ss-shade-option:hover {
+          border-color: rgba(0, 0, 0, 0.3);
+        }
+        .ss-shade-section .ss-shade-option.active {
+          border-color: #111111;
+          background: rgba(0, 0, 0, 0.02);
+        }
+        .ss-shade-section .ss-shade-swatch {
+          width: 14px;
+          height: 14px;
+          display: block;
+          border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .ss-minimal-metadata {
+          font-size: 9px;
+          font-weight: 300;
+          font-family: var(--font-primary);
+          color: rgba(0,0,0,0.25);
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+
+        .ss-sizes-select-area {
+          margin-top: 24px;
+          margin-bottom: 24px;
+          width: 100%;
+        }
+        .ss-inline-sizes {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+          gap: 8px;
+          margin-top: 14px;
+          width: 100%;
+        }
+        .ss-inline-size {
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: var(--font-primary);
+          font-size: 9px;
+          font-weight: 300;
+          letter-spacing: 0.25em;
+          padding-left: 0.25em;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          background: transparent;
+          cursor: pointer;
+          color: rgba(0, 0, 0, 0.55);
+          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+          position: relative;
+        }
+        .ss-inline-size:hover:not(.sold-out) {
+          border-color: rgba(0, 0, 0, 0.3);
+          color: rgba(0, 0, 0, 0.9);
+        }
+        .ss-inline-size.active {
+          background: #111111;
+          color: #ffffff;
+          border-color: #111111;
+        }
+        .ss-inline-size.sold-out {
+          color: rgba(0, 0, 0, 0.25);
+          background: rgba(0, 0, 0, 0.01);
+          border-color: rgba(0, 0, 0, 0.04);
+          cursor: pointer;
+        }
+        .ss-inline-size.sold-out::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(to top right, transparent calc(50% - 0.5px), rgba(0,0,0,0.15) 50%, transparent calc(50% + 0.5px));
+          pointer-events: none;
+        }
+        .ss-inline-size.sold-out:hover {
+          border-color: rgba(0, 0, 0, 0.2);
+          color: rgba(0, 0, 0, 0.5);
+        }
+        @media (max-width: 767px) {
+          .ss-sizes-select-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+          .ss-inline-sizes {
+            justify-content: center;
+            max-width: 320px;
+          }
+        }
+
+        .ss-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 32px;
+          margin-bottom: 32px;
+          width: 100%;
+        }
+        .ss-cta-btn {
+          width: 100%;
+          height: 48px;
+          background: #111111;
+          color: #ffffff;
+          border: none;
+          border-radius: 0;
+          font-family: var(--font-primary);
+          font-size: 9px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.35em;
+          padding-left: 0.35em;
+          cursor: pointer;
+          transition: background 0.3s ease, opacity 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .ss-cta-btn:hover:not(:disabled) {
+          background: #222222;
+        }
+        .ss-cta-btn:disabled {
+          background: #f5f5f5;
+          color: rgba(0,0,0,0.25);
+          cursor: not-allowed;
+          border: 1px solid rgba(0,0,0,0.05);
+        }
+        .ss-archive-btn {
+          width: 100%;
+          height: 48px;
+          background: transparent;
+          color: #111111;
+          border: 1px solid rgba(0,0,0,0.12);
+          border-radius: 0;
+          font-family: var(--font-primary);
+          font-size: 9px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.35em;
+          padding-left: 0.35em;
+          cursor: pointer;
+          transition: border-color 0.3s ease, background-color 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .ss-archive-btn:hover {
+          border-color: rgba(0,0,0,0.4);
+          background-color: rgba(0,0,0,0.02);
+        }
+        .ss-archive-btn--in {
+          background: rgba(0, 0, 0, 0.03);
+          border-color: rgba(0,0,0,0.08);
+          color: rgba(0, 0, 0, 0.45);
+        }
+
+        .ss-accordions {
+          margin-top: 48px;
+          border-top: 1px solid rgba(0, 0, 0, 0.06);
+          width: 100%;
+        }
+        .ss-accordion-item {
+          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .ss-accordion-header {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px 0;
+          background: none;
+          border: none;
+          font-family: var(--font-primary);
+          font-size: 9px;
+          font-weight: 300;
+          color: rgba(0, 0, 0, 0.55);
+          cursor: pointer;
+          text-align: left;
+          letter-spacing: 0.35em;
+          text-transform: uppercase;
+          transition: color 0.4s;
+        }
+        .ss-accordion-header:focus { outline: none; }
+        .ss-accordion-header:hover { color: rgba(0, 0, 0, 0.85); }
+        .ss-accordion-icon {
+          font-size: 10px;
+          font-weight: 300;
+          color: rgba(0, 0, 0, 0.25);
+          transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+          line-height: 1;
+        }
+        .ss-accordion-icon.open { transform: rotate(45deg); }
+        .ss-accordion-body {
+          overflow: hidden;
+          max-height: 0;
+          opacity: 0;
+          transform: translateY(4px);
+          transition: max-height 250ms cubic-bezier(0.22, 1, 0.36, 1),
+                      opacity 250ms cubic-bezier(0.22, 1, 0.36, 1),
+                      transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ss-accordion-body.open {
+          max-height: 800px;
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .ss-accordion-body-inner {
+          padding-bottom: 24px;
+          padding-top: 4px;
+        }
+        .ss-accordion-text {
+          font-size: 9.5px;
+          font-family: var(--font-primary);
+          font-weight: 300;
+          line-height: 1.8;
+          color: rgba(0, 0, 0, 0.45);
+          margin: 0;
+          letter-spacing: 0.05em;
+        }
+        
+        .ss-details-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          padding: 10px 0;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+          gap: 16px;
+        }
+        .ss-details-row:last-child {
+          border-bottom: none;
+        }
+        .ss-details-label {
+          font-size: 7.5px;
+          font-weight: 400;
+          text-transform: uppercase;
+          letter-spacing: 0.3em;
+          color: rgba(0, 0, 0, 0.35);
+          width: 100px;
+          flex-shrink: 0;
+        }
+        .ss-details-value {
+          font-size: 9.5px;
+          font-weight: 300;
+          letter-spacing: 0.06em;
+          color: rgba(0, 0, 0, 0.55);
+          text-align: right;
         }
       `}</style>
     </>
