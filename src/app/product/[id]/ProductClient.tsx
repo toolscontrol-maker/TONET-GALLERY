@@ -102,7 +102,6 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     product.variants[0] ?? { id: '', title: '', availableForSale: true, price: { amount: String(product.price), currencyCode: product.currencyCode }, selectedOptions: [] }
   );
   const [adding, setAdding] = useState(false);
-  const [sizeOpen, setSizeOpen] = useState(false);
   const [expandedAccordion, setExpandedAccordion] = useState<string | null>(null);
   const [availModal, setAvailModal] = useState(false);
   const [availSizes, setAvailSizes] = useState<string[]>([]);
@@ -130,22 +129,47 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     return `ARC-26-${num}`;
   };
 
+  function getDeliveryEstimate(): string {
+    const today = new Date();
+    const addBusinessDays = (date: Date, days: number): Date => {
+      const result = new Date(date);
+      let added = 0;
+      while (added < days) {
+        result.setDate(result.getDate() + 1);
+        const day = result.getDay();
+        if (day !== 0 && day !== 6) added++;
+      }
+      return result;
+    };
+    const start = addBusinessDays(today, 2);
+    const end = addBusinessDays(today, 4);
+    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    return `${fmt(start)} — ${fmt(end)}`;
+  }
+
   const metadata = useMemo(() => parseMetadata(product.description), [product.description]);
 
-  const editorialNote = useMemo(() => {
+  const editorialNotes = useMemo(() => {
     const notes = [
       "An archival piece designed for daily calm.",
-      "A garment shaped by silence.",
+      "A tonet shaped by silence.",
       "A quiet layer preserved within the House.",
       "A structured piece designed for daily permanence.",
-      "A restrained garment for permanent rotation.",
-      "A daily layer composed with quiet intention."
+      "A restrained tonet for permanent rotation.",
+      "A daily layer composed with quiet intention.",
+      "Crafted for permanence, worn with intention.",
+      "A silhouette born from restraint."
     ];
     let hash = 0;
     for (let i = 0; i < product.title.length; i++) {
       hash = ((hash * 31) + product.title.charCodeAt(i)) >>> 0;
     }
-    return notes[hash % notes.length];
+    const idx = hash % notes.length;
+    return [
+      notes[idx % notes.length],
+      notes[(idx + 1) % notes.length],
+      notes[(idx + 3) % notes.length]
+    ];
   }, [product.title]);
 
   const conciseDescription = useMemo(() => {
@@ -154,8 +178,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     const thickness = (metadata['Fabric Thickness'] || 'moderate').toLowerCase();
     const features = (metadata['Features'] || '').split(',').map(f => f.trim().toLowerCase());
     const fit = features.find(f => ['loose', 'oversized', 'regular', 'slim', 'boxy'].includes(f)) || 'relaxed';
-    
-    return `This garment is meticulously crafted from a premium blend containing ${fabric}, offering a ${thickness} weave that balances form and comfort. Designed with a ${fit} silhouette, it stands as a testament to the House's focus on functional elegance and longevity.`;
+    return `Crafted from ${fabric}. A ${thickness} weave with a ${fit} silhouette — designed for permanence.`;
   }, [product.description, metadata]);
 
   const detailsRows = useMemo(() => {
@@ -171,7 +194,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     const foundFinish = features
       .filter(f => finishKeywords.includes(f.toLowerCase()))
       .map(f => f.charAt(0).toUpperCase() + f.slice(1).toLowerCase());
-    const finishValue = foundFinish.length > 0 ? foundFinish.join(' / ') : 'Soft garment wash';
+    const finishValue = foundFinish.length > 0 ? foundFinish.join(' / ') : 'Soft tonet wash';
 
     const rawFabric = metadata['Fabric'] || '';
     const formattedFabric = rawFabric ? rawFabric.replace(/,\s*/g, ' / ') : '';
@@ -181,7 +204,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
       { label: 'Weight', value: metadata['Fabric Weight'] || '240 GSM' },
       { label: 'Fit', value: fitValue },
       { label: 'Finish', value: finishValue },
-      { label: 'Production', value: 'Limited garment production' }
+      { label: 'Production', value: 'Limited tonet production' }
     ].filter(r => r.value);
   }, [metadata]);
 
@@ -579,13 +602,6 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     }
   }
 
-  function handleSizeSelect(sizeValue: string) {
-    setSelectedSize(sizeValue);
-    setSizeOpen(false);
-    const next = findVariant(selectedColor, sizeValue);
-    if (next) setSelectedVariant(next);
-  }
-
   function isSizeAvailable(size: string): boolean {
     const v = findVariant(selectedColor, size);
     return v?.availableForSale ?? false;
@@ -711,11 +727,16 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
 
         {/* ── INFO PANEL ── */}
         <div className="ss-info" ref={infoRef}>
-          {/* Title */}
-          <h1 className="ss-title">{product.title}</h1>
+          <div className="product-info-column">
+            {/* Title */}
+            <h1 className="ss-title">{product.title}</h1>
 
-          {/* Editorial Note */}
-          <p className="ss-editorial-subtext">{editorialNote}</p>
+          {/* Editorial Notes */}
+          <div className="ss-editorial-subtext">
+            {editorialNotes.map((note, i) => (
+              <span key={i} style={{ display: 'block', marginBottom: i < editorialNotes.length - 1 ? 6 : 0 }}>{note}</span>
+            ))}
+          </div>
 
           {/* Price + selected shade metadata */}
           <div className="ss-price-row">
@@ -732,7 +753,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           {/* Refined color/shade selection system */}
           {colorOptions.length > 1 && (
             <div className="ss-shade-section">
-              <span className="ss-shade-label">GARMENT SHADE</span>
+              <span className="ss-shade-label">TONET SHADE</span>
               <div className="ss-shade-grid">
                 {colorOptions.map((co) => {
                   const isSelected = selectedColor === co.value;
@@ -742,6 +763,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                       className={`ss-shade-option ${isSelected ? 'active' : ''}`}
                       onClick={() => handleColorChange(co.value)}
                       aria-label={`Select shade ${co.value}`}
+                      aria-pressed={isSelected}
                     >
                       <span className="ss-shade-swatch" style={{ background: colorNameToCSS(co.value) }} />
                     </button>
@@ -754,7 +776,17 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           {/* Select Size Grid */}
           {hasSizes && (
             <div className="ss-sizes-select-area">
-              <span className="ss-shade-label">SELECT SIZE</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <span className="ss-shade-label">SELECT SIZE</span>
+                <button
+                  type="button"
+                  className="ss-size-guide-link"
+                  onClick={() => setSizeGuideOpen(true)}
+                  aria-label="Open size guide"
+                >
+                  Sizing
+                </button>
+              </div>
               <div className="ss-inline-sizes">
                 {sizeOptions.map((size) => {
                   const isSelected = selectedSize === size;
@@ -772,6 +804,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                         }
                       }}
                       aria-label={isOutOfStock ? `Request size ${size} availability` : `Select size ${size}`}
+                      aria-pressed={isSelected}
                     >
                       {size}
                     </button>
@@ -811,11 +844,11 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
 
           {/* Accordion sections */}
           <div className="ss-accordions">
-            {/* GARMENT NOTES */}
+            {/* Description */}
             {product.description && (
               <div className="ss-accordion-item">
-                <button className="ss-accordion-header" onClick={() => toggleAccordion('notes')}>
-                  <span>GARMENT NOTES</span>
+                <button className="ss-accordion-header" onClick={() => toggleAccordion('notes')} aria-expanded={expandedAccordion === 'notes'}>
+                  <span>Description</span>
                   <span className={`ss-accordion-icon${expandedAccordion === 'notes' ? ' open' : ''}`}>
                     <Plus size={10} strokeWidth={1} />
                   </span>
@@ -828,11 +861,11 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
               </div>
             )}
 
-            {/* GARMENT RECORD */}
+            {/* TONET RECORD */}
             {detailsRows.length > 0 && (
               <div className="ss-accordion-item">
-                <button className="ss-accordion-header" onClick={() => toggleAccordion('record')}>
-                  <span>GARMENT RECORD</span>
+                <button className="ss-accordion-header" onClick={() => toggleAccordion('record')} aria-expanded={expandedAccordion === 'record'}>
+                  <span>TONET RECORD</span>
                   <span className={`ss-accordion-icon${expandedAccordion === 'record' ? ' open' : ''}`}>
                     <Plus size={10} strokeWidth={1} />
                   </span>
@@ -855,7 +888,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
             {/* CARE */}
             {careLines.length > 0 && (
               <div className="ss-accordion-item">
-                <button className="ss-accordion-header" onClick={() => toggleAccordion('care')}>
+                <button className="ss-accordion-header" onClick={() => toggleAccordion('care')} aria-expanded={expandedAccordion === 'care'}>
                   <span>CARE</span>
                   <span className={`ss-accordion-icon${expandedAccordion === 'care' ? ' open' : ''}`}>
                     <Plus size={10} strokeWidth={1} />
@@ -865,7 +898,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                   <div className="ss-accordion-body-inner">
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {careLines.map((line, idx) => (
-                        <span key={idx} className="ss-accordion-text" style={{ display: 'block' }}>
+                        <span key={idx} className="ss-accordion-text ss-care-line">
                           {line}
                         </span>
                       ))}
@@ -875,10 +908,10 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
               </div>
             )}
 
-            {/* HOUSE POLICY */}
+            {/* Delivery & Returns */}
             <div className="ss-accordion-item">
-              <button className="ss-accordion-header" onClick={() => toggleAccordion('policy')}>
-                <span>HOUSE POLICY</span>
+              <button className="ss-accordion-header" onClick={() => toggleAccordion('policy')} aria-expanded={expandedAccordion === 'policy'}>
+                <span>Delivery & Returns</span>
                 <span className={`ss-accordion-icon${expandedAccordion === 'policy' ? ' open' : ''}`}>
                   <Plus size={10} strokeWidth={1} />
                 </span>
@@ -889,13 +922,13 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <span className="ss-details-label" style={{ fontWeight: 400, textTransform: 'uppercase', fontSize: '8px', letterSpacing: '0.25em', color: 'rgba(0, 0, 0, 0.45)' }}>DELIVERY</span>
                       <span className="ss-accordion-text" style={{ fontSize: '10px', color: 'rgba(0, 0, 0, 0.7)' }}>
-                        Free standard delivery on all selections. Prepared with care inside our Parisian studio. Estimated delivery within 2–4 business days.
+                        Free standard delivery on all selections. Prepared with care inside our Parisian studio. Estimated arrival {getDeliveryEstimate()}.
                       </span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                       <span className="ss-details-label" style={{ fontWeight: 400, textTransform: 'uppercase', fontSize: '8px', letterSpacing: '0.25em', color: 'rgba(0, 0, 0, 0.45)' }}>RETURNS</span>
                       <span className="ss-accordion-text" style={{ fontSize: '10px', color: 'rgba(0, 0, 0, 0.7)' }}>
-                        Complimentary returns within 14 days of receipt. Garments must remain in their original, unworn state with archival labels intact.
+                        Complimentary returns within 14 days of receipt. Tonets must remain in their original, unworn state with archival labels intact.
                       </span>
                     </div>
                   </div>
@@ -903,65 +936,9 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
               </div>
             </div>
           </div>
-        </div>
-
-        {/* ── MOBILE IMAGE GRID ── */}
-        {gridImages.length > 0 && (
-          <div className="ss-mobile-img-grid">
-            {gridImages.map((img, i) => (
-              <div key={i} className="ss-mobile-img-cell">
-                <img src={img} alt={`${product.title} – ${i + 1}`} draggable={false} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
-              </div>
-            ))}
-          </div>
-        )}
-
-      </div>
-
-      {/* ── SIZE DRAWER ── */}
-      <div className={`ss-size-drawer${sizeOpen && hasSizes ? ' open' : ''}${availModal || sizeGuideOpen ? ' dimmed' : ''}`}>
-        <div className="ss-size-drawer-header">
-          <span className="ss-size-drawer-title">{product.title}</span>
-          <div className="ss-size-header-right">
-            <button className="ss-size-guide" onClick={() => setSizeGuideOpen(true)} aria-label="Size information">Sizing</button>
-            <button className="ss-size-close" onClick={() => { setSizeOpen(false); setSelectedSize(''); }} aria-label="Close">
-              <X size={16} strokeWidth={1.4} />
-            </button>
           </div>
         </div>
-        <div className="ss-size-drawer-list">
-          {allSizes.map((size) => {
-            const available = isSizeAvailable(size);
-            const isSelected = selectedSize === size;
-            return (
-              <button
-                key={size}
-                className={`ss-size-row${isSelected ? ' selected' : ''}${!available ? ' oos' : ''}`}
-                onClick={() => { if (!available) { openAvailModal(size); } else { handleSizeSelectInDrawer(size); } }}
-              >
-                <span className="ss-size-row-name">
-                  {isSelected && <span className="ss-size-bullet">•&nbsp;</span>}
-                  {size}
-                </span>
-                {!available && (
-                  <div className="ss-size-oos-wrap">
-                    <span className="ss-sold-out">Reserved</span>
-                    <span className="ss-get-notified-hint">Request Availability</span>
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-        <div className="ss-size-drawer-footer">
-          <button
-            className="ss-size-add-btn"
-            onClick={handleAddToBag}
-            disabled={!selectedSize || adding || !isSizeAvailable(selectedSize)}
-          >
-            {adding ? 'Adding…' : 'Add to Selection'}
-          </button>
-        </div>
+
       </div>
 
 
@@ -973,7 +950,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
             TONET was not built for the moment. It was constructed for permanence — for those who understand that true elegance is never loud, and that refinement requires no explanation.
           </p>
           <p className="ss-philosophy-text">
-            Each garment belongs to a longer conversation between structure and silence, between the body and its architecture.
+            Each tonet belongs to a longer conversation between structure and silence, between the body and its architecture.
           </p>
           <span className="ss-philosophy-note">— House Notes, 2026</span>
         </div>
@@ -1185,16 +1162,16 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
               <span className="ac-supra">ARCHIVE RECORD</span>
               <h2 className="ac-title">Archive Entry Created</h2>
               <p className="ac-desc">
-                This garment has been preserved within your private archive and will remain accessible while availability permits.
+                This tonet has been preserved within your private archive and will remain accessible while availability permits.
               </p>
             </div>
 
-            {/* Main Split Content: Garment Data + Visual Layout */}
+            {/* Main Split Content: TONET Data + Visual Layout */}
             <div className="ac-split">
-              {/* Left: Curated Large Garment Image */}
+              {/* Left: Curated Large TONET Image */}
               <div className="ac-image-panel">
                 {product.imageUrl && (
-                  <img src={product.imageUrl} alt={product.title} className="ac-garment-img" />
+                  <img src={product.imageUrl} alt={product.title} className="ac-tonet-img" />
                 )}
               </div>
 
@@ -1202,7 +1179,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
               <div className="ac-details-panel">
                 <div className="ac-tech-grid">
                   <div className="ac-tech-item">
-                    <span className="ac-tech-label">Garment Name</span>
+                    <span className="ac-tech-label">TONET Name</span>
                     <span className="ac-tech-value ac-tech-value--name">{product.title.toUpperCase()}</span>
                   </div>
 
@@ -1249,7 +1226,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                 <div className="ac-avail-section">
                   <span className="ac-section-label">Archive Availability</span>
                   <p className="ac-avail-desc">
-                    This garment remains temporarily preserved inside the House for private consideration.
+                    This tonet remains temporarily preserved inside the House for private consideration.
                   </p>
 
                   <div className="ac-avail-status-block">
@@ -1300,7 +1277,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                 <div className="ac-notes-section">
                   <span className="ac-section-label">House Notes</span>
                   <p className="ac-notes-text">
-                    Archived garments remain accessible for future consideration. Availability is not guaranteed and may change as pieces enter permanent archive status.
+                    Archived tonets remain accessible for future consideration. Availability is not guaranteed and may change as pieces enter permanent archive status.
                   </p>
                 </div>
               </div>
@@ -1428,17 +1405,17 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           border: 1px solid rgba(243, 240, 234, 0.04);
           opacity: 0;
           transform: scale(0.97);
-          animation: ac-img-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.48s forwards; /* garment image appears last */
+          animation: ac-img-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.48s forwards; /* tonet image appears last */
         }
 
-        .ac-garment-img {
+        .ac-tonet-img {
           width: 100%;
           height: 100%;
           object-fit: contain;
           filter: grayscale(0.15);
           transition: filter 0.5s;
         }
-        .ac-garment-img:hover {
+        .ac-tonet-img:hover {
           filter: grayscale(0);
         }
 
@@ -1798,8 +1775,25 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
 
         /* ── INFO PANEL ── */
         .ss-info {
-          padding: 24px 20px 28px 20px;
           background: #ffffff;
+        }
+        .product-info-column {
+          padding: 24px 20px 28px 20px;
+          max-height: 80vh;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+        }
+        .product-info-column::-webkit-scrollbar {
+          width: 4px;
+        }
+        .product-info-column::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .product-info-column::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.15);
+          border-radius: 4px;
         }
 
         .ss-title {
@@ -1956,407 +1950,6 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           font-weight: 300;
         }
 
-        /* Estimated delivery */
-        .ss-delivery-estimate {
-          font-size: 8px;
-          font-family: var(--font-primary);
-          font-weight: 300;
-          color: rgba(0,0,0,0.2);
-          margin: 40px 0 0;
-          letter-spacing: 0.32em;
-          text-align: center;
-          text-transform: uppercase;
-        }
-
-        /* Description plain */
-        .ss-desc-plain {
-          font-size: 10px;
-          font-family: var(--font-primary);
-          font-weight: 300;
-          color: rgba(0,0,0,0.32);
-          line-height: 1.8;
-          margin: 20px 0 0;
-          letter-spacing: 0.05em;
-        }
-
-        /* Action row */
-        .ss-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          margin-bottom: 0;
-        }
-        .ss-cta-btn {
-          width: 100%;
-          height: 48px;
-          background: rgba(0,0,0,0.82);
-          color: rgba(255,255,255,0.88);
-          border: none;
-          border-radius: 0;
-          font-family: var(--font-primary);
-          font-size: 8px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.45em;
-          padding-right: 0.45em;
-          cursor: pointer;
-          transition: background 0.7s;
-        }
-        .ss-cta-btn:hover:not(:disabled) { background: rgba(0,0,0,0.96); }
-        .ss-cta-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .ss-archive-btn {
-          width: 100%;
-          height: 42px;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          border-radius: 0;
-          font-family: var(--font-primary);
-          font-size: 8px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.38em;
-          padding-right: 0.38em;
-          color: rgba(0,0,0,0.28);
-          text-decoration: underline;
-          text-underline-offset: 3px;
-          transition: color 0.5s;
-        }
-        .ss-archive-btn:hover { color: rgba(0,0,0,0.6); }
-        .ss-archive-btn--in {
-          color: rgba(0,0,0,0.22); /* quiet, thin, editorial, reduced opacity (~10%) to feel informational and quiet */
-        }
-        .ss-archive-toast {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-          padding: 12px 0 0;
-          animation: ss-toast-in 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
-        }
-        @keyframes ss-toast-in {
-          from { opacity: 0; transform: translateY(5px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .ss-archive-toast-main {
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.12em;
-          color: rgba(0,0,0,0.5);
-        }
-        .ss-archive-toast-sub {
-          font-family: var(--font-primary);
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.04em;
-          color: rgba(0,0,0,0.22);
-        }
-
-        /* ══ SIZE DRAWER ══ */
-        .ss-size-drawer {
-          position: fixed;
-          top: 0; right: 0; bottom: 0;
-          width: min(100vw, 400px);
-          background: #0d0d0d;
-          border-left: 1px solid rgba(255,255,255,0.05);
-          z-index: 1002;
-          display: flex;
-          flex-direction: column;
-          transform: translateX(100%);
-          transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), scale 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-          transform-origin: right center;
-          font-family: var(--font-primary);
-          color: rgba(255,255,255,0.82);
-        }
-        .ss-size-drawer.open { transform: translateX(0); }
-        .ss-size-drawer.dimmed {
-          opacity: 0.3;
-          scale: 0.995;
-        }
-
-        .ss-size-drawer-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 24px 32px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          flex-shrink: 0;
-          gap: 12px;
-        }
-        .ss-size-drawer-title {
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.38em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.48);
-          flex: 1;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .ss-size-header-right {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex-shrink: 0;
-        }
-        .ss-size-guide {
-          font-size: 7px;
-          letter-spacing: 0.42em;
-          text-transform: uppercase;
-          padding-right: 0.42em;
-          color: rgba(255,255,255,0.18);
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-family: var(--font-primary);
-          font-weight: 300;
-          transition: color 0.4s;
-        }
-        .ss-size-guide:hover { color: rgba(255,255,255,0.5); }
-        .ss-size-close {
-          background: none; border: none;
-          cursor: pointer; color: rgba(255,255,255,0.28);
-          display: flex; align-items: center; justify-content: center;
-          width: 28px; height: 28px; padding: 4px;
-          transition: color 0.4s;
-        }
-        .ss-size-close:hover { color: rgba(255,255,255,0.75); }
-        .ss-size-close svg { stroke: currentColor; }
-
-        .ss-size-drawer-list {
-          flex: 1;
-          overflow-y: auto;
-          scrollbar-width: none;
-        }
-        .ss-size-drawer-list::-webkit-scrollbar { display: none; }
-
-        .ss-size-row {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 22px 32px;
-          border: none;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
-          border-left: 2px solid transparent;
-          background: none;
-          cursor: pointer;
-          font-family: inherit;
-          text-align: left;
-          box-sizing: border-box;
-          transition: background 0.35s, border-left-color 0.35s, opacity 0.35s;
-        }
-        .ss-size-row:not(.oos):not(.selected):hover {
-          background: rgba(255,255,255,0.025);
-        }
-        .ss-size-row.selected {
-          border-left-color: rgba(255,255,255,0.5);
-          background: rgba(255,255,255,0.03);
-        }
-        .ss-size-row.oos {
-          cursor: pointer;
-          opacity: 0.38;
-        }
-        .ss-size-row.oos:hover {
-          opacity: 0.62;
-          background: rgba(255,255,255,0.015);
-        }
-        .ss-size-row-name {
-          font-size: 10px;
-          font-weight: 300;
-          letter-spacing: 0.32em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.72);
-          display: flex;
-          align-items: center;
-        }
-        .ss-size-row.selected .ss-size-row-name { color: rgba(255,255,255,0.9); }
-        .ss-size-bullet { color: rgba(255,255,255,0.72); }
-        .ss-size-oos-wrap {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 4px;
-        }
-        .ss-sold-out {
-          font-size: 7px;
-          letter-spacing: 0.35em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.22);
-          padding-right: 0.35em;
-        }
-        .ss-get-notified-hint {
-          font-size: 7px;
-          font-family: var(--font-primary);
-          font-weight: 300;
-          letter-spacing: 0.32em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.28);
-          padding-right: 0.32em;
-          transition: color 0.35s;
-        }
-        .ss-size-row.oos:hover .ss-get-notified-hint { color: rgba(255,255,255,0.55); }
-
-        .ss-size-drawer-footer {
-          flex-shrink: 0;
-          padding: 20px 32px 28px;
-          border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .ss-size-add-btn {
-          display: block;
-          width: 100%;
-          background: rgba(255,255,255,0.88);
-          color: #0d0d0d;
-          border: none;
-          padding: 17px;
-          font-size: 9px;
-          font-family: var(--font-primary);
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.38em;
-          cursor: pointer;
-          transition: background 0.5s;
-        }
-        .ss-size-add-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-        .ss-size-add-btn:not(:disabled):hover { background: rgba(255,255,255,1); }
-
-        /* Delivery line */
-        .ss-delivery {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 14px 0;
-          font-size: 10px;
-          font-weight: 500;
-          color: #444;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          border-bottom: 1px solid #e8e8e8;
-          margin-bottom: 0;
-        }
-
-        /* Accordion sections */
-        .ss-accordions {
-          margin-top: 52px;
-        }
-        .ss-accordion-item {
-          border-bottom: 1px solid rgba(0,0,0,0.07);
-        }
-        .ss-accordion-item:first-child {
-          border-top: 1px solid rgba(0,0,0,0.07);
-        }
-        .ss-accordion-header {
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 22px 0;
-          background: none;
-          border: none;
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          color: rgba(0,0,0,0.55);
-          cursor: pointer;
-          text-align: left;
-          letter-spacing: 0.38em;
-          text-transform: uppercase;
-          transition: color 0.4s;
-        }
-        .ss-accordion-header:focus { outline: none; }
-        .ss-accordion-header:hover { color: rgba(0,0,0,0.9); opacity: 1; }
-        .ss-accordion-icon {
-          font-size: 18px;
-          font-weight: 300;
-          color: rgba(0,0,0,0.35);
-          transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
-          line-height: 1;
-        }
-        .ss-accordion-icon.open { transform: rotate(45deg); }
-        .ss-accordion-body {
-          overflow: hidden;
-          max-height: 0;
-          transition: max-height 0.6s cubic-bezier(0.16,1,0.3,1);
-        }
-        .ss-accordion-body.open {
-          max-height: 600px;
-        }
-        .ss-accordion-body-inner {
-          padding-bottom: 20px;
-        }
-        .ss-accordion-text {
-          font-size: 11px;
-          font-family: var(--font-primary);
-          font-weight: 300;
-          line-height: 1.9;
-          color: rgba(0,0,0,0.42);
-          margin: 0;
-          letter-spacing: 0.04em;
-        }
-
-        /* Inline size buttons inside accordion */
-        .ss-inline-sizes {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-bottom: 16px;
-        }
-        .ss-inline-size {
-          padding: 10px 18px;
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.3em;
-          border: 1px solid rgba(0,0,0,0.1);
-          background: transparent;
-          cursor: pointer;
-          color: rgba(0,0,0,0.6);
-          border-radius: 0;
-          transition: all 0.4s;
-        }
-        .ss-inline-size:hover:not(.sold-out):not(.active) { border-color: rgba(0,0,0,0.4); color: rgba(0,0,0,0.9); }
-        .ss-inline-size.active { background: rgba(0,0,0,0.85); color: rgba(255,255,255,0.9); border-color: transparent; }
-        .ss-inline-size.sold-out { color: rgba(0,0,0,0.18); border-color: rgba(0,0,0,0.05); cursor: not-allowed; text-decoration: line-through; }
-
-        /* ── MOBILE STICKY BAR (removed) ── */
-        .ss-mobile-sticky {
-          position: fixed;
-          bottom: 0; left: 0; right: 0;
-          display: flex;
-          height: 56px;
-          padding-bottom: env(safe-area-inset-bottom, 0px);
-          background: #fff;
-          border-top: 1px solid #e0e0e0;
-          z-index: 200;
-        }
-        .ss-mobile-bookmark {
-          width: 56px;
-          height: 56px;
-          border: none;
-          border-right: 1px solid #e0e0e0;
-          background: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          flex-shrink: 0;
-        }
-        .ss-mobile-cta {
-          flex: 1;
-          height: 56px;
-          background: #111;
-          color: #fff;
-          border: none;
-          font-family: inherit;
-          font-size: 12px;
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          cursor: pointer;
-        }
-        .ss-mobile-cta:disabled { opacity: 0.5; cursor: not-allowed; }
-
         /* ══════════════════════════════════════
            DESKTOP: side-by-side layout
            Gallery = 52%, Info = 48%
@@ -2403,33 +1996,47 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
             position: sticky;
             top: 60px;
             height: calc(100vh - 60px);
-            overflow-y: auto;
-            padding: 72px 72px;
-            scrollbar-width: none;
+            overflow: hidden;
+            padding: 0;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             background: #ffffff;
           }
-          .ss-info::-webkit-scrollbar { display: none; }
+          .product-info-column {
+            padding: 72px;
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+          }
+          .product-info-column::-webkit-scrollbar {
+            width: 4px;
+          }
+          .product-info-column::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .product-info-column::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+          }
 
           .ss-mobile-sticky { display: none; }
         }
 
         @media (min-width: 1200px) {
-          .ss-info {
-            padding: 96px 96px;
+          .product-info-column {
+            padding: 96px;
           }
         }
 
         /* ── DESKTOP EDITORIAL ALIGNMENT ── */
         @media (min-width: 768px) {
           .ss-title,
-          .ss-editorial-subtext,
-          .ss-delivery-estimate { text-align: left; }
+          .ss-editorial-subtext { text-align: left; }
           .ss-price-row { justify-content: flex-start; }
-          .ss-desc-plain { text-align: left; }
           .ss-actions { margin-top: 36px; }
           .ss-shade-section { margin-bottom: 36px; }
         }
@@ -2532,31 +2139,6 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           text-transform: uppercase;
           color: rgba(255,255,255,0.16);
           font-family: var(--font-primary);
-        }
-
-        /* ══ MOBILE IMAGE GRID ══ */
-        .ss-mobile-img-grid {
-          display: none;
-        }
-        @media (max-width: 767px) {
-          .ss-mobile-img-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            background: #ffffff;
-            padding: 0 20px 120px 20px;
-          }
-          .ss-mobile-img-cell {
-            aspect-ratio: 3 / 4;
-            overflow: hidden;
-            background: #ffffff;
-          }
-          .ss-mobile-img-cell img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-          }
         }
 
         @media (max-width: 767px) {
@@ -3011,6 +2593,26 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           border-color: rgba(0, 0, 0, 0.2);
           color: rgba(0, 0, 0, 0.5);
         }
+
+        .ss-size-guide-link {
+          font-family: var(--font-primary);
+          font-size: 8px;
+          font-weight: 300;
+          letter-spacing: 0.32em;
+          text-transform: uppercase;
+          color: rgba(0, 0, 0, 0.25);
+          background: none;
+          border: none;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          padding: 0 0 2px 0;
+          cursor: pointer;
+          transition: color 0.3s, border-color 0.3s;
+        }
+        .ss-size-guide-link:hover {
+          color: rgba(0, 0, 0, 0.6);
+          border-bottom-color: rgba(0, 0, 0, 0.25);
+        }
+
         @media (max-width: 767px) {
           .ss-sizes-select-area {
             display: flex;
@@ -3134,7 +2736,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
                       transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
         }
         .ss-accordion-body.open {
-          max-height: 800px;
+          max-height: 2000px;
           opacity: 1;
           transform: translateY(0);
         }
@@ -3178,6 +2780,31 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           letter-spacing: 0.06em;
           color: rgba(0, 0, 0, 0.55);
           text-align: right;
+        }
+
+        .ss-care-line {
+          display: block;
+          position: relative;
+          padding-left: 12px;
+        }
+        .ss-care-line::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 8px;
+          width: 3px;
+          height: 3px;
+          border-radius: 50%;
+          background: rgba(0, 0, 0, 0.18);
+        }
+
+        button:focus-visible {
+          outline: 1px solid rgba(0, 0, 0, 0.25);
+          outline-offset: 2px;
+        }
+        .ss-shade-option:focus-visible {
+          outline: 1px solid rgba(0, 0, 0, 0.4);
+          outline-offset: 2px;
         }
       `}</style>
     </>
