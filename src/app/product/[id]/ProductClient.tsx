@@ -2017,9 +2017,61 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
         }
 
 
-        /* ── CAROUSEL IMAGE BLOCKS ── */
+        /* ── CAROUSEL IMAGE BLOCKS (Previously Considered) ── */
         .rec-img-wrap {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 3 / 4;
           background: #ffffff;
+          border-radius: 4px;
+          overflow: hidden;
+          transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .rec-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          display: block;
+          border-radius: 4px;
+          transition: transform 0.3s ease;
+        }
+        .rec-card {
+          display: block;
+          text-decoration: none;
+          color: inherit;
+        }
+        .rec-card:hover .rec-img-wrap {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+        }
+        .rec-card:hover .rec-img {
+          transform: scale(1.01);
+        }
+        .rec-meta {
+          padding-top: 14px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+        .rec-title {
+          font-family: Georgia, serif;
+          font-size: 11px;
+          font-weight: 300;
+          font-style: italic;
+          letter-spacing: 0.04em;
+          color: #444;
+          text-align: center;
+          line-height: 1.4;
+        }
+        .rec-price {
+          font-family: var(--font-primary), sans-serif;
+          font-size: 10px;
+          font-weight: 300;
+          color: #888;
+          letter-spacing: 0.08em;
+          text-align: center;
+          margin-top: 4px;
         }
 
         /* ── COMPLETE THE OUTFIT ── */

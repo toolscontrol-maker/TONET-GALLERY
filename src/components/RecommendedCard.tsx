@@ -57,19 +57,26 @@ export default function RecommendedCard({ product }: Props) {
           width: 100%;
           aspect-ratio: 3 / 4;
           background: #f7f7f7;
+          border-radius: 4px;
           overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .tonet-house-carousel__image {
           width: 100%;
           height: 100%;
           object-fit: contain;
           display: block;
+          border-radius: 4px;
           transition: opacity 300ms ease-in-out;
         }
         .tonet-house-carousel__image--secondary {
           position: absolute;
           inset: 0;
           opacity: 0;
+        }
+        .tonet-house-carousel__card:hover .tonet-house-carousel__image-wrap {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
         }
         .tonet-house-carousel__card:hover .tonet-house-carousel__image--primary {
           opacity: ${secondImage ? 0 : 1};

@@ -671,45 +671,55 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           flex-direction: column;
           text-decoration: none;
           color: inherit;
-          transition: transform 0.6s ease;
         }
         .tc-f-img-wrap {
           aspect-ratio: 3 / 4;
           overflow: hidden;
-          background: #0d0d0d;
+          background: #f7f7f7;
+          border-radius: 4px;
           margin-bottom: 24px;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .tc-f-img {
           width: 100%;
           height: 100%;
           object-fit: contain;
           display: block;
+          border-radius: 4px;
           opacity: 0;
-          transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+          transition: opacity 300ms ease-in-out;
+        }
+        .tc-f-card:hover .tc-f-img-wrap {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
         }
         .tc-f-card:hover .tc-f-img.visible {
-          transform: scale(1.02);
           opacity: 0.85;
         }
         .tc-f-info {
           display: flex;
           flex-direction: column;
+          align-items: center;
+          text-align: center;
           gap: 6px;
         }
         .tc-f-name {
-          font-family: var(--font-primary);
-          font-size: 10px;
+          font-family: Georgia, serif;
+          font-size: 11px;
           font-weight: 300;
-          letter-spacing: 0.14em;
-          color: rgba(255,255,255,0.5) !important;
-          text-transform: uppercase;
+          font-style: italic;
+          letter-spacing: 0.04em;
+          color: rgba(255, 255, 255, 0.8) !important;
+          text-align: center;
+          text-transform: none !important;
         }
         .tc-f-price {
-          font-family: var(--font-primary);
-          font-size: 11px;
-          font-weight: 400;
-          color: rgba(255,255,255,0.75) !important;
-          letter-spacing: 0.04em;
+          font-family: var(--font-primary), sans-serif;
+          font-size: 10px;
+          font-weight: 300;
+          letter-spacing: 0.08em;
+          color: rgba(255, 255, 255, 0.45) !important;
+          text-align: center;
         }
 
         /* ── SECTION 6: THE COLOUR STUDIES ── */
@@ -865,62 +875,73 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           flex-direction: column;
           text-decoration: none;
           color: inherit;
-          background: #0d0d0d;
-          transition: background 0.6s ease;
-        }
-        .tc-card:hover {
-          background: #111;
         }
         .tc-card-img-wrap {
           aspect-ratio: 3 / 4;
           overflow: hidden;
-          background: #0d0d0d;
+          background: #f7f7f7;
+          border-radius: 4px;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .tc-card-img {
           width: 100%;
           height: 100%;
           object-fit: contain;
           display: block;
+          border-radius: 4px;
           opacity: 0;
-          transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+          transition: opacity 300ms ease-in-out;
+        }
+        .tc-card:hover .tc-card-img-wrap {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
         }
         .tc-card:hover .tc-card-img.visible {
           opacity: 0.85;
-          transform: scale(1.02);
         }
         .tc-card-info {
-          padding: 20px;
+          padding: 20px 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
         }
         .tc-card-meta {
           display: flex;
-          justify-content: space-between;
-          align-items: baseline;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 6px;
         }
         .tc-card-name {
-          font-family: var(--font-primary);
-          font-size: 10px;
+          font-family: Georgia, serif;
+          font-size: 11px;
           font-weight: 300;
-          letter-spacing: 0.14em;
-          color: rgba(255,255,255,0.55) !important;
-          text-transform: uppercase;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          flex: 1;
-          margin-right: 12px;
+          font-style: italic;
+          letter-spacing: 0.04em;
+          color: rgba(255, 255, 255, 0.8) !important;
+          text-align: center;
+          text-transform: none !important;
+          overflow: visible !important;
+          text-overflow: clip !important;
+          white-space: normal !important;
+          flex: none;
         }
         .tc-card-price {
-          font-family: var(--font-primary);
-          font-size: 11px;
-          font-weight: 400;
-          color: rgba(255,255,255,0.75) !important;
-          letter-spacing: 0.04em;
+          font-family: var(--font-primary), sans-serif;
+          font-size: 10px;
+          font-weight: 300;
+          letter-spacing: 0.08em;
+          color: rgba(255, 255, 255, 0.45) !important;
+          text-align: center;
+          margin-top: 4px;
         }
 
         /* Swatches and sizes for All Garments Grid */
         .tc-swatches {
           display: flex;
           gap: 6px;
+          justify-content: center;
           margin-top: 10px;
           margin-bottom: 4px;
         }
@@ -939,6 +960,7 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           display: flex;
           gap: 4px;
           flex-wrap: wrap;
+          justify-content: center;
           margin-top: 8px;
         }
         .tc-size {
@@ -963,6 +985,7 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         .tc-f-swatches {
           display: flex;
           gap: 6px;
+          justify-content: center;
           margin-top: 10px;
           margin-bottom: 4px;
         }
@@ -981,6 +1004,7 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           display: flex;
           gap: 4px;
           flex-wrap: wrap;
+          justify-content: center;
           margin-top: 8px;
         }
         .tc-f-size {
