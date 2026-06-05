@@ -8,6 +8,18 @@ interface CollectionLandingClientProps {
   products: Product[];
 }
 
+function extractUniqueOptions(product: Product, optionName: string) {
+  const vals = new Set<string>();
+  product.variants.forEach(v => {
+    v.selectedOptions.forEach(o => {
+      if (o.name.toLowerCase().includes(optionName.toLowerCase())) {
+        vals.add(o.value);
+      }
+    });
+  });
+  return Array.from(vals);
+}
+
 function colorToCss(color: string): string {
   const map: Record<string, string> = {
     black: '#0a0a0a', white: '#f5f5f5', grey: '#666', gray: '#666',
@@ -168,28 +180,51 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         </div>
 
         <div className="tc-foundations-grid">
-          {foundations.map(product => (
-            <Link key={product.handle} href={`/product/${product.handle}`} className="tc-f-card">
-              <div className="tc-f-img-wrap">
-                {product.imageUrl && (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    className="tc-f-img"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                )}
-              </div>
-              <div className="tc-f-info">
-                <span className="tc-f-name">{product.title}</span>
-                <span className="tc-f-price">
-                  {product.currencyCode === 'USD' ? '$' : '€'}
-                  {Number(product.price).toFixed(0)}
-                </span>
-              </div>
-            </Link>
-          ))}
+          {foundations.map(product => {
+            const colors = extractUniqueOptions(product, 'color');
+            const sizes = extractUniqueOptions(product, 'size');
+            return (
+              <Link key={product.handle} href={`/product/${product.handle}`} className="tc-f-card">
+                <div className="tc-f-img-wrap">
+                  {product.imageUrl && (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.title}
+                      className="tc-f-img"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
+                </div>
+                <div className="tc-f-info">
+                  <span className="tc-f-name">{product.title}</span>
+                  <span className="tc-f-price">
+                    {product.currencyCode === 'USD' ? '$' : '€'}
+                    {Number(product.price).toFixed(0)}
+                  </span>
+                  {colors.length > 0 && (
+                    <div className="tc-f-swatches">
+                      {colors.slice(0, 4).map((c, i) => (
+                        <span
+                          key={i}
+                          className="tc-f-swatch"
+                          style={{ background: colorToCss(c) }}
+                          title={c}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {sizes.length > 0 && (
+                    <div className="tc-f-sizes">
+                      {sizes.slice(0, 5).map((s, i) => (
+                        <span key={i} className="tc-f-size">{s}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -283,30 +318,53 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         {/* Product Grid */}
         <div className="tc-grid">
           {filteredProducts.length > 0 ? (
-            filteredProducts.map(product => (
-              <Link key={product.handle} href={`/product/${product.handle}`} className="tc-card">
-                <div className="tc-card-img-wrap">
-                  {product.imageUrl && (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.title}
-                      className="tc-card-img"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )}
-                </div>
-                <div className="tc-card-info">
-                  <div className="tc-card-meta">
-                    <span className="tc-card-name">{product.title}</span>
-                    <span className="tc-card-price">
-                      {product.currencyCode === 'USD' ? '$' : '€'}
-                      {Number(product.price).toFixed(0)}
-                    </span>
+            filteredProducts.map(product => {
+              const colors = extractUniqueOptions(product, 'color');
+              const sizes = extractUniqueOptions(product, 'size');
+              return (
+                <Link key={product.handle} href={`/product/${product.handle}`} className="tc-card">
+                  <div className="tc-card-img-wrap">
+                    {product.imageUrl && (
+                      <img
+                        src={product.imageUrl}
+                        alt={product.title}
+                        className="tc-card-img"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
                   </div>
-                </div>
-              </Link>
-            ))
+                  <div className="tc-card-info">
+                    <div className="tc-card-meta">
+                      <span className="tc-card-name">{product.title}</span>
+                      <span className="tc-card-price">
+                        {product.currencyCode === 'USD' ? '$' : '€'}
+                        {Number(product.price).toFixed(0)}
+                      </span>
+                    </div>
+                    {colors.length > 0 && (
+                      <div className="tc-swatches">
+                        {colors.slice(0, 4).map((c, i) => (
+                          <span
+                            key={i}
+                            className="tc-swatch"
+                            style={{ background: colorToCss(c) }}
+                            title={c}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {sizes.length > 0 && (
+                      <div className="tc-sizes">
+                        {sizes.slice(0, 5).map((s, i) => (
+                          <span key={i} className="tc-size">{s}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              );
+            })
           ) : (
             <div className="tc-empty">
               <p>No garments found matching the selected criteria.</p>
@@ -817,6 +875,90 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           font-weight: 400;
           color: rgba(255,255,255,0.75) !important;
           letter-spacing: 0.04em;
+        }
+
+        /* Swatches and sizes for All Garments Grid */
+        .tc-swatches {
+          display: flex;
+          gap: 6px;
+          margin-top: 10px;
+          margin-bottom: 4px;
+        }
+        .tc-swatch {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.15);
+          flex-shrink: 0;
+          transition: border-color 0.4s ease;
+        }
+        .tc-swatch:hover {
+          border-color: rgba(255,255,255,0.6);
+        }
+        .tc-sizes {
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+          margin-top: 8px;
+        }
+        .tc-size {
+          font-family: var(--font-primary);
+          font-size: 8px;
+          font-weight: 300;
+          letter-spacing: 0.08em;
+          color: rgba(255,255,255,0.3) !important;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 2px;
+          padding: 3px 7px;
+          line-height: 1;
+          text-transform: uppercase;
+          transition: border-color 0.4s ease, color 0.4s ease;
+        }
+        .tc-size:hover {
+          border-color: rgba(255,255,255,0.4);
+          color: #fff !important;
+        }
+
+        /* Swatches and sizes for Foundations Grid */
+        .tc-f-swatches {
+          display: flex;
+          gap: 6px;
+          margin-top: 10px;
+          margin-bottom: 4px;
+        }
+        .tc-f-swatch {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.15);
+          flex-shrink: 0;
+          transition: border-color 0.4s ease;
+        }
+        .tc-f-swatch:hover {
+          border-color: rgba(255,255,255,0.6);
+        }
+        .tc-f-sizes {
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+          margin-top: 8px;
+        }
+        .tc-f-size {
+          font-family: var(--font-primary);
+          font-size: 8px;
+          font-weight: 300;
+          letter-spacing: 0.08em;
+          color: rgba(255,255,255,0.3) !important;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 2px;
+          padding: 3px 7px;
+          line-height: 1;
+          text-transform: uppercase;
+          transition: border-color 0.4s ease, color 0.4s ease;
+        }
+        .tc-f-size:hover {
+          border-color: rgba(255,255,255,0.4);
+          color: #fff !important;
         }
         .tc-empty {
           grid-column: 1 / -1;
