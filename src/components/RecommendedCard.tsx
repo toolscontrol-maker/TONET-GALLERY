@@ -18,58 +18,66 @@ export default function RecommendedCard({ product }: Props) {
   const secondImage = product.siblings.length > 0 ? product.siblings[0].imageUrl : null;
 
   return (
-    <div className="rec-card-wrap">
-      <Link href={displayHref} className="rec-card">
-        <div className="rec-img-wrap">
+    <div className="tonet-house-carousel__card-wrap">
+      <Link href={displayHref} className="tonet-house-carousel__card">
+        <div className="tonet-house-carousel__image-wrap">
           {product.imageUrl && (
-            <img src={product.imageUrl} alt={product.title} className="rec-img rec-img-primary" />
+            <img 
+              src={product.imageUrl} 
+              alt={product.title} 
+              className="tonet-house-carousel__image tonet-house-carousel__image--primary" 
+            />
           )}
           {secondImage && (
-            <img src={secondImage} alt={product.title} className="rec-img rec-img-secondary" />
+            <img 
+              src={secondImage} 
+              alt={product.title} 
+              className="tonet-house-carousel__image tonet-house-carousel__image--secondary" 
+            />
           )}
         </div>
-        <div className="rec-meta">
-          <span className="rec-title">{product.title}</span>
-          <span className="rec-archive-ref">{getArchiveRef(product.handle)}</span>
+        <div className="tonet-house-carousel__meta">
+          <span className="tonet-house-carousel__title">{product.title}</span>
+          <span className="tonet-house-carousel__archive-ref">{getArchiveRef(product.handle)}</span>
         </div>
       </Link>
 
       <style>{`
-        .rec-card-wrap {
+        .tonet-house-carousel__card-wrap {
           position: relative;
         }
-        .rec-card {
+        .tonet-house-carousel__card {
           display: block;
           text-decoration: none;
           color: inherit;
           cursor: pointer;
         }
-        .rec-img-wrap {
+        .tonet-house-carousel__image-wrap {
           position: relative;
           width: 100%;
           aspect-ratio: 3 / 4;
           background: #f7f7f7;
           overflow: hidden;
         }
-        .rec-img {
+        .tonet-house-carousel__image {
           width: 100%;
           height: 100%;
           object-fit: contain;
           display: block;
-          transition: opacity 0.5s ease-in-out;
+          transition: opacity 300ms ease-in-out;
         }
-        .rec-img-secondary {
+        .tonet-house-carousel__image--secondary {
           position: absolute;
           inset: 0;
           opacity: 0;
         }
-        .rec-card:hover .rec-img-primary {
+        .tonet-house-carousel__card:hover .tonet-house-carousel__image--primary {
           opacity: ${secondImage ? 0 : 1};
         }
-        .rec-card:hover .rec-img-secondary {
+        .tonet-house-carousel__card:hover .tonet-house-carousel__image--secondary {
           opacity: 1;
         }
-        .rec-meta {
+        .tonet-house-carousel__meta {
           padding-top: 18px;
           padding-bottom: 24px;
           display: flex;
@@ -78,7 +86,7 @@ export default function RecommendedCard({ product }: Props) {
           align-items: center;
           text-align: center;
         }
-        .rec-title {
+        .tonet-house-carousel__title {
           font-family: var(--font-primary), sans-serif;
           font-size: 9.5px;
           font-weight: 300;
@@ -88,8 +96,9 @@ export default function RecommendedCard({ product }: Props) {
           color: #111;
           max-width: 280px;
           margin: 0 auto;
+          white-space: normal;
         }
-        .rec-archive-ref {
+        .tonet-house-carousel__archive-ref {
           font-family: var(--font-primary), sans-serif;
           font-size: 8px;
           font-weight: 300;

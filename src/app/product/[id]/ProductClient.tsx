@@ -985,11 +985,11 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
 
       {/* ── YOU MAY ALSO LIKE – carousel ── */}
       {recommended.length > 0 && (
-        <section className="rec-section">
-          <h2 className="rec-label">WITHIN THE HOUSE</h2>
-          <div className="rec-carousel-wrap">
+        <section className="tonet-house-carousel">
+          <h2 className="tonet-house-carousel__header">WITHIN THE HOUSE</h2>
+          <div className="tonet-house-carousel__wrap">
             <div
-              className="rec-carousel"
+              className="tonet-house-carousel__track"
               ref={ymalCallbackRef}
               onPointerDown={ymalPointerDown}
               onPointerMove={ymalPointerMove}
@@ -999,7 +999,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
             >
               <div style={{flexShrink: 0, width: 16, minWidth: 16}} />
               {[...completeOutfit, ...recommended.filter(r => !completeOutfit.some(o => o.handle === r.handle))].slice(0, 16).map((p) => (
-                <div className="rec-carousel-item" key={p.handle}>
+                <div className="tonet-house-carousel__item" key={p.handle}>
                   <RecommendedCard product={p} />
                 </div>
               ))}
@@ -2078,6 +2078,54 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
           min-width: calc(33.333% - 32px);
           scroll-snap-align: start;
         }
+
+        /* ══ TONET HOUSE CAROUSEL ══ */
+        .tonet-house-carousel {
+          padding: 120px 0 140px;
+          background: #ffffff !important;
+          font-family: var(--font-primary), sans-serif;
+          overflow: hidden;
+        }
+        .tonet-house-carousel__header {
+          font-family: var(--font-primary), sans-serif;
+          font-size: 9.5px;
+          font-weight: 300;
+          text-transform: uppercase;
+          letter-spacing: 0.52em;
+          color: rgba(0,0,0,0.45);
+          margin: 0 0 80px;
+          padding-left: 0;
+          text-align: center;
+        }
+        .tonet-house-carousel__wrap {
+          overflow: hidden;
+          width: 100%;
+        }
+        .tonet-house-carousel__track {
+          display: flex;
+          flex-direction: row;
+          gap: 56px;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          cursor: grab;
+          user-select: none;
+          padding-left: 80px;
+          padding-right: 80px;
+          padding-bottom: 24px;
+          scroll-padding-left: 80px;
+          will-change: transform;
+          scrollbar-width: none;
+        }
+        .tonet-house-carousel__track:active { cursor: grabbing; }
+        .tonet-house-carousel__track.dragging { cursor: grabbing; }
+        .tonet-house-carousel__track.dragging * { pointer-events: none; user-select: none; }
+        .tonet-house-carousel__track::-webkit-scrollbar { display: none; }
+        .tonet-house-carousel__item {
+          flex: 0 0 calc(33.333% - 38px);
+          min-width: calc(33.333% - 38px);
+          scroll-snap-align: start;
+        }
         /* ══ THE HOUSE PHILOSOPHY ══ */
         .ss-philosophy {
           padding: 100px 32px;
@@ -2135,6 +2183,25 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
             scroll-padding-left: 24px !important;
           }
           .rec-carousel-item {
+            flex: 0 0 75vw !important;
+            min-width: 75vw !important;
+          }
+
+          /* TONET HOUSE CAROUSEL MOBILE */
+          .tonet-house-carousel {
+            background: #ffffff !important;
+            padding: 80px 0 100px !important;
+          }
+          .tonet-house-carousel__header {
+            margin-bottom: 48px !important;
+          }
+          .tonet-house-carousel__track {
+            gap: 24px !important;
+            padding-left: 24px !important;
+            padding-right: 24px !important;
+            scroll-padding-left: 24px !important;
+          }
+          .tonet-house-carousel__item {
             flex: 0 0 75vw !important;
             min-width: 75vw !important;
           }
