@@ -59,7 +59,7 @@ export default function WishlistClient() {
             <p className="pa-empty-sub">
               Browse the collection and add pieces to build your personal archive.
             </p>
-            <Link href="/collections" className="pa-browse">Browse the Collection</Link>
+            <Link href="/collection" className="pa-browse">Browse the Collection</Link>
           </div>
         ) : (
           <div className="pa-entries">

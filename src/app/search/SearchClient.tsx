@@ -63,7 +63,7 @@ export default function SearchClient({ query, products, collections }: Props) {
         <div className="sr-empty">
           <p>No results found for &ldquo;{query}&rdquo;.</p>
           <p className="sr-empty-sub">Try a different term or browse our collections.</p>
-          <Link href="/collections" className="sr-empty-link">View all collections</Link>
+          <Link href="/collection" className="sr-empty-link">View all collections</Link>
         </div>
       )}
 

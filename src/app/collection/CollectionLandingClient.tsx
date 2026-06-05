@@ -40,31 +40,38 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
 
   // Section 5 Foundations filter: get products with 'black', 'essential', 'foundation' or dark tags
   const foundations = useMemo(() => {
-    return products.filter(p => {
+    let list = products.filter(p => {
       const matchText = (p.title + ' ' + p.description).toLowerCase();
       const hasBlack = matchText.includes('black') || matchText.includes('negro') || matchText.includes('charcoal');
       const hasCore = p.tags.some(t => /essential|core|foundation|básico/i.test(t));
       return hasBlack || hasCore;
-    }).slice(0, 4);
+    });
+    if (list.length === 0) {
+      list = [...products];
+    }
+    return list.slice(0, 4);
   }, [products]);
 
   // Section 7 filtered list of products
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let filtered = [...products];
 
     // Apply main editorial filters
     if (activeFilter === 'him') {
-      result = result.filter(p => p.tags.some(t => /men|him|male|hombre/i.test(t)));
+      filtered = products.filter(p => p.tags.some(t => /men|him|male|hombre/i.test(t)));
     } else if (activeFilter === 'her') {
-      result = result.filter(p => p.tags.some(t => /women|her|female|mujer/i.test(t)));
+      filtered = products.filter(p => p.tags.some(t => /women|her|female|mujer/i.test(t)));
     } else if (activeFilter === 'foundations') {
-      result = result.filter(p => {
+      filtered = products.filter(p => {
         const matchText = (p.title + ' ' + p.description).toLowerCase();
         return matchText.includes('black') || p.tags.some(t => /essential|core|foundation/i.test(t));
       });
     } else if (activeFilter === 'archives') {
-      result = result.filter(p => p.tags.some(t => /archive|archival|old/i.test(t)) || p.title.toLowerCase().includes('archive'));
+      filtered = products.filter(p => p.tags.some(t => /archive|archival|old/i.test(t)) || p.title.toLowerCase().includes('archive'));
     }
+
+    // Fallback to all products if no products matched the filter (since tags might not be created in Shopify yet)
+    let result = filtered.length > 0 ? filtered : [...products];
 
     // Apply sorting
     if (sortKey === 'price-asc') {

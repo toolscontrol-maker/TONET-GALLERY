@@ -121,7 +121,7 @@ export default function ArchiveClient() {
                     No pieces currently archived.<br/>
                     Selected pieces will appear here for future consideration.
                   </p>
-                  <Link href="/collections" className="ar-cta-link">Explore Collections →</Link>
+                  <Link href="/collection" className="ar-cta-link">Explore Collections →</Link>
                 </div>
               ) : (
                 <div className="ar-entries">
