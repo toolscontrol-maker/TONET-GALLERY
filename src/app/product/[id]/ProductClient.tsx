@@ -853,9 +853,9 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
           background: #000000;
           color: #ffffff;
           border: none;
-          font-family: Arial, sans-serif;
-          font-size: 12px;
-          font-weight: 700;
+          font-family: var(--font-helvetica-ext-black-cond), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          font-size: 14px;
+          font-weight: normal;
           text-transform: uppercase;
           cursor: pointer;
           transition: opacity 0.2s ease;
@@ -1250,9 +1250,9 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
             background: #000000;
             color: #ffffff;
             border: none;
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            font-weight: 700;
+            font-family: var(--font-helvetica-ext-black-cond), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            font-weight: normal;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             cursor: pointer;
@@ -1404,9 +1404,9 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
             background: #000000;
             color: #ffffff;
             border: none;
-            font-family: Arial, sans-serif;
-            font-size: 8px;
-            font-weight: 900;
+            font-family: var(--font-helvetica-ext-black-cond), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 10px;
+            font-weight: normal;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             padding: 0 14px;
