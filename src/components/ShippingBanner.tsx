@@ -81,7 +81,7 @@ export default function ShippingBanner() {
       borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
       paddingLeft: "0.45em",
       boxSizing: "border-box",
-      position: "fixed",
+      position: "absolute",
       top: 0,
       left: 0,
       right: 0,

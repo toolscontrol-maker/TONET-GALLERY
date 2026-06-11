@@ -13,6 +13,15 @@ export default function Navbar() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (isSearchOpen && inputRef.current) {
@@ -35,7 +44,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="erd-header">
+      <header className={`erd-header ${isScrolled ? "scrolled" : ""}`}>
         <div className="erd-header-inner">
           {/* LEFT: Logo */}
           <div className="erd-header-left">
@@ -127,6 +136,11 @@ export default function Navbar() {
           background: transparent;
           z-index: 1000;
           box-sizing: border-box;
+          transition: top 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .erd-header.scrolled {
+          top: 0;
         }
 
         .erd-header-inner {
