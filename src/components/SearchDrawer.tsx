@@ -145,7 +145,7 @@ export default function SearchDrawer() {
           background: #ffffff;
         }
         .sd-title {
-          font-size: 11.5px;
+          font-size: 9.775px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.1em;
@@ -154,7 +154,7 @@ export default function SearchDrawer() {
         .sd-close {
           background: none; border: none;
           font-family: inherit;
-          font-size: 11.5px; font-weight: 400;
+          font-size: 9.775px; font-weight: 400;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #0033bb; cursor: pointer;
@@ -181,7 +181,7 @@ export default function SearchDrawer() {
         .sd-input {
           flex: 1; border: none; background: transparent;
           font-family: inherit;
-          font-size: 11px; text-transform: uppercase;
+          font-size: 9.35px; text-transform: uppercase;
           color: #111; outline: none;
         }
         .sd-input::placeholder { color: #bbb; }
@@ -198,7 +198,7 @@ export default function SearchDrawer() {
         }
         .sd-section-title {
           padding: 7px 16px;
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.1em;
@@ -215,7 +215,7 @@ export default function SearchDrawer() {
         .sd-suggestion-link {
           display: block;
           padding: 9px 16px;
-          font-size: 12px;
+          font-size: 10.2px;
           color: #0033bb;
           text-decoration: none;
           border-bottom: 1px solid #e0e0e0;
@@ -224,7 +224,7 @@ export default function SearchDrawer() {
         .sd-suggestion-link:hover { background: #eeeeee; }
         .sd-empty {
           display: block; padding: 8px 16px;
-          font-size: 11px; color: #999;
+          font-size: 9.35px; color: #999;
           background: #f7f7f7;
         }
 

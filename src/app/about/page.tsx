@@ -42,7 +42,7 @@ export default function HousePage() {
         /* Section eyebrow */
         .h-eyebrow {
           display: block;
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.52em;
           text-transform: uppercase;
@@ -87,7 +87,7 @@ export default function HousePage() {
         }
         .h-hero-tag {
           display: block;
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.6em;
           text-transform: uppercase;
@@ -96,7 +96,7 @@ export default function HousePage() {
           margin-bottom: 26px;
         }
         .h-hero-title {
-          font-size: clamp(54px, 8.5vw, 112px);
+          font-size: clamp(45.9px, 7.225vw, 95.2px);
           font-weight: 300;
           line-height: 0.93;
           letter-spacing: 0.008em;
@@ -105,7 +105,7 @@ export default function HousePage() {
           margin: 0 0 30px 0;
         }
         .h-hero-sub {
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.46em;
           text-transform: uppercase;
@@ -125,7 +125,7 @@ export default function HousePage() {
           gap: 14px;
         }
         .h-hero-scroll-lbl {
-          font-size: 7px;
+          font-size: 5.95px;
           letter-spacing: 0.42em;
           text-transform: uppercase;
           color: rgba(255,255,255,0.16);
@@ -156,7 +156,7 @@ export default function HousePage() {
           text-align: center;
         }
         .h-manifesto-p {
-          font-size: 14px;
+          font-size: 11.9px;
           font-weight: 300;
           line-height: 2.05;
           letter-spacing: 0.03em;
@@ -166,7 +166,7 @@ export default function HousePage() {
         }
         .h-manifesto-p:last-child { margin-bottom: 0; }
         .h-manifesto-line {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.14em;
           color: rgba(0,0,0,0.28);
@@ -188,7 +188,7 @@ export default function HousePage() {
           border-top: 1px solid rgba(255,255,255,0.04);
         }
         .h-atm1-quote {
-          font-size: clamp(24px, 3.8vw, 46px);
+          font-size: clamp(20.4px, 3.23vw, 39.1px);
           font-weight: 300;
           line-height: 1.28;
           letter-spacing: 0.03em;
@@ -198,7 +198,7 @@ export default function HousePage() {
           margin: 0 auto 36px;
         }
         .h-atm1-attr {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.46em;
           text-transform: uppercase;
@@ -228,7 +228,7 @@ export default function HousePage() {
         .h-principle:nth-last-child(-n+3) { border-bottom: none; }
         .h-p-title {
           display: block;
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.06em;
           color: rgba(255,255,255,0.68);
@@ -237,7 +237,7 @@ export default function HousePage() {
         }
         .h-p-body {
           display: block;
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           line-height: 1.85;
           letter-spacing: 0.03em;
@@ -259,7 +259,7 @@ export default function HousePage() {
           justify-content: center;
         }
         .h-uniform-title {
-          font-size: clamp(34px, 4.2vw, 60px);
+          font-size: clamp(28.9px, 3.57vw, 51px);
           font-weight: 300;
           line-height: 1.05;
           letter-spacing: 0.02em;
@@ -268,7 +268,7 @@ export default function HousePage() {
           margin: 0 0 48px 0;
         }
         .h-uniform-p {
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 300;
           line-height: 2.05;
           letter-spacing: 0.03em;
@@ -294,7 +294,7 @@ export default function HousePage() {
         }
         .h-pullquote-inner { max-width: 700px; }
         .h-pq-text {
-          font-size: clamp(18px, 2.8vw, 38px);
+          font-size: clamp(15.3px, 2.38vw, 32.3px);
           font-weight: 300;
           line-height: 1.45;
           letter-spacing: 0.02em;
@@ -303,7 +303,7 @@ export default function HousePage() {
           margin: 0 0 36px 0;
         }
         .h-pq-attr {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.46em;
           text-transform: uppercase;
@@ -324,7 +324,7 @@ export default function HousePage() {
           width: 100%;
         }
         .h-residence-title {
-          font-size: clamp(34px, 4.2vw, 56px);
+          font-size: clamp(28.9px, 3.57vw, 47.6px);
           font-weight: 300;
           line-height: 1.05;
           letter-spacing: 0.02em;
@@ -333,7 +333,7 @@ export default function HousePage() {
           margin: 0 0 56px 0;
         }
         .h-residence-p {
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 300;
           line-height: 2.05;
           letter-spacing: 0.03em;
@@ -356,7 +356,7 @@ export default function HousePage() {
         }
         .h-closing-tag {
           display: block;
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.5em;
           text-transform: uppercase;
@@ -366,7 +366,7 @@ export default function HousePage() {
           margin-bottom: 36px;
         }
         .h-closing-title {
-          font-size: clamp(52px, 9vw, 118px);
+          font-size: clamp(44.2px, 7.65vw, 100.3px);
           font-weight: 300;
           line-height: 0.93;
           letter-spacing: 0.008em;
@@ -376,7 +376,7 @@ export default function HousePage() {
         }
         .h-closing-note {
           display: block;
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.5em;
           text-transform: uppercase;

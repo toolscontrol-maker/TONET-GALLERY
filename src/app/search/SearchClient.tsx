@@ -81,7 +81,7 @@ export default function SearchClient({ query, products, collections }: Props) {
           padding-bottom: 20px;
         }
         .sr-title {
-          font-size: 13px;
+          font-size: 11.05px;
           font-weight: 400;
           letter-spacing: 0.06em;
           text-transform: uppercase;
@@ -91,7 +91,7 @@ export default function SearchClient({ query, products, collections }: Props) {
           margin-bottom: 56px;
         }
         .sr-section-title {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 400;
           letter-spacing: 0.1em;
           text-transform: uppercase;
@@ -112,7 +112,7 @@ export default function SearchClient({ query, products, collections }: Props) {
           color: #111;
           border: 1px solid #e5e5e5;
           padding: 10px 16px;
-          font-size: 12px;
+          font-size: 10.2px;
           letter-spacing: 0.06em;
           text-transform: uppercase;
           transition: background 0.15s;
@@ -160,14 +160,14 @@ export default function SearchClient({ query, products, collections }: Props) {
           gap: 4px;
         }
         .sr-name {
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 400;
           letter-spacing: 0.02em;
           color: #111;
           line-height: 1.3;
         }
         .sr-price {
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 400;
           color: #555;
         }
@@ -176,17 +176,17 @@ export default function SearchClient({ query, products, collections }: Props) {
           padding: 60px 0;
           text-align: center;
           color: #555;
-          font-size: 13px;
+          font-size: 11.05px;
           line-height: 1.8;
         }
         .sr-empty-sub {
           color: #999;
-          font-size: 12px;
+          font-size: 10.2px;
         }
         .sr-empty-link {
           display: inline-block;
           margin-top: 24px;
-          font-size: 11px;
+          font-size: 9.35px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: #111;

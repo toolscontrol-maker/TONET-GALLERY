@@ -81,7 +81,7 @@ export default function CookieBanner() {
         }
         .ck-over {
           font-family: var(--font-primary);
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.45em;
           color: rgba(255,255,255,0.25);
@@ -90,7 +90,7 @@ export default function CookieBanner() {
         }
         .ck-body {
           font-family: var(--font-primary);
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.06em;
           color: rgba(255,255,255,0.45);
@@ -117,7 +117,7 @@ export default function CookieBanner() {
         }
         .ck-btn {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.38em;
           text-transform: uppercase;

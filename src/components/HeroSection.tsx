@@ -145,7 +145,7 @@ export default function HeroSection() {
         }
         .tn-hero-eyebrow {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.5em;
           color: rgba(255,255,255,0.32);
@@ -156,7 +156,7 @@ export default function HeroSection() {
         }
         .tn-hero-headline {
           font-family: var(--font-primary);
-          font-size: clamp(44px, 8vw, 110px);
+          font-size: clamp(37.4px, 6.8vw, 93.5px);
           font-weight: 200;
           letter-spacing: 0.18em;
           line-height: 1.05;
@@ -175,7 +175,7 @@ export default function HeroSection() {
         }
         .tn-hero-cta {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.42em;
           color: rgba(255,255,255,0.45);
@@ -225,7 +225,7 @@ export default function HeroSection() {
         @media (max-width: 767px) {
           .tn-hero { height: calc(100dvh + 60px); }
           .tn-hero-headline {
-            font-size: clamp(32px, 11vw, 64px);
+            font-size: clamp(27.2px, 9.35vw, 54.4px);
             letter-spacing: 0.12em;
             margin-bottom: 48px;
           }

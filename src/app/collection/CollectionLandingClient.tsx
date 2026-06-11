@@ -338,11 +338,10 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         </div>
       </footer>
 
-      {/* ── STYLE ── */}
       <style>{`
         .tonet-archive {
-          background: #060606;
-          color: #ffffff;
+          background: #ffffff;
+          color: #000000;
           overflow-x: hidden;
           min-height: 100vh;
           font-family: var(--font-primary), sans-serif;
@@ -370,13 +369,13 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #060606;
-          border-bottom: 1px solid rgba(255,255,255,0.03);
+          background: #ffffff;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
         }
         .tonet-archive-hero__bg-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(6,6,6,0.92) 100%);
+          background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.92) 100%);
           z-index: 1;
         }
         .tonet-archive-hero__image {
@@ -385,7 +384,7 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           width: 100%;
           height: 100%;
           object-fit: cover;
-          opacity: 0.18;
+          opacity: 0.12;
           filter: grayscale(1);
         }
         .tonet-archive-hero__content {
@@ -399,26 +398,26 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           align-items: center;
         }
         .tonet-archive-hero__eyebrow {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.52em;
-          color: rgba(255,255,255,0.22);
+          color: rgba(0,0,0,0.4);
           margin-bottom: 10px;
           text-transform: uppercase;
         }
         .tonet-archive-hero__title {
-          font-size: clamp(26px, 4.5vw, 44px);
+          font-size: clamp(22.1px, 3.825vw, 37.4px);
           font-weight: 200;
           letter-spacing: 0.28em;
           line-height: 1.2;
           margin-bottom: 10px;
-          color: #fff;
+          color: #000000;
         }
         .tonet-archive-hero__subtitle {
-          font-size: 10.5px;
+          font-size: 8.925px;
           font-weight: 300;
           letter-spacing: 0.08em;
-          color: rgba(255,255,255,0.38);
+          color: rgba(0,0,0,0.6);
           margin-bottom: 18px;
         }
 
@@ -432,20 +431,20 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           justify-content: center;
         }
         .tonet-archive-stats__item {
-          font-size: 8.5px;
+          font-size: 7.225px;
           font-weight: 300;
           letter-spacing: 0.2em;
-          color: rgba(255,255,255,0.32);
+          color: rgba(0,0,0,0.5);
         }
         .tonet-archive-stats__divider {
-          font-size: 8px;
-          color: rgba(255,255,255,0.08);
+          font-size: 6.8px;
+          color: rgba(0,0,0,0.15);
         }
 
         /* ── COMPACT FILTER BAR (Max 80-100px) ── */
         .tonet-archive-controls {
-          background: #060606;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
+          background: #ffffff;
+          border-bottom: 1px solid rgba(0,0,0,0.06);
           display: flex;
           align-items: center;
           padding: 0 40px;
@@ -467,15 +466,15 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           align-items: center;
         }
         .tonet-archive-controls__text {
-          font-size: 8.5px;
+          font-size: 7.225px;
           font-weight: 300;
           letter-spacing: 0.28em;
-          color: rgba(255,255,255,0.4);
+          color: rgba(0,0,0,0.6);
         }
         .tonet-archive-controls__divider-vertical {
           width: 1px;
           height: 14px;
-          background: rgba(255,255,255,0.06);
+          background: rgba(0,0,0,0.08);
         }
         .tonet-archive-filter__options {
           display: flex;
@@ -485,10 +484,10 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         }
         .tonet-archive-filter__btn {
           font-family: var(--font-primary), sans-serif;
-          font-size: 8.5px;
+          font-size: 7.225px;
           font-weight: 300;
           letter-spacing: 0.25em;
-          color: rgba(255,255,255,0.35);
+          color: rgba(0,0,0,0.4);
           background: transparent;
           border: none;
           cursor: pointer;
@@ -498,7 +497,7 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         }
         .tonet-archive-filter__btn:hover,
         .tonet-archive-filter__btn.active {
-          color: #ffffff;
+          color: #000000;
         }
         .tonet-archive-filter__btn.active::after {
           content: '';
@@ -507,12 +506,12 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           left: 0;
           width: 100%;
           height: 1px;
-          background: rgba(255,255,255,0.5);
+          background: rgba(0,0,0,0.5);
         }
 
         /* ── ARCHITECTURAL GRID ── */
         .tonet-archive-grid-section {
-          background: #060606;
+          background: #ffffff;
           padding: 48px 40px 120px;
         }
         .tonet-archive-grid {
@@ -558,17 +557,17 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         .tonet-archive-card__image-placeholder {
           width: 100%;
           height: 100%;
-          background: rgba(231, 228, 223, 0.05);
-          border: 1px solid rgba(255,255,255,0.05);
+          background: rgba(0, 0, 0, 0.02);
+          border: 1px solid rgba(0,0,0,0.05);
           display: flex;
           align-items: center;
           justify-content: center;
         }
         .tonet-archive-card__image-placeholder span {
-          font-size: 10px;
+          font-size: 8.5px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.3);
+          color: rgba(0,0,0,0.4);
         }
 
         /* Hover behaviors */
@@ -583,7 +582,7 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         .tonet-archive-hover-panel {
           position: absolute;
           inset: 0;
-          background: rgba(6, 6, 6, 0.88);
+          background: rgba(255, 255, 255, 0.96);
           opacity: 0;
           z-index: 2;
           display: flex;
@@ -592,6 +591,7 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           padding: 28px;
           transition: opacity 300ms cubic-bezier(0.16, 1, 0.3, 1);
           border-radius: 2px;
+          border: 1px solid rgba(0,0,0,0.08);
         }
         .tonet-archive-card:hover .tonet-archive-hover-panel {
           opacity: 1;
@@ -604,20 +604,20 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         .tonet-archive-hover-panel__row {
           display: flex;
           justify-content: space-between;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
+          border-bottom: 1px solid rgba(0,0,0,0.05);
           padding-bottom: 5px;
         }
         .tonet-archive-hover-panel__row .lbl {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.28em;
-          color: rgba(255,255,255,0.3);
+          color: rgba(0,0,0,0.4);
         }
         .tonet-archive-hover-panel__row .val {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.15em;
-          color: #ffffff;
+          color: #000000;
         }
         .tonet-archive-hover-panel__actions {
           display: flex;
@@ -625,10 +625,10 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           margin-top: auto;
         }
         .tonet-archive-hover-panel__actions .action-btn {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.35em;
-          color: rgba(255,255,255,0.5);
+          color: rgba(0,0,0,0.6);
         }
 
         /* Card Metadata labels */
@@ -639,19 +639,19 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           gap: 5px;
         }
         .tonet-archive-card__collection {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.42em;
-          color: rgba(255,255,255,0.22);
+          color: rgba(0,0,0,0.4);
           text-transform: uppercase;
         }
         .tonet-archive-card__title {
           font-family: Georgia, serif;
-          font-size: 13px;
+          font-size: 11.05px;
           font-weight: 300;
           font-style: italic;
           letter-spacing: 0.04em;
-          color: rgba(255, 255, 255, 0.88);
+          color: rgba(0, 0, 0, 0.88);
           line-height: 1.5;
           margin: 0;
           white-space: normal;
@@ -663,13 +663,13 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           margin-top: 2px;
         }
         .tonet-archive-card__ref {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.15em;
-          color: rgba(255,255,255,0.45);
+          color: rgba(0,0,0,0.5);
         }
         .tonet-archive-card__status--archived {
-          font-size: 7.5px;
+          font-size: 6.375px;
           font-weight: 400;
           letter-spacing: 0.2em;
           color: #8f4b4b;
@@ -678,8 +678,8 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         /* ── EDITORIAL EXCERPT BREAKS ── */
         .tonet-archive-quote {
           width: 100%;
-          border-top: 1px solid rgba(255,255,255,0.03);
-          border-bottom: 1px solid rgba(255,255,255,0.03);
+          border-top: 1px solid rgba(0,0,0,0.06);
+          border-bottom: 1px solid rgba(0,0,0,0.06);
           padding: 56px 0;
           text-align: center;
           display: flex;
@@ -691,36 +691,36 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
         }
         .tonet-archive-quote__text {
           font-family: Georgia, serif;
-          font-size: clamp(13px, 1.8vw, 18px);
+          font-size: clamp(11.05px, 1.53vw, 15.3px);
           font-weight: 300;
           font-style: italic;
           letter-spacing: 0.08em;
           line-height: 1.8;
-          color: rgba(255,255,255,0.48);
+          color: rgba(0,0,0,0.6);
           max-width: 600px;
           margin: 0;
         }
         .tonet-archive-quote__sub {
-          font-size: 7.5px;
+          font-size: 6.375px;
           font-weight: 300;
           letter-spacing: 0.45em;
-          color: rgba(255,255,255,0.18);
+          color: rgba(0,0,0,0.3);
         }
 
         .tonet-archive-empty {
           grid-column: 1 / -1;
           padding: 100px 24px;
           text-align: center;
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.35em;
-          color: rgba(255,255,255,0.3);
+          color: rgba(0,0,0,0.4);
         }
 
         /* ── FOOTER ── */
         .tonet-archive-footer {
-          background: #060606;
-          border-top: 1px solid rgba(255,255,255,0.03);
+          background: #ffffff;
+          border-top: 1px solid rgba(0,0,0,0.06);
           padding: 80px 40px;
           text-align: center;
         }
@@ -733,17 +733,17 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           align-items: center;
         }
         .tonet-archive-footer__label {
-          font-size: 8.5px;
+          font-size: 7.225px;
           font-weight: 300;
           letter-spacing: 0.45em;
-          color: rgba(255,255,255,0.25);
+          color: rgba(0,0,0,0.4);
         }
         .tonet-archive-footer__note {
-          font-size: 10.5px;
+          font-size: 8.925px;
           font-weight: 300;
           line-height: 1.8;
           letter-spacing: 0.06em;
-          color: rgba(255,255,255,0.35);
+          color: rgba(0,0,0,0.5);
         }
         .tonet-archive-footer__socials {
           display: flex;
@@ -752,19 +752,19 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
           margin-top: 8px;
         }
         .tonet-archive-footer__socials a {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.35em;
-          color: rgba(255,255,255,0.3);
+          color: rgba(0,0,0,0.5);
           text-decoration: none;
           transition: color 0.3s;
         }
         .tonet-archive-footer__socials a:hover {
-          color: rgba(255,255,255,0.7);
+          color: rgba(0,0,0,0.8);
         }
         .tonet-archive-footer__sep {
-          font-size: 8px;
-          color: rgba(255,255,255,0.1);
+          font-size: 6.8px;
+          color: rgba(0,0,0,0.15);
         }
 
         /* ── RESPONSIVE ADAPTATIONS ── */
@@ -804,25 +804,25 @@ export default function CollectionLandingClient({ products }: CollectionLandingC
             padding-top: 20px;
           }
           .tonet-archive-hero__title {
-            font-size: 24px;
+            font-size: 20.4px;
             letter-spacing: 0.2em;
           }
           .tonet-archive-stats {
             gap: 10px;
           }
           .tonet-archive-stats__item {
-            font-size: 7.5px;
+            font-size: 6.375px;
           }
           .tonet-archive-filter__options {
             gap: 10px;
             flex-wrap: wrap;
           }
           .tonet-archive-filter__btn {
-            font-size: 7.5px;
+            font-size: 6.375px;
             letter-spacing: 0.15em;
           }
           .tonet-archive-controls__text {
-            font-size: 7.5px;
+            font-size: 6.375px;
           }
           .tonet-archive-grid-section {
             padding: 24px 16px 80px;

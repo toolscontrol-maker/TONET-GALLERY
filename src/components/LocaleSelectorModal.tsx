@@ -131,7 +131,7 @@ export default function LocaleSelectorModal() {
         }
         .ls-logo {
           font-family: var(--font-brand);
-          font-size: 26px;
+          font-size: 22.1px;
           font-weight: normal;
           letter-spacing: 0.01em;
           text-align: center;
@@ -139,7 +139,7 @@ export default function LocaleSelectorModal() {
           color: #111;
         }
         .ls-title {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.12em;
@@ -148,7 +148,7 @@ export default function LocaleSelectorModal() {
           text-align: center;
         }
         .ls-label {
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.1em;
@@ -160,7 +160,7 @@ export default function LocaleSelectorModal() {
           padding: 12px 14px;
           border: none;
           border-bottom: 1px solid #ccc;
-          font-size: 13px;
+          font-size: 11.05px;
           font-family: inherit;
           font-weight: 400;
           color: #111;
@@ -186,7 +186,7 @@ export default function LocaleSelectorModal() {
           cursor: pointer;
         }
         .ls-remember span {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 400;
           letter-spacing: 0.04em;
           color: #111;
@@ -197,7 +197,7 @@ export default function LocaleSelectorModal() {
           border: 1px solid #111;
           background: #fff;
           color: #111;
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.16em;
@@ -215,7 +215,7 @@ export default function LocaleSelectorModal() {
           right: 16px;
           background: none;
           border: none;
-          font-size: 16px;
+          font-size: 13.6px;
           cursor: pointer;
           color: #999;
           padding: 4px;

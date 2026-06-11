@@ -63,7 +63,7 @@ export default function FindStore() {
         }
         .find-store-title {
           font-family: 'DM Sans', serif;
-          font-size: 28px;
+          font-size: 23.8px;
           font-weight: 400;
           font-style: italic;
           margin: 0 0 20px;
@@ -71,7 +71,7 @@ export default function FindStore() {
         }
         .find-store-desc {
           font-family: var(--font-primary);
-          font-size: 14px;
+          font-size: 11.9px;
           font-weight: 400;
           line-height: 1.7;
           color: rgba(255,255,255,0.75);
@@ -80,7 +80,7 @@ export default function FindStore() {
         }
         .find-store-link {
           font-family: var(--font-primary);
-          font-size: 14px;
+          font-size: 11.9px;
           font-weight: 500;
           color: #fff;
           text-decoration: underline;
@@ -107,11 +107,11 @@ export default function FindStore() {
             justify-content: flex-start;
           }
           .find-store-title {
-            font-size: 22px;
+            font-size: 18.7px;
             margin-bottom: 14px;
           }
           .find-store-desc {
-            font-size: 13px;
+            font-size: 11.05px;
             margin-bottom: 20px;
           }
         }

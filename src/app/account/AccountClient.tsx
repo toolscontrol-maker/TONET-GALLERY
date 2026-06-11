@@ -27,7 +27,6 @@ export default function AccountClient() {
           <Link href="/account" className="acc-tab acc-tab--active">The Residence</Link>
           <Link href="/account/orders" className="acc-tab">Acquisitions</Link>
           <Link href="/account/information" className="acc-tab">House Record</Link>
-          <Link href="/archive" className="acc-tab">Archive</Link>
         </nav>
 
         {/* Welcome header */}
@@ -60,22 +59,7 @@ export default function AccountClient() {
             <p className="acc-block-empty">No acquisitions recorded.</p>
           </Link>
 
-          {/* Wishlist */}
-          <Link href="/archive" className="acc-block">
-            <h3 className="acc-block-title">Archive Collection</h3>
-            {wishlistItems.length > 0 ? (
-              <div className="acc-wish-preview">
-                {wishlistItems.slice(0, 3).map(item => (
-                  <img key={item.handle} src={item.imageUrl} alt={item.title} className="acc-wish-img" />
-                ))}
-                {wishlistItems.length > 3 && (
-                  <span className="acc-wish-more">+{wishlistItems.length - 3}</span>
-                )}
-              </div>
-            ) : (
-              <p className="acc-block-empty">No garments currently archived.</p>
-            )}
-          </Link>
+
 
           {/* My Information */}
           <Link href="/account/information" className="acc-block">
@@ -115,7 +99,7 @@ export default function AccountClient() {
           padding-bottom: 1px;
         }
         .acc-tab {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           text-decoration: none;
           color: rgba(255,255,255,0.3);
@@ -135,14 +119,14 @@ export default function AccountClient() {
         /* Header */
         .acc-title {
           font-family: var(--font-brand);
-          font-size: clamp(24px, 4vw, 36px);
+          font-size: clamp(20.4px, 3.4vw, 30.6px);
           font-weight: 300;
           margin: 0 0 16px;
           letter-spacing: 0.15em;
           color: rgba(255,255,255,0.7);
         }
         .acc-email {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.08em;
           color: rgba(255,255,255,0.35);
@@ -171,7 +155,7 @@ export default function AccountClient() {
         .acc-block:hover { background: rgba(255,255,255,0.015); }
 
         .acc-block-title {
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           text-transform: uppercase;
           letter-spacing: 0.3em;
@@ -179,7 +163,7 @@ export default function AccountClient() {
           margin: 0 0 16px;
         }
         .acc-block-empty {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.04em;
           color: rgba(255,255,255,0.25);
@@ -187,7 +171,7 @@ export default function AccountClient() {
           line-height: 1.6;
         }
         .acc-block-desc {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.06em;
           color: rgba(255,255,255,0.4);
@@ -214,14 +198,14 @@ export default function AccountClient() {
           gap: 4px;
         }
         .acc-cart-name {
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: rgba(255,255,255,0.6);
         }
         .acc-cart-price {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.05em;
           color: rgba(255,255,255,0.3);
@@ -242,7 +226,7 @@ export default function AccountClient() {
           filter: grayscale(0.2);
         }
         .acc-wish-more {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           color: rgba(255,255,255,0.3);
           margin-left: 8px;
@@ -253,7 +237,7 @@ export default function AccountClient() {
           background: transparent;
           border: 1px solid rgba(255,255,255,0.1);
           padding: 16px 40px;
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           font-family: var(--font-primary);
           text-transform: uppercase;

@@ -167,33 +167,18 @@ export default function MenuDrawer() {
             </button>
           </div>
 
-          {/* Collections */}
-          <p className="md-nav-eyebrow">Navigate</p>
-          <nav className="md-nav">
-            {collections.map(c => (
-              <button
-                key={c.handle}
-                className={`md-nav-item ${activeHandle === c.handle ? 'md-nav-active' : ''}`}
-                onClick={() => { setSearchOpen(false); setActiveHandle(activeHandle === c.handle ? null : c.handle); }}
-              >
-                {c.title}
-              </button>
-            ))}
-          </nav>
-
-          {/* Archive section */}
-          <p className="md-nav-eyebrow md-archive-eyebrow">Archive</p>
-          <div className="md-archive-links">
-            <Link href="/archive" className="md-archive-link" onClick={closeMenu}>Personal Archive</Link>
-            <Link href="/archive?tab=acquisitions" className="md-archive-link" onClick={closeMenu}>Past Acquisitions</Link>
-            <Link href="/archive?tab=requests" className="md-archive-link" onClick={closeMenu}>Availability Requests</Link>
-            <Link href="/archive?tab=registry" className="md-archive-link" onClick={closeMenu}>Collection Registry</Link>
-          </div>
-
-          {/* Bottom links */}
-          <div className="md-bottom-links">
-            <Link href="/stores" className="md-bottom-link" onClick={closeMenu}>Stores</Link>
-            <Link href="/product/e-gift-card" className="md-bottom-link" onClick={closeMenu}>Gift cards</Link>
+          {/* Navigation Container */}
+          <div className="md-nav-container">
+            <p className="md-nav-eyebrow">Navigate</p>
+            <nav className="md-nav">
+              <Link href="/collection/tops" className="md-nav-item" onClick={closeMenu}>Tops</Link>
+              <Link href="/collection/bottom" className="md-nav-item" onClick={closeMenu}>Bottom</Link>
+              <Link href="/collection/strange" className="md-nav-item" onClick={closeMenu}>Strange</Link>
+              <Link href="/stores" className="md-nav-item md-nav-irl-link" onClick={closeMenu}>
+                <span className="md-irl-badge">COMING SOON</span>
+                IRL
+              </Link>
+            </nav>
           </div>
 
           <div className="md-locale">
@@ -318,42 +303,65 @@ export default function MenuDrawer() {
         /* Nav eyebrow */
         .md-nav-eyebrow {
           font-family: var(--font-primary);
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.5em;
           text-transform: uppercase;
           color: rgba(255,255,255,0.13);
-          padding: 40px 40px 14px;
+          padding: 0 40px 14px;
           margin: 0;
+        }
+
+        .md-nav-container {
+          margin: auto 0;
+          display: flex;
+          flex-direction: column;
+          width: 100%;
         }
 
         .md-nav {
           display: flex;
           flex-direction: column;
-          padding: 0 0 48px;
-          flex: 1;
         }
         .md-nav-item {
           display: block;
           width: 100%;
           text-align: left;
           padding: 11px 40px;
-          font-family: var(--font-primary);
-          font-size: 10px;
-          font-weight: 300;
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          font-weight: 700;
           color: rgba(255,255,255,0.52);
           background: none !important;
           border: none !important;
           cursor: pointer;
           text-decoration: none;
           line-height: 1.5;
-          letter-spacing: 0.32em !important;
+          letter-spacing: 0.04em !important;
           text-transform: uppercase;
           border-radius: 0 !important;
           transform: none !important;
           transition: color 0.5s;
         }
         .md-nav-item:hover { color: rgba(255,255,255,0.9) !important; opacity: 1 !important; }
+        .md-nav-irl-link {
+          position: relative;
+          display: block;
+        }
+        .md-irl-badge {
+          position: absolute;
+          top: -2px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-family: Arial, sans-serif;
+          font-size: 6px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          color: rgba(255,255,255,0.3);
+          text-transform: uppercase;
+          white-space: nowrap;
+          pointer-events: none;
+        }
         .md-nav-active { color: rgba(255,255,255,0.88) !important; font-weight: 300; }
         .md-nav-item:not(.md-nav-active) { color: rgba(255,255,255,0.52); }
         .md-expanded .md-nav-item:not(.md-nav-active) { color: rgba(255,255,255,0.18); }
@@ -368,7 +376,7 @@ export default function MenuDrawer() {
           display: block;
           padding: 9px 40px;
           font-family: var(--font-primary);
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.32em;
           text-transform: uppercase;
@@ -389,7 +397,7 @@ export default function MenuDrawer() {
           display: block;
           padding: 6px 40px;
           font-family: var(--font-primary);
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.38em;
           text-transform: uppercase;
@@ -402,7 +410,7 @@ export default function MenuDrawer() {
         .md-locale {
           padding: 10px 40px 28px;
           font-family: var(--font-primary);
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.4em;
           text-transform: uppercase;
@@ -432,7 +440,7 @@ export default function MenuDrawer() {
           width: 100%;
           padding: 12px 0;
           font-family: var(--font-primary);
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 300;
           letter-spacing: 0.08em;
           color: rgba(255,255,255,0.82);
@@ -451,7 +459,7 @@ export default function MenuDrawer() {
         .md-search-popular-title {
           padding: 32px 40px 14px;
           font-family: var(--font-primary);
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.5em;
           text-transform: uppercase;
@@ -466,7 +474,7 @@ export default function MenuDrawer() {
           border: none !important;
           cursor: pointer;
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.28em;
           text-transform: uppercase;
@@ -482,7 +490,7 @@ export default function MenuDrawer() {
         /* ══ COLLECTION PANEL ══ */
         .md-sub-title {
           font-family: var(--font-primary);
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.5em;
           text-transform: uppercase;
@@ -495,7 +503,7 @@ export default function MenuDrawer() {
           display: block;
           padding: 10px 40px;
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.28em;
           text-transform: uppercase;
@@ -547,18 +555,19 @@ export default function MenuDrawer() {
           }
           .md-col-right-open { transform: translateX(0); pointer-events: auto; border-left: none; }
           .md-back-btn { display: flex; }
-          .md-nav-eyebrow { padding: 32px 28px 12px; }
-          .md-nav-item { padding: 11px 28px; }
+          .md-nav-eyebrow { padding: 0 28px 12px; text-align: center; }
+          .md-nav-item { padding: 11px 28px; text-align: center; }
           .md-topbar { padding: 24px 28px; }
-          .md-bottom-link { padding: 6px 28px; }
-          .md-locale { padding: 10px 28px 28px; }
+          .md-bottom-link { padding: 6px 28px; text-align: center; }
+          .md-locale { padding: 10px 28px 28px; text-align: center; }
           .md-search-form { padding: 48px 28px 20px; }
-          .md-search-popular-title { padding: 28px 28px 14px; }
-          .md-search-tag { padding: 10px 28px; }
-          .md-sub-title { padding: 48px 28px 20px; }
-          .md-sub-item { padding: 10px 28px; }
+          .md-search-input { text-align: center; }
+          .md-search-popular-title { padding: 28px 28px 14px; text-align: center; }
+          .md-search-tag { padding: 10px 28px; text-align: center; }
+          .md-sub-title { padding: 48px 28px 20px; text-align: center; }
+          .md-sub-item { padding: 10px 28px; text-align: center; }
           .md-back-btn { padding: 28px 28px 8px; }
-          .md-archive-link { padding: 9px 28px; }
+          .md-archive-link { padding: 9px 28px; text-align: center; }
         }
       `}</style>
     </>

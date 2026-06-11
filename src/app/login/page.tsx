@@ -263,7 +263,7 @@ export default function LoginPage() {
 
         .auth-title {
           font-family: var(--font-brand);
-          font-size: clamp(24px, 4vw, 36px);
+          font-size: clamp(20.4px, 3.4vw, 30.6px);
           font-weight: 300;
           letter-spacing: 0.15em;
           color: rgba(255,255,255,0.7);
@@ -271,7 +271,7 @@ export default function LoginPage() {
         }
 
         .auth-subtext {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.08em;
           color: rgba(255,255,255,0.3);
@@ -292,7 +292,7 @@ export default function LoginPage() {
           width: 100%;
           padding: 16px 0;
           font-family: var(--font-primary);
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 300;
           letter-spacing: 0.08em;
           color: rgba(255,255,255,0.8);
@@ -314,7 +314,7 @@ export default function LoginPage() {
         }
 
         .auth-error {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.04em;
           color: rgba(200, 50, 50, 0.8);
@@ -325,7 +325,7 @@ export default function LoginPage() {
           width: 100%;
           padding: 16px;
           font-family: var(--font-primary);
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.3em;
           text-transform: uppercase;
@@ -366,7 +366,7 @@ export default function LoginPage() {
         .auth-divider span {
           background: #0c0c0c;
           padding: 0 16px;
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.2em;
           text-transform: uppercase;
@@ -378,7 +378,7 @@ export default function LoginPage() {
           width: 100%;
           padding: 14px 16px;
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.12em;
           color: rgba(255,255,255,0.5);
@@ -403,7 +403,7 @@ export default function LoginPage() {
         }
 
         .auth-step-info {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.06em;
           color: rgba(255,255,255,0.4);
@@ -414,7 +414,7 @@ export default function LoginPage() {
           background: none;
           border: none;
           font-family: var(--font-primary);
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.15em;
           text-transform: uppercase;
@@ -435,7 +435,7 @@ export default function LoginPage() {
 
         .auth-privacy {
           margin-top: 60px;
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.06em;
           color: rgba(255,255,255,0.2);
@@ -459,7 +459,7 @@ export default function LoginPage() {
 
         @media (max-width: 899px) {
           .auth-panel-right { padding: 100px 24px; }
-          .auth-title { font-size: 24px; margin-bottom: 8px; }
+          .auth-title { font-size: 20.4px; margin-bottom: 8px; }
         }
       `}</style>
     </div>

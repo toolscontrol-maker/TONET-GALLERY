@@ -114,12 +114,12 @@ export default function WelcomeClient() {
           color: #111;
         }
         .wb-title {
-          font-size: 19px;
+          font-size: 16.15px;
           font-weight: 400;
           margin: 0 0 8px;
         }
         .wb-subtitle {
-          font-size: 13px;
+          font-size: 11.05px;
           color: #555;
           margin: 0 0 32px;
         }
@@ -128,7 +128,7 @@ export default function WelcomeClient() {
           flex-direction: column;
         }
         .wb-label {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.08em;
@@ -145,7 +145,7 @@ export default function WelcomeClient() {
           background: #f7f7f7;
           border: none;
           padding: 14px 12px;
-          font-size: 12px;
+          font-size: 10.2px;
           font-family: Arial, sans-serif;
           color: #111;
           outline: none;
@@ -156,7 +156,7 @@ export default function WelcomeClient() {
           background: #f7f7f7;
           border: none;
           padding: 14px 12px;
-          font-size: 12px;
+          font-size: 10.2px;
           font-family: Arial, sans-serif;
           color: #111;
           outline: none;
@@ -169,7 +169,7 @@ export default function WelcomeClient() {
           display: flex;
           align-items: flex-start;
           gap: 10px;
-          font-size: 12px;
+          font-size: 10.2px;
           color: #333;
           margin-bottom: 32px;
           cursor: pointer;
@@ -183,7 +183,7 @@ export default function WelcomeClient() {
         .wb-btn {
           width: 100%;
           padding: 16px;
-          font-size: 11px;
+          font-size: 9.35px;
           font-family: Arial, sans-serif;
           text-transform: uppercase;
           letter-spacing: 0.5px;

@@ -1,546 +1,132 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { X, Plus } from 'lucide-react';
-import { useUI } from '@/context/UIContext';
-import { useCart } from '@/context/CartContext';
-import { useTranslation } from '@/lib/i18n';
-import { useLocale } from '@/context/LocaleContext';
-import { Product, ShopifyVariant, RecommendedProduct } from '@/lib/shopify';
-import { useTranslatedText } from '@/hooks/useTranslatedText';
-import RecommendedCard from '@/components/RecommendedCard';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useWishlist } from '@/context/WishlistContext';
+import { useState, useMemo } from "react";
+import type { Product } from "@/lib/shopify";
+import { useCart } from "@/context/CartContext";
+import { useUI } from "@/context/UIContext";
+import Link from "next/link";
 
-interface Props {
+interface ProductClientProps {
   product: Product;
-  relatedProductsByTag?: Product[];
+  relatedProductsByTag: Product[];
 }
 
-function TranslatedDesc({ text, className }: { text?: string | null; className?: string }) {
-  const translated = useTranslatedText(text);
-  if (!translated) return null;
-  return <p className={className}>{translated}</p>;
-}
-
-function parseMetadata(desc?: string | null): Record<string, string> {
-  if (!desc) return {};
-  const regex = /(Item Number|Gender|Fabric Weight|Fabric Thickness|Fabric Stretch|Fabric|Care Instructions|Features|Print Size|Notes):\s*/gi;
-  const matches: { key: string; index: number; length: number }[] = [];
-  let match;
-  while ((match = regex.exec(desc)) !== null) {
-    matches.push({
-      key: match[1],
-      index: match.index,
-      length: match[0].length
-    });
-  }
-  
-  const result: Record<string, string> = {};
-  for (let i = 0; i < matches.length; i++) {
-    const current = matches[i];
-    const next = matches[i + 1];
-    const start = current.index + current.length;
-    const end = next ? next.index : desc.length;
-    let keyName = current.key.trim();
-    if (keyName.toLowerCase() === 'fabric strench') {
-      keyName = 'Fabric Stretch';
-    }
-    result[keyName] = desc.substring(start, end).trim();
-  }
-  return result;
-}
-
-const RECENTLY_VIEWED_KEY = 'rv_products';
-const MAX_RECENTLY_VIEWED = 10;
-
-type RecentProduct = Pick<RecommendedProduct, 'handle' | 'title' | 'imageUrl' | 'price' | 'currencyCode'>;
-
-export default function ProductClient({ product, relatedProductsByTag }: Props) {
-  const router = useRouter();
-  const [recommended, setRecommended] = useState<RecommendedProduct[]>([]);
-  const [recentlyViewed, setRecentlyViewed] = useState<RecentProduct[]>([]);
-
-  useEffect(() => {
-    import('@/lib/shopify').then(({ getRecommendedProducts }) => {
-      getRecommendedProducts(product.handle, 16)
-        .then(setRecommended)
-        .catch(() => {});
-    });
-  }, [product.handle]);
-
-  useEffect(() => {
-    import('@/lib/shopify').then(({ getRecommendedProducts }) => {
-      getRecommendedProducts(product.handle, 8)
-        .then(prods => setCompleteOutfit(prods.slice(0, 6)))
-        .catch(() => {});
-    });
-  }, [product.handle]);
-
-  useEffect(() => {
-    try {
-      const stored: RecentProduct[] = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) ?? '[]');
-      const current: RecentProduct = {
-        handle: product.handle,
-        title: product.title,
-        imageUrl: product.imageUrl,
-        price: product.price,
-        currencyCode: product.currencyCode,
-      };
-      const filtered = stored.filter(p => p.handle !== product.handle);
-      const updated = [current, ...filtered].slice(0, MAX_RECENTLY_VIEWED);
-      localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(updated));
-      setRecentlyViewed(filtered.slice(0, 8));
-    } catch {}
-  }, [product.handle]);
-
-  /* ── Archival block scroll reveal ── */
-  useEffect(() => {
-    const el = archiveSectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setArchiveVisible(true);
-        });
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const images = product.images.length > 0 ? product.images : [product.imageUrl].filter(Boolean);
-  const [activeImage, setActiveImage] = useState(0);
-  const [displayImageUrl, setDisplayImageUrl] = useState<string>(() => images[0] ?? product.imageUrl);
-  const [selectedVariant, setSelectedVariant] = useState<ShopifyVariant>(
-    product.variants[0] ?? { id: '', title: '', availableForSale: true, price: { amount: String(product.price), currencyCode: product.currencyCode }, selectedOptions: [] }
-  );
-  const [adding, setAdding] = useState(false);
-  const [expandedAccordion, setExpandedAccordion] = useState<string | null>(null);
-  const [availModal, setAvailModal] = useState(false);
-  const [availSizes, setAvailSizes] = useState<string[]>([]);
-  const [availEmail, setAvailEmail] = useState('');
-  const [availPhone, setAvailPhone] = useState('');
-  const [availSubmitted, setAvailSubmitted] = useState(false);
-  const [availSubmitting, setAvailSubmitting] = useState(false);
-  const [ceremonyOpen, setCeremonyOpen] = useState(false);
-  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
-  const [archiveVisible, setArchiveVisible] = useState(false);
-  const archiveSectionRef = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
-  useLocale();
-  const { toggle, has, items } = useWishlist();
-  const inWishlist = has(product.handle);
-
-  const getHouseState = (handle: string) => {
-    const hash = handle.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    if (hash % 3 === 0) return 'HOUSE_01 — PERMANENCE';
-    if (hash % 3 === 1) return 'HOUSE_02 — REPLICA';
-    return 'HOUSE_03 — INHERITANCE';
-  };
-
-  const getArchiveRef = (handle: string) => {
-    const hash = handle.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    const num = String((hash % 9000) + 1000).padStart(4, '0');
-    return `ARC-26-${num}`;
-  };
-
-  function getDeliveryEstimate(): string {
-    const today = new Date();
-    const addBusinessDays = (date: Date, days: number): Date => {
-      const result = new Date(date);
-      let added = 0;
-      while (added < days) {
-        result.setDate(result.getDate() + 1);
-        const day = result.getDay();
-        if (day !== 0 && day !== 6) added++;
-      }
-      return result;
-    };
-    const start = addBusinessDays(today, 2);
-    const end = addBusinessDays(today, 4);
-    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-    return `${fmt(start)} — ${fmt(end)}`;
-  }
-
-  const metadata = useMemo(() => parseMetadata(product.description), [product.description]);
-
-  const editorialNotes = useMemo(() => {
-    const notes = [
-      "An archival piece designed for daily calm.",
-      "A tonet shaped by silence.",
-      "A quiet layer preserved within the House.",
-      "A structured piece designed for daily permanence.",
-      "A restrained tonet for permanent rotation.",
-      "A daily layer composed with quiet intention.",
-      "Crafted for permanence, worn with intention.",
-      "A silhouette born from restraint."
-    ];
-    let hash = 0;
-    for (let i = 0; i < product.title.length; i++) {
-      hash = ((hash * 31) + product.title.charCodeAt(i)) >>> 0;
-    }
-    const idx = hash % notes.length;
-    return [
-      notes[idx % notes.length]
-    ];
-  }, [product.title]);
-
-  const conciseDescription = useMemo(() => {
-    if (!product.description) return '';
-    const fabric = (metadata['Fabric'] || 'premium fibers').replace(/,\s*$/, '');
-    const thickness = (metadata['Fabric Thickness'] || 'moderate').toLowerCase();
-    const features = (metadata['Features'] || '').split(',').map(f => f.trim().toLowerCase());
-    const fit = features.find(f => ['loose', 'oversized', 'regular', 'slim', 'boxy'].includes(f)) || 'relaxed';
-    return `Crafted from ${fabric}. A ${thickness} weave with a ${fit} silhouette — designed for permanence.`;
-  }, [product.description, metadata]);
-
-  const detailsRows = useMemo(() => {
-    const features = (metadata['Features'] || '').split(',').map(f => f.trim());
-    
-    const fitKeywords = ['loose', 'regular', 'oversized', 'slim', 'boxy', 'cropped', 'structured', 'relaxed', 'fit'];
-    const foundFit = features
-      .filter(f => fitKeywords.includes(f.toLowerCase()))
-      .map(f => f.charAt(0).toUpperCase() + f.slice(1).toLowerCase());
-    const fitValue = foundFit.length > 0 ? foundFit.join(' / ') : 'Structured / relaxed';
-
-    const finishKeywords = ['washed', 'ripped', 'pleated', 'drawstring', 'pocket', 'raw edge', 'hooded', 'button', 'zipper', 'embroidered'];
-    const foundFinish = features
-      .filter(f => finishKeywords.includes(f.toLowerCase()))
-      .map(f => f.charAt(0).toUpperCase() + f.slice(1).toLowerCase());
-    const finishValue = foundFinish.length > 0 ? foundFinish.join(' / ') : 'Soft tonet wash';
-
-    const rawFabric = metadata['Fabric'] || '';
-    const formattedFabric = rawFabric ? rawFabric.replace(/,\s*/g, ' / ') : '';
-
-    return [
-      { label: 'Fabric', value: formattedFabric },
-      { label: 'Weight', value: metadata['Fabric Weight'] || '240 GSM' },
-      { label: 'Fit', value: fitValue },
-      { label: 'Finish', value: finishValue },
-      { label: 'Production', value: 'Limited tonet production' }
-    ].filter(r => r.value);
-  }, [metadata]);
-
-  const careLines = useMemo(() => {
-    const careStr = metadata['Care Instructions'] || '';
-    if (!careStr) return ['Dry clean only'];
-    return careStr.split(';').map(l => l.trim()).filter(Boolean);
-  }, [metadata]);
-
-  const wishlistItem = {
-    handle: product.handle,
-    title: product.title,
-    imageUrl: product.imageUrl,
-    price: product.price,
-    currencyCode: product.currencyCode,
-    collectionTitle: '',
-  };
-  const [selectedColor, setSelectedColor] = useState<string>(
-    () => product.variants[0]?.selectedOptions.find(o => {
-      const n = o.name.toLowerCase(); return n === 'color' || n === 'colour';
-    })?.value ?? ''
-  );
-  const [selectedSize, setSelectedSize] = useState<string>('');
-  const { openCart } = useUI();
+export default function ProductClient({ product, relatedProductsByTag }: ProductClientProps) {
   const { addToCart } = useCart();
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const infoRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef<number>(0);
-  const touchStartY = useRef<number>(0);
-  const isDragging = useRef(false);
-  const recCarouselRef = useRef<HTMLDivElement>(null);
-  const recDragStart = useRef(0);
-  const recScrollStart = useRef(0);
-  const recIsDragging = useRef(false);
-  const recDragMoved = useRef(false);
+  const { openCart } = useUI();
+  const [adding, setAdding] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const outfitCarouselRef = useRef<HTMLDivElement>(null);
-  const outfitDragStart = useRef(0);
-  const outfitScrollStart = useRef(0);
-  const outfitIsDragging = useRef(false);
-  const outfitDragMoved = useRef(false);
-  const [completeOutfit, setCompleteOutfit] = useState<RecommendedProduct[]>([]);
-  const recentCarouselRef = useRef<HTMLDivElement>(null);
-  const ymalCarouselRef = useRef<HTMLDivElement>(null);
-  const ymalDragStart = useRef(0);
-  const ymalScrollStart = useRef(0);
-  const ymalIsDragging = useRef(false);
-  const ymalDragMoved = useRef(false);
-
-  function ymalPointerDown(e: React.PointerEvent) {
-    ymalDragStart.current = e.clientX;
-    ymalScrollStart.current = ymalCarouselRef.current?.scrollLeft ?? 0;
-    ymalIsDragging.current = true;
-    ymalDragMoved.current = false;
-  }
-  function ymalPointerMove(e: React.PointerEvent) {
-    if (!ymalIsDragging.current) return;
-    const dx = e.clientX - ymalDragStart.current;
-    if (Math.abs(dx) > 10) {
-      ymalDragMoved.current = true;
-      ymalCarouselRef.current?.classList.add('dragging');
-      if (ymalCarouselRef.current) ymalCarouselRef.current.scrollLeft = ymalScrollStart.current - dx;
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollLeft = e.currentTarget.scrollLeft;
+    const width = e.currentTarget.clientWidth;
+    if (width > 0) {
+      const index = Math.round(scrollLeft / width);
+      setActiveImageIndex(index);
     }
-  }
-  function ymalPointerUp() {
-    ymalIsDragging.current = false;
-    ymalCarouselRef.current?.classList.remove('dragging');
-  }
-  function ymalCarouselClick(e: React.MouseEvent) {
-    if (ymalDragMoved.current) { e.preventDefault(); e.stopPropagation(); ymalDragMoved.current = false; }
-  }
+  };
 
-  function outfitPointerDown(e: React.PointerEvent) {
-    outfitDragStart.current = e.clientX;
-    outfitScrollStart.current = outfitCarouselRef.current?.scrollLeft ?? 0;
-    outfitIsDragging.current = true;
-    outfitDragMoved.current = false;
-  }
-  function outfitPointerMove(e: React.PointerEvent) {
-    if (!outfitIsDragging.current) return;
-    const dx = e.clientX - outfitDragStart.current;
-    if (Math.abs(dx) > 10) {
-      outfitDragMoved.current = true;
-      outfitCarouselRef.current?.classList.add('dragging');
-      if (outfitCarouselRef.current) outfitCarouselRef.current.scrollLeft = outfitScrollStart.current - dx;
-    }
-  }
-  function outfitPointerUp() {
-    outfitIsDragging.current = false;
-    outfitCarouselRef.current?.classList.remove('dragging');
-  }
-  function outfitCarouselClick(e: React.MouseEvent) {
-    if (outfitDragMoved.current) { e.preventDefault(); e.stopPropagation(); outfitDragMoved.current = false; }
-  }
-
-  function recPointerDown(e: React.PointerEvent) {
-    recDragStart.current = e.clientX;
-    recScrollStart.current = recCarouselRef.current?.scrollLeft ?? 0;
-    recIsDragging.current = true;
-    recDragMoved.current = false;
-  }
-  function recPointerMove(e: React.PointerEvent) {
-    if (!recIsDragging.current) return;
-    const dx = e.clientX - recDragStart.current;
-    if (Math.abs(dx) > 10) {
-      recDragMoved.current = true;
-      recCarouselRef.current?.classList.add('dragging');
-      if (recCarouselRef.current) recCarouselRef.current.scrollLeft = recScrollStart.current - dx;
-    }
-  }
-  function recPointerUp() {
-    recIsDragging.current = false;
-    recCarouselRef.current?.classList.remove('dragging');
-  }
-  function recCarouselClick(e: React.MouseEvent) {
-    if (recDragMoved.current) { e.preventDefault(); e.stopPropagation(); recDragMoved.current = false; }
-  }
-
-  useEffect(() => {
-    const el = recCarouselRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const pageY = window.scrollY;
-      el.style.transform = `translateX(${pageY * 0.04}px)`;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  function makeSmoothWheelCarousel(el: HTMLDivElement) {
-    let target = el.scrollLeft;
-    let rafId = 0;
-    let snapTimer: ReturnType<typeof setTimeout>;
-    const animate = () => {
-      const diff = target - el.scrollLeft;
-      if (Math.abs(diff) < 0.5) { el.scrollLeft = target; clearTimeout(snapTimer); snapTimer = setTimeout(() => { el.style.scrollSnapType = ''; }, 250); return; }
-      el.scrollLeft += diff * 0.065;
-      rafId = requestAnimationFrame(animate);
-    };
-    const handler = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      const delta = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY;
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      const atStart = target <= 0 && delta < 0;
-      const atEnd = target >= maxScroll && delta > 0;
-      if (atStart || atEnd) return;
-      e.preventDefault();
-      el.style.scrollSnapType = 'none';
-      clearTimeout(snapTimer);
-      cancelAnimationFrame(rafId);
-      target = Math.max(0, Math.min(maxScroll, target + delta));
-      rafId = requestAnimationFrame(animate);
-    };
-    el.addEventListener('wheel', handler, { passive: false });
-  }
-
-  const outfitCallbackRef = useCallback((el: HTMLDivElement | null) => {
-    outfitCarouselRef.current = el;
-    if (!el) return;
-    makeSmoothWheelCarousel(el);
-  }, []);
-
-  const recentCallbackRef = useCallback((el: HTMLDivElement | null) => {
-    recentCarouselRef.current = el;
-    if (!el) return;
-    makeSmoothWheelCarousel(el);
-  }, []);
-
-  const ymalCallbackRef = useCallback((el: HTMLDivElement | null) => {
-    ymalCarouselRef.current = el;
-    if (!el) return;
-    makeSmoothWheelCarousel(el);
-  }, []);
-
-  useEffect(() => {
-    const el = infoRef.current;
-    if (!el) return;
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      window.scrollBy({ top: e.deltaY, left: 0 });
-    };
-    el.addEventListener('wheel', handleWheel, { passive: false });
-    return () => el.removeEventListener('wheel', handleWheel);
-  }, []);
-
-  useEffect(() => {
-    if (availModal || sizeGuideOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [availModal, sizeGuideOpen]);
-  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isPausedRef = useRef(false);
-
-  function startAutoPlay() {
-    if (images.length <= 1) return;
-    autoPlayRef.current = setInterval(() => {
-      if (!isPausedRef.current) {
-        setActiveImage(prev => {
-          const next = prev < images.length - 1 ? prev + 1 : 0;
-          setDisplayImageUrl(images[next]);
-          carouselRef.current?.scrollTo({ left: next * (carouselRef.current.offsetWidth || 0), behavior: 'smooth' });
-          return next;
-        });
-      }
-    }, 2000);
-  }
-
-  useEffect(() => {
-    startAutoPlay();
-    return () => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); };
-  }, [images.length]);
-
-  function goToSlide(idx: number) {
-    const next = Math.max(0, Math.min(idx, images.length - 1));
-    setActiveImage(next);
-    setDisplayImageUrl(images[next]);
-    carouselRef.current?.scrollTo({ left: next * carouselRef.current.offsetWidth, behavior: 'smooth' });
-  }
-
-  function handleCarouselTouchStart(e: React.TouchEvent) {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-  }
-
-  function handleCarouselTouchEnd(e: React.TouchEvent) {
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-      goToSlide(activeImage + (dx < 0 ? 1 : -1));
-    }
-  }
-
-  function handleCarouselMouseDown(e: React.MouseEvent) {
-    isDragging.current = false;
-    touchStartX.current = e.clientX;
-  }
-
-  function handleCarouselMouseMove(e: React.MouseEvent) {
-    if (Math.abs(e.clientX - touchStartX.current) > 5) isDragging.current = true;
-  }
-
-  function handleCarouselMouseUp(e: React.MouseEvent) {
-    const dx = e.clientX - touchStartX.current;
-    if (Math.abs(dx) > 50) {
-      goToSlide(activeImage + (dx < 0 ? 1 : -1));
-    }
-  }
-
-  const colorOptionName = useMemo(() => {
-    for (const v of product.variants)
-      for (const o of v.selectedOptions) {
-        const n = o.name.toLowerCase();
-        if (n === 'color' || n === 'colour') return o.name;
-      }
-    return null;
-  }, []);
-
-  const sizeOptionName = useMemo(() => {
-    for (const v of product.variants)
-      for (const o of v.selectedOptions)
-        if (o.name.toLowerCase() === 'size') return o.name;
-    // Gift card: use first option (e.g. Denomination, Amount) as the "type" selector
-    if (product.handle === 'e-gift-card') {
-      const first = product.variants[0]?.selectedOptions[0];
-      return first?.name ?? null;
-    }
-    return null;
-  }, []);
-
-  const colorOptions = useMemo(() => {
-    if (!colorOptionName) return [];
+  const getProductColor = (p: Product) => {
     const seen = new Set<string>();
-    const result: { value: string; imageUrl: string }[] = [];
+    for (const v of p.variants) {
+      const opt = v.selectedOptions.find(o => {
+        const n = o.name.toLowerCase();
+        return n === 'color' || n === 'colour';
+      });
+      if (opt) seen.add(opt.value.toUpperCase());
+    }
+    return seen.size > 0 ? Array.from(seen).join(' / ') : 'BLACK';
+  };
+
+  const formatProductPrice = (priceVal: string | number, currCode?: string) => {
+    const priceNum = parseFloat(String(priceVal));
+    const currencyCode = currCode || product.currencyCode || 'USD';
+    const currencySymbol = currencyCode === 'USD' ? '$' : '€';
+    return `${currencySymbol}${priceNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  // Determine size option name
+  const sizeOptionName = useMemo(() => {
     for (const v of product.variants) {
-      const opt = v.selectedOptions.find(o => o.name === colorOptionName);
-      if (opt && !seen.has(opt.value)) {
-        seen.add(opt.value);
-        result.push({ value: opt.value, imageUrl: v.image?.url ?? '' });
+      for (const o of v.selectedOptions) {
+        if (o.name.toLowerCase() === 'size') return o.name;
       }
     }
-    return result;
-  }, [colorOptionName]);
+    return null;
+  }, [product.variants]);
 
+  // Extract size options
   const sizeOptions = useMemo(() => {
     if (!sizeOptionName) return [];
     const seen = new Set<string>();
     const result: string[] = [];
     for (const v of product.variants) {
       const opt = v.selectedOptions.find(o => o.name === sizeOptionName);
-      if (opt && !seen.has(opt.value)) { seen.add(opt.value); result.push(opt.value); }
+      if (opt && !seen.has(opt.value)) {
+        seen.add(opt.value);
+        result.push(opt.value);
+      }
     }
     return result;
-  }, [sizeOptionName]);
+  }, [sizeOptionName, product.variants]);
 
-  const priceNum = parseFloat(selectedVariant.price.amount);
-  const currencyCode = selectedVariant.price.currencyCode || 'EUR';
-  const currencySymbol = currencyCode === 'USD' ? '$' : '€';
-  const priceFormatted = Number.isInteger(priceNum)
-    ? `${currencySymbol}${priceNum} ${currencyCode}`
-    : `${currencySymbol}${priceNum.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currencyCode}`;
+  // Default select first size if available
+  const [selectedSize, setSelectedSize] = useState<string>(() => {
+    return sizeOptions[0] || '';
+  });
 
-  const allSizes = sizeOptions;
+  // Determine active variant
+  const selectedVariant = useMemo(() => {
+    if (sizeOptionName && selectedSize) {
+      const match = product.variants.find(v =>
+        v.selectedOptions.find(o => o.name === sizeOptionName)?.value === selectedSize
+      );
+      if (match) return match;
+    }
+    return product.variants[0];
+  }, [product.variants, sizeOptionName, selectedSize]);
 
-  const isGiftCard = product.handle === 'e-gift-card';
-  const hasMultipleVariants = product.variants.length > 1;
-  const hasSizes = sizeOptions.length > 0;
-  const needsSizeSelection = hasSizes && !selectedSize;
+  // Extract color values
+  const colorValues = useMemo(() => {
+    const seen = new Set<string>();
+    for (const v of product.variants) {
+      const opt = v.selectedOptions.find(o => {
+        const n = o.name.toLowerCase();
+        return n === 'color' || n === 'colour';
+      });
+      if (opt) seen.add(opt.value.toUpperCase());
+    }
+    return seen.size > 0 ? Array.from(seen).join(' / ') : 'BLACK / NAVY / IVORY';
+  }, [product.variants]);
 
-  function handleSizeSelectInDrawer(sizeValue: string) {
-    setSelectedSize(sizeValue);
-    const next = findVariant(selectedColor, sizeValue);
-    if (next) setSelectedVariant(next);
-  }
+  // Process clean uppercase description
+  const cleanDescription = useMemo(() => {
+    if (!product.description) return '';
+    let text = product.description;
+    // Strip common metadata sections if present
+    text = text.replace(/Fabric Weight:.*$/i, '');
+    text = text.replace(/Fabric Thickness:.*$/i, '');
+    text = text.replace(/Fabric:.*$/i, '');
+    text = text.replace(/Care Instructions:.*$/i, '');
+    text = text.replace(/Features:.*$/i, '');
+    // Strip HTML tags
+    text = text.replace(/<[^>]*>/g, ' ');
+    // Remove extra spaces
+    text = text.replace(/\s+/g, ' ').trim();
+    return text.toUpperCase();
+  }, [product.description]);
 
-  async function handleAddToBag() {
-    if (!selectedVariant.id || adding) return;
-    if (needsSizeSelection) return;
+  // Format price
+  const priceFormatted = useMemo(() => {
+    const priceNum = parseFloat(String(selectedVariant?.price.amount || product.price));
+    const currencyCode = selectedVariant?.price.currencyCode || product.currencyCode || 'USD';
+    const currencySymbol = currencyCode === 'USD' ? '$' : '€';
+    return `${currencySymbol}${priceNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }, [selectedVariant, product.price, product.currencyCode]);
+
+  // Add to cart handler
+  async function handleAddToCart() {
+    if (!selectedVariant?.id || adding) return;
     setAdding(true);
     try {
       await addToCart(selectedVariant.id, 1);
@@ -550,2611 +136,824 @@ export default function ProductClient({ product, relatedProductsByTag }: Props) 
     }
   }
 
-  function colorNameToCSS(name: string): string {
-    const n = name.toLowerCase().trim();
-    const map: Record<string, string> = {
-      black: '#111111', white: '#ffffff', grey: '#888888', gray: '#888888',
-      'light gray': '#c8c8c8', 'dark gray': '#444444', 'dark grey': '#444444',
-      navy: '#1a2744', blue: '#2a5caa', 'light blue': '#7ab3e0', 'sky blue': '#87ceeb',
-      red: '#cc2222', burgundy: '#6e1520', wine: '#722f37', maroon: '#7b0020',
-      green: '#2d6a2d', 'olive green': '#6b7c3b', olive: '#6b7c3b', khaki: '#c3b091',
-      brown: '#6b3a2a', camel: '#c19a6b', tan: '#d2b48c', beige: '#f5f0e8',
-      yellow: '#e8c832', gold: '#cfaa3c', orange: '#e07020', pink: '#e87090',
-      purple: '#6a3090', lavender: '#b090d0', cream: '#fffdd0', ivory: '#fffff0',
-      sand: '#c2b280', stone: '#928e85', ecru: '#c2b280', off_white: '#f5f0e8',
-      'off white': '#f5f0e8', charcoal: '#3c3c3c', slate: '#708090',
-      mint: '#98d8c8', teal: '#2a9090', cobalt: '#0047ab',
-      'dark brown': '#3b1a0a', 'light brown': '#a0704a',
-    };
-    if (map[n]) return map[n];
-    for (const key of Object.keys(map)) {
-      if (n.includes(key) || key.includes(n)) return map[key];
-    }
-    return '#888888';
-  }
-
-  function findVariant(color: string, size: string): ShopifyVariant | undefined {
-    return product.variants.find(v => {
-      const c = colorOptionName ? v.selectedOptions.find(o => o.name === colorOptionName)?.value : undefined;
-      const s = sizeOptionName ? v.selectedOptions.find(o => o.name === sizeOptionName)?.value : undefined;
-      if (colorOptionName && sizeOptionName) return c === color && s === size;
-      if (colorOptionName) return c === color;
-      if (sizeOptionName) return s === size;
-      return false;
-    });
-  }
-
-  function handleColorChange(colorValue: string) {
-    setSelectedColor(colorValue);
-    const colorImg = colorOptions.find(c => c.value === colorValue)?.imageUrl;
-    if (colorImg) {
-      setDisplayImageUrl(colorImg);
-      const idx = images.indexOf(colorImg);
-      const targetIdx = idx >= 0 ? idx : 0;
-      setActiveImage(targetIdx);
-      
-      // Keep mobile carousel in sync
-      if (carouselRef.current) {
-        const slideWidth = carouselRef.current.offsetWidth || window.innerWidth;
-        carouselRef.current.scrollTo({
-          left: targetIdx * slideWidth,
-          behavior: 'smooth'
-        });
-      }
-    }
-    const next = findVariant(colorValue, selectedSize);
-    if (next) {
-      setSelectedVariant(next);
-    } else {
-      const fallback = product.variants.find(v =>
-        colorOptionName
-          ? v.selectedOptions.find(o => o.name === colorOptionName)?.value === colorValue
-          : false
-      );
-      if (fallback) {
-        setSelectedVariant(fallback);
-        setSelectedSize('');
-      }
-    }
-  }
-
-  function isSizeAvailable(size: string): boolean {
-    const v = findVariant(selectedColor, size);
-    return v?.availableForSale ?? false;
-  }
-
-  function openAvailModal(preSize?: string) {
-    const soldOut = allSizes.filter(s => !isSizeAvailable(s));
-    setAvailSizes(preSize ? [preSize] : soldOut.length === 1 ? soldOut : []);
-    setAvailEmail('');
-    setAvailPhone('');
-    setAvailSubmitted(false);
-    setAvailSubmitting(false);
-    setAvailModal(true);
-  }
-
-  function toggleAvailSize(size: string) {
-    setAvailSizes(prev =>
-      prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
-    );
-  }
-
-  async function handleAvailSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!availEmail || availSizes.length === 0) return;
-    setAvailSubmitting(true);
-    try {
-      const stored = JSON.parse(localStorage.getItem('tonet-avail-requests') ?? '[]');
-      stored.push({
-        id: `${product.handle}-${Date.now()}`,
-        product: product.handle,
-        title: product.title,
-        imageUrl: product.imageUrl,
-        sizes: availSizes,
-        email: availEmail,
-        submittedAt: Date.now(),
-      });
-      localStorage.setItem('tonet-avail-requests', JSON.stringify(stored));
-
-      await fetch('/api/availability-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product: product.handle,
-          title: product.title,
-          sizes: availSizes,
-          email: availEmail,
-          phone: availPhone || null,
-        }),
-      }).catch(() => {});
-    } finally {
-      setAvailSubmitted(true);
-      setAvailSubmitting(false);
-    }
-  }
-
-  function toggleAccordion(key: string) {
-    setExpandedAccordion(prev => prev === key ? null : key);
-  }
-
-  const descriptionFirstLine = product.description?.split(/[.\n]/)[0]?.trim() || '';
-
-  const gridImages = images.length > 0
-    ? Array.from({ length: 4 }, (_, i) => images[i % images.length])
-    : [];
-
   return (
     <>
-      <div className="ss-pdp-layout product-page">
-        {/* ── GALLERY ── */}
-        <div className="ss-gallery product-hero">
-          {/* Mobile: horizontal carousel */}
-          <div className="ss-mobile-gallery mobile-hero">
-            <div
-              className="ss-carousel"
-              ref={carouselRef}
-              onTouchStart={handleCarouselTouchStart}
-              onTouchEnd={handleCarouselTouchEnd}
-              onMouseDown={handleCarouselMouseDown}
-              onMouseMove={handleCarouselMouseMove}
-              onMouseUp={handleCarouselMouseUp}
-              onMouseEnter={() => { isPausedRef.current = true; }}
-              onMouseLeave={() => { isPausedRef.current = false; }}
-            >
-              {images.map((img, i) => (
-                <div key={i} className="ss-carousel-slide">
+      <div className="erd-pdp-layout">
+        {/* DESKTOP LAYOUT */}
+        <div className="erd-pdp-grid erd-desktop-only">
+          {/* LEFT: Product Information */}
+          <div className="erd-pdp-left">
+            <div className="erd-info-panel">
+              <h1 className="erd-product-title">
+                {product.title}
+              </h1>
+              <div className="erd-product-color">
+                {colorValues}
+              </div>
+              <div className="erd-product-description">
+                {cleanDescription || "PREMIUM GARMENT CRAFTED IN PORTUGAL. FINISHED WITH TRADITIONAL TECHNIQUES."}
+              </div>
+            </div>
+          </div>
+
+          {/* CENTER: Product Image */}
+          <div className="erd-pdp-center">
+            <div className="erd-product-images-slider" onScroll={handleScroll}>
+              {product.images && product.images.length > 0 ? (
+                product.images.map((imgUrl, index) => (
                   <img
-                    src={img}
-                    alt={`${product.title} – ${i + 1}`}
-                    className="ss-gallery-img"
-                    draggable={false}
+                    key={index}
+                    src={imgUrl}
+                    alt={`${product.title} - ${index + 1}`}
+                    className="erd-product-img"
                   />
-                </div>
-              ))}
-            </div>
-            {images.length > 1 && (
-              <div className="ss-carousel-dots">
-                {images.map((_, i) => (
-                  <button
-                    key={i}
-                    className={`ss-carousel-dot${activeImage === i ? ' active' : ''}`}
-                    onClick={() => goToSlide(i)}
-                    aria-label={`Image ${i + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Desktop: vertically stacked images */}
-          <div className="ss-desktop-gallery">
-            {images.map((img, i) => (
-              <div key={i} className="ss-desktop-img-block">
+                ))
+              ) : product.imageUrl ? (
                 <img
-                  src={img}
-                  alt={`${product.title} – ${i + 1}`}
-                  className="ss-gallery-img"
-                  draggable={false}
+                  src={product.imageUrl}
+                  alt={product.title}
+                  className="erd-product-img"
                 />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── INFO PANEL ── */}
-        <div className="ss-info mobile-product-info" ref={infoRef}>
-          <div className="product-info-column">
-            {/* Title */}
-            <h1 className="ss-title">{product.title}</h1>
-
-          {/* Editorial Notes */}
-          <div className="ss-editorial-subtext">
-            {editorialNotes.map((note, i) => (
-              <span key={i} style={{ display: 'block', marginBottom: i < editorialNotes.length - 1 ? 6 : 0 }}>{note}</span>
-            ))}
-          </div>
-
-          {/* Price + selected shade metadata */}
-          <div className="ss-price-row">
-            <span className="ss-price">{priceFormatted}</span>
-            {selectedColor && (
-              <span className="ss-selected-shade-metadata">
-                <span className="ss-metadata-swatch" style={{ background: colorNameToCSS(selectedColor) }} />
-                <span className="ss-metadata-name">{selectedColor}</span>
-              </span>
-            )}
-            <span className="ss-minimal-metadata">— {getArchiveRef(product.handle)}</span>
-          </div>
-
-          {/* Refined color/shade selection system */}
-          {colorOptions.length > 1 && (
-            <div className="ss-shade-section">
-              <span className="ss-shade-label">TONET SHADE</span>
-              <div className="ss-shade-grid">
-                {colorOptions.map((co) => {
-                  const isSelected = selectedColor === co.value;
-                  return (
-                    <button
-                      key={co.value}
-                      className={`ss-shade-option ${isSelected ? 'active' : ''}`}
-                      onClick={() => handleColorChange(co.value)}
-                      aria-label={`Select shade ${co.value}`}
-                      aria-pressed={isSelected}
-                    >
-                      <span className="ss-shade-swatch" style={{ background: colorNameToCSS(co.value) }} />
-                    </button>
-                  );
-                })}
-              </div>
+              ) : null}
             </div>
-          )}
-
-          {/* Select Size Grid */}
-          {hasSizes && (
-            <div className="ss-sizes-select-area mobile-inline-sizes">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <span className="ss-shade-label">SELECT SIZE</span>
-                <button
-                  type="button"
-                  className="ss-size-guide-link"
-                  onClick={() => setSizeGuideOpen(true)}
-                  aria-label="Open size guide"
-                >
-                  Sizing
-                </button>
+            {product.images && product.images.length > 1 && (
+              <div className="erd-desktop-image-indicator">
+                <span>SCROLL LEFT / RIGHT FOR MORE</span>
+                <span className="erd-desktop-image-counter">
+                  {activeImageIndex + 1} / {product.images.length}
+                </span>
               </div>
-              <div className="ss-inline-sizes">
-                {sizeOptions.map((size) => {
-                  const isSelected = selectedSize === size;
-                  const variantForSize = findVariant(selectedColor, size);
-                  const isOutOfStock = variantForSize ? !variantForSize.availableForSale : true;
-                  return (
+            )}
+          </div>
+
+          {/* RIGHT: Size and Purchase Selection */}
+          <div className="erd-pdp-right">
+            <div className="erd-purchase-panel">
+              {sizeOptions.length > 0 && (
+                <div className="erd-sizes-row">
+                  {sizeOptions.map((size) => (
                     <button
                       key={size}
-                      className={`ss-inline-size ${isSelected ? 'active' : ''} ${isOutOfStock ? 'sold-out' : ''}`}
-                      onClick={() => {
-                        if (isOutOfStock) {
-                          openAvailModal(size);
-                        } else {
-                          handleSizeSelectInDrawer(size);
-                        }
-                      }}
-                      aria-label={isOutOfStock ? `Request size ${size} availability` : `Select size ${size}`}
-                      aria-pressed={isSelected}
+                      className={`erd-size-btn ${selectedSize === size ? 'selected' : ''}`}
+                      onClick={() => setSelectedSize(size)}
                     >
                       {size}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
+              )}
+
+              <button
+                className="erd-add-btn"
+                onClick={handleAddToCart}
+                disabled={adding || !selectedVariant?.availableForSale}
+              >
+                {adding ? 'ADDING...' : `ADD TO CART — ${priceFormatted}`}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* MOBILE LAYOUT (Strict Visual Proportion System: 8vh/15vh/5vh/42vh/10vh/20vh) */}
+        <div className="erd-mobile-pdp erd-mobile-only">
+          <div className="erd-mobile-first-fold">
+            {/* HEADER SPACER - 8% viewport height */}
+            <div className="erd-mobile-header-spacer" />
+
+            {/* PRODUCT TITLE BLOCK - 15% viewport height */}
+            <div className="erd-mobile-title-block">
+              <h1 className="erd-mobile-title">{product.title}</h1>
+              <div className="erd-mobile-colorway">{colorValues}</div>
+            </div>
+
+            {/* NEGATIVE SPACE - 5% viewport height */}
+            <div className="erd-mobile-space-spacer" />
+
+            {/* PRODUCT IMAGE - 42% viewport height */}
+            <div className="erd-mobile-image-container">
+              <div className="erd-mobile-images-slider" onScroll={handleScroll}>
+                {product.images && product.images.length > 0 ? (
+                  product.images.map((imgUrl, index) => (
+                    <img
+                      key={index}
+                      src={imgUrl}
+                      alt={`${product.title} - ${index + 1}`}
+                      className="erd-mobile-hero-img"
+                    />
+                  ))
+                ) : product.imageUrl ? (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="erd-mobile-hero-img"
+                  />
+                ) : null}
+              </div>
+              {product.images && product.images.length > 1 && (
+                <div className="erd-mobile-image-indicator">
+                  <span>SLIDE LEFT / RIGHT</span>
+                  <span className="erd-mobile-image-counter">
+                    {activeImageIndex + 1} / {product.images.length}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* PURCHASE CONTROLS - 10% viewport height */}
+            <div className="erd-mobile-purchase-container">
+              {sizeOptions.length > 0 && (
+                <div className="erd-mobile-sizes">
+                  {sizeOptions.map((size) => (
+                    <button
+                      key={size}
+                      className={`erd-mobile-size-btn ${selectedSize === size ? 'selected' : ''}`}
+                      onClick={() => setSelectedSize(size)}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                className="erd-mobile-add-btn"
+                onClick={handleAddToCart}
+                disabled={adding || !selectedVariant?.availableForSale}
+              >
+                {adding ? 'ADDING...' : `ADD TO CART — ${priceFormatted}`}
+              </button>
+            </div>
+
+            {/* DESCRIPTION PREVIEW - 20% viewport height */}
+            <div className="erd-mobile-desc-preview">
+              <p className="erd-mobile-desc-text">
+                {cleanDescription || "PREMIUM GARMENT CRAFTED IN PORTUGAL. FINISHED WITH TRADITIONAL TECHNIQUES."}
+              </p>
+            </div>
+          </div>
+
+          {/* RELATED PRODUCTS (scrolling area) */}
+          {relatedProductsByTag && relatedProductsByTag.length > 0 && (
+            <div className="erd-mobile-related-section">
+              <h2 className="erd-mobile-related-heading">RELATED</h2>
+              <div className="erd-mobile-related-carousel">
+                {relatedProductsByTag.map((p) => (
+                  <Link key={p.handle} href={`/product/${p.handle}`} className="erd-mobile-related-card">
+                    {p.imageUrl && (
+                      <img src={p.imageUrl} alt={p.title} className="erd-mobile-related-img" />
+                    )}
+                    <div className="erd-mobile-related-info">
+                      <span className="erd-mobile-related-title">{p.title}</span>
+                      <span className="erd-mobile-related-color">{getProductColor(p)}</span>
+                      <span className="erd-mobile-related-price">{formatProductPrice(p.price, p.currencyCode)}</span>
+                    </div>
+                  </Link>
+                ))}
               </div>
             </div>
           )}
-
-          {/* Action row */}
-          <div className="ss-actions">
-            <button
-              className="ss-cta-btn"
-              onClick={handleAddToBag}
-              disabled={adding || !selectedVariant.availableForSale || needsSizeSelection}
-            >
-              {adding
-                ? 'ADDING…'
-                : !selectedVariant.availableForSale
-                ? 'UNAVAILABLE'
-                : needsSizeSelection
-                ? (isGiftCard ? 'SELECT AMOUNT' : 'SELECT A SIZE')
-                : 'ADD TO SELECTION'}
-            </button>
-            <button
-              className={`ss-archive-btn${inWishlist ? ' ss-archive-btn--in' : ''}`}
-              onClick={() => {
-                toggle(wishlistItem);
-                if (!inWishlist) {
-                  setCeremonyOpen(true);
-                }
-              }}
-            >
-              {inWishlist ? 'ARCHIVED · 48H' : 'ADD TO ARCHIVE'}
-            </button>
-          </div>
-
-          {/* Accordion sections */}
-          <div className="ss-accordions mobile-accordions">
-            {/* Description */}
-            {product.description && (
-              <div className="ss-accordion-item">
-                <button className="ss-accordion-header" onClick={() => toggleAccordion('notes')} aria-expanded={expandedAccordion === 'notes'}>
-                  <span>Description</span>
-                  <span className={`ss-accordion-icon${expandedAccordion === 'notes' ? ' open' : ''}`}>
-                    <Plus size={10} strokeWidth={1} />
-                  </span>
-                </button>
-                <div className={`ss-accordion-body${expandedAccordion === 'notes' ? ' open' : ''}`}>
-                  <div className="ss-accordion-body-inner">
-                    <p className="ss-accordion-text">{conciseDescription}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TONET RECORD */}
-            {detailsRows.length > 0 && (
-              <div className="ss-accordion-item">
-                <button className="ss-accordion-header" onClick={() => toggleAccordion('record')} aria-expanded={expandedAccordion === 'record'}>
-                  <span>TONET RECORD</span>
-                  <span className={`ss-accordion-icon${expandedAccordion === 'record' ? ' open' : ''}`}>
-                    <Plus size={10} strokeWidth={1} />
-                  </span>
-                </button>
-                <div className={`ss-accordion-body${expandedAccordion === 'record' ? ' open' : ''}`}>
-                  <div className="ss-accordion-body-inner">
-                    <div className="ss-details-table" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {detailsRows.map((row, idx) => (
-                        <div key={idx} className="ss-details-row" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <span className="ss-details-label" style={{ fontWeight: 400, textTransform: 'uppercase', fontSize: '8px', letterSpacing: '0.25em', color: 'rgba(0, 0, 0, 0.45)' }}>{row.label}</span>
-                          <span className="ss-details-value" style={{ fontWeight: 300, fontSize: '10px', color: 'rgba(0, 0, 0, 0.7)', letterSpacing: '0.05em' }}>{row.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* CARE */}
-            {careLines.length > 0 && (
-              <div className="ss-accordion-item">
-                <button className="ss-accordion-header" onClick={() => toggleAccordion('care')} aria-expanded={expandedAccordion === 'care'}>
-                  <span>CARE</span>
-                  <span className={`ss-accordion-icon${expandedAccordion === 'care' ? ' open' : ''}`}>
-                    <Plus size={10} strokeWidth={1} />
-                  </span>
-                </button>
-                <div className={`ss-accordion-body${expandedAccordion === 'care' ? ' open' : ''}`}>
-                  <div className="ss-accordion-body-inner">
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {careLines.map((line, idx) => (
-                        <span key={idx} className="ss-accordion-text ss-care-line">
-                          {line}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Delivery & Returns */}
-            <div className="ss-accordion-item">
-              <button className="ss-accordion-header" onClick={() => toggleAccordion('policy')} aria-expanded={expandedAccordion === 'policy'}>
-                <span>Delivery & Returns</span>
-                <span className={`ss-accordion-icon${expandedAccordion === 'policy' ? ' open' : ''}`}>
-                  <Plus size={10} strokeWidth={1} />
-                </span>
-              </button>
-              <div className={`ss-accordion-body${expandedAccordion === 'policy' ? ' open' : ''}`}>
-                <div className="ss-accordion-body-inner">
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span className="ss-details-label" style={{ fontWeight: 400, textTransform: 'uppercase', fontSize: '8px', letterSpacing: '0.25em', color: 'rgba(0, 0, 0, 0.45)' }}>DELIVERY</span>
-                      <span className="ss-accordion-text" style={{ fontSize: '10px', color: 'rgba(0, 0, 0, 0.7)' }}>
-                        Free standard delivery on all selections. Prepared with care inside our Parisian studio. Estimated arrival {getDeliveryEstimate()}.
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span className="ss-details-label" style={{ fontWeight: 400, textTransform: 'uppercase', fontSize: '8px', letterSpacing: '0.25em', color: 'rgba(0, 0, 0, 0.45)' }}>RETURNS</span>
-                      <span className="ss-accordion-text" style={{ fontSize: '10px', color: 'rgba(0, 0, 0, 0.7)' }}>
-                        Complimentary returns within 14 days of receipt. Tonets must remain in their original, unworn state with archival labels intact.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          </div>
         </div>
 
+        {/* DESKTOP RELATED PRODUCTS */}
+        {relatedProductsByTag && relatedProductsByTag.length > 0 && (
+          <div className="erd-related-section erd-desktop-only">
+            <h2 className="erd-related-heading">RELATED</h2>
+            <div className="erd-related-carousel">
+              {relatedProductsByTag.slice(0, 5).map((p) => (
+                <Link key={p.handle} href={`/product/${p.handle}`} className="erd-related-card">
+                  {p.imageUrl && (
+                    <div className="erd-related-img-wrap">
+                      <img src={p.imageUrl} alt={p.title} className="erd-related-img" />
+                    </div>
+                  )}
+                  <div className="erd-related-info">
+                    <span className="erd-related-title">{p.title}</span>
+                    <span className="erd-related-color">{getProductColor(p)}</span>
+                    <span className="erd-related-price">{formatProductPrice(p.price, p.currencyCode)}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ══ ARCHIVAL RECORD — Garment Documentation ══ */}
-      <section
-        ref={archiveSectionRef}
-        className={`tn-archival ${archiveVisible ? 'tn-archival--visible' : ''}`}
-      >
-        <div className="tn-archival__inner">
-
-          {/* Top — Editorial Statement */}
-          <div className="tn-archival__statement">
-            <span className="tn-archival__eyebrow">Archival Record</span>
-            <p className="tn-archival__text">
-              {editorialNotes[0]} {product.title} exists within the House as a
-              permanent object — not seasonal, not disposable. Each garment is
-              registered, documented, and preserved as part of TONET’s ongoing lineage.
-            </p>
-          </div>
-
-          {/* Bottom — Three Columns */}
-          <div className="tn-archival__grid">
-
-            {/* Left — Registry Metadata */}
-            <div className="tn-archival__col">
-              <span className="tn-archival__col-label">Registry</span>
-              <div className="tn-archival__col-body">
-                <div className="tn-archival__meta-row">
-                  <span className="tn-archival__meta-key">Collection</span>
-                  <span className="tn-archival__meta-val">{getHouseState(product.handle)}</span>
-                </div>
-                <div className="tn-archival__meta-row">
-                  <span className="tn-archival__meta-key">Archive Ref.</span>
-                  <span className="tn-archival__meta-val">{getArchiveRef(product.handle)}</span>
-                </div>
-                <div className="tn-archival__meta-row">
-                  <span className="tn-archival__meta-key">Status</span>
-                  <span className="tn-archival__meta-val">
-                    {selectedVariant.availableForSale ? 'Active Archive' : 'Permanently Archived'}
-                  </span>
-                </div>
-                <div className="tn-archival__meta-row">
-                  <span className="tn-archival__meta-key">Registry Date</span>
-                  <span className="tn-archival__meta-val">MMXXVI</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Center — Editorial Phrase */}
-            <div className="tn-archival__col tn-archival__col--center">
-              <span className="tn-archival__col-label">House Note</span>
-              <blockquote className="tn-archival__quote">
-                “A garment should not announce itself. It should remain —
-                quiet, structural, permanent.”
-              </blockquote>
-              <span className="tn-archival__quote-source">— TONET Research Archive</span>
-            </div>
-
-            {/* Right — Garment Metadata */}
-            <div className="tn-archival__col">
-              <span className="tn-archival__col-label">Specifications</span>
-              <div className="tn-archival__col-body">
-                {detailsRows.map((row) => (
-                  <div className="tn-archival__meta-row" key={row.label}>
-                    <span className="tn-archival__meta-key">{row.label}</span>
-                    <span className="tn-archival__meta-val">{row.value}</span>
-                  </div>
-                ))}
-                <div className="tn-archival__meta-row">
-                  <span className="tn-archival__meta-key">Care</span>
-                  <span className="tn-archival__meta-val">{careLines[0]}</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* ══ THE HOUSE ══ */}
-      <section className="ss-philosophy">
-        <div className="ss-philosophy-inner">
-          <span className="ss-philosophy-eyebrow">The House</span>
-          <p className="ss-philosophy-text">
-            TONET was not built for the moment. It was constructed for permanence — for those who understand that true elegance is never loud, and that refinement requires no explanation.
-          </p>
-          <p className="ss-philosophy-text">
-            Each tonet belongs to a longer conversation between structure and silence, between the body and its architecture.
-          </p>
-          <span className="ss-philosophy-note">— House Notes, 2026</span>
-        </div>
-      </section>
-
-      {/* ══ RECENTLY VIEWED ══ */}
-      {recentlyViewed.length > 0 && (
-        <section className="rec-section">
-          <h2 className="rec-label">Previously Considered</h2>
-          <div className="rec-carousel-wrap">
-            <div className="rec-carousel" ref={recentCallbackRef}>
-              <div style={{flexShrink: 0, width: 16, minWidth: 16}} />
-              {recentlyViewed.map((p) => (
-                <div className="rec-carousel-item" key={p.handle}>
-                  <a href={`/product/${p.handle}`} className="rec-card" style={{textDecoration:'none',color:'inherit'}}>
-                    <div className="rec-img-wrap">
-                      {p.imageUrl && <img src={p.imageUrl} alt={p.title} className="rec-img" />}
-                    </div>
-                    <div className="rec-meta">
-                      <span className="rec-title">{p.title.charAt(0).toUpperCase() + p.title.slice(1).toLowerCase()}</span>
-                      <span className="rec-price">
-                        {(() => { const sym = p.currencyCode === 'USD' ? '$' : '€'; const n = p.price; return Number.isInteger(n) ? `${sym}${n} ${p.currencyCode}` : `${sym}${n.toFixed(2)} ${p.currencyCode}`; })()}
-                      </span>
-                    </div>
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── YOU MAY ALSO LIKE – carousel ── */}
-      {recommended.length > 0 && (
-        <section className="tonet-house-carousel">
-          <h2 className="tonet-house-carousel__header">WITHIN THE HOUSE</h2>
-          <div className="tonet-house-carousel__wrap">
-            <div
-              className="tonet-house-carousel__track"
-              ref={ymalCallbackRef}
-              onPointerDown={ymalPointerDown}
-              onPointerMove={ymalPointerMove}
-              onPointerUp={ymalPointerUp}
-              onPointerCancel={ymalPointerUp}
-              onClick={ymalCarouselClick}
-            >
-              <div style={{flexShrink: 0, width: 16, minWidth: 16}} />
-              {[...completeOutfit, ...recommended.filter(r => !completeOutfit.some(o => o.handle === r.handle))].slice(0, 16).map((p) => (
-                <div className="tonet-house-carousel__item" key={p.handle}>
-                  <RecommendedCard product={p} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ══ AVAILABILITY REQUEST MODAL ══ */}
-      {availModal && (
-        <div className="arm-overlay" onClick={() => setAvailModal(false)}>
-          <div className="arm-modal" onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div className="arm-header">
-              <span className="arm-title">Availability Request</span>
-              <button className="arm-close" onClick={() => setAvailModal(false)} aria-label="Close">
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1">
-                  <line x1="1" y1="1" x2="13" y2="13" />
-                  <line x1="13" y1="1" x2="1" y2="13" />
-                </svg>
-              </button>
-            </div>
-
-            {availSubmitted ? (
-              /* ── Success state ── */
-              <div className="arm-success">
-                <span className="arm-success-title">Request registered.</span>
-                <p className="arm-success-sub">You will be contacted if availability changes.</p>
-              </div>
-            ) : (
-              <form className="arm-body" onSubmit={handleAvailSubmit}>
-                <p className="arm-desc">
-                  Receive a notification when selected sizes become available again.
-                </p>
-
-                {/* Size selector */}
-                <div className="arm-field-group">
-                  <span className="arm-field-label">Select Size</span>
-                  <div className="arm-sizes">
-                    {allSizes.filter(s => !isSizeAvailable(s)).map(size => (
-                      <button
-                        key={size}
-                        type="button"
-                        className={`arm-size-pill${availSizes.includes(size) ? ' selected' : ''}`}
-                        onClick={() => toggleAvailSize(size)}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                    {allSizes.filter(s => !isSizeAvailable(s)).length === 0 && (
-                      <span className="arm-no-sizes">All sizes currently available.</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="arm-field">
-                  <label className="arm-field-label" htmlFor="arm-email">Email</label>
-                  <input
-                    id="arm-email"
-                    className="arm-input"
-                    type="email"
-                    required
-                    placeholder="your@email.com"
-                    value={availEmail}
-                    onChange={e => setAvailEmail(e.target.value)}
-                  />
-                </div>
-
-                {/* Phone */}
-                <div className="arm-field">
-                  <label className="arm-field-label" htmlFor="arm-phone">
-                    Phone <span className="arm-optional">(optional)</span>
-                  </label>
-                  <input
-                    id="arm-phone"
-                    className="arm-input"
-                    type="tel"
-                    placeholder="+34 600 000 000"
-                    value={availPhone}
-                    onChange={e => setAvailPhone(e.target.value)}
-                  />
-                </div>
-
-                {/* CTA */}
-                <button
-                  className="arm-cta"
-                  type="submit"
-                  disabled={availSubmitting || availSizes.length === 0 || !availEmail}
-                >
-                  {availSubmitting ? 'Registering…' : 'Submit Request'}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ══ SIZE GUIDE MODAL ══ */}
-      {sizeGuideOpen && (
-        <div className="sg-overlay" onClick={() => setSizeGuideOpen(false)}>
-          <div className="sg-modal" onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div className="sg-header">
-              <span className="sg-title">Size Information</span>
-              <button className="sg-close" onClick={() => setSizeGuideOpen(false)} aria-label="Close">
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1">
-                  <line x1="1" y1="1" x2="13" y2="13" />
-                  <line x1="13" y1="1" x2="1" y2="13" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Subtext */}
-            <p className="sg-subtext">
-              Measurements are approximate.<br />
-              Designed for a relaxed silhouette.
-            </p>
-
-            {/* Size table */}
-            <div className="sg-table">
-              {([
-                { size: 'XS', chest: 54, length: 66 },
-                { size: 'S',  chest: 56, length: 68 },
-                { size: 'M',  chest: 58, length: 70 },
-                { size: 'L',  chest: 60, length: 72 },
-                { size: 'XL', chest: 62, length: 74 },
-              ] as const).map((row) => (
-                <div className="sg-table-row" key={row.size}>
-                  <span className="sg-size-label">{row.size}</span>
-                  <span className="sg-measurement">Chest&nbsp;&nbsp;{row.chest} cm</span>
-                  <span className="sg-measurement">Length&nbsp;&nbsp;{row.length} cm</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Fit notes */}
-            <div className="sg-fit-notes">
-              <p className="sg-fit-note">Model is 183 cm wearing size L.</p>
-              <p className="sg-fit-note">Fits oversized by design.</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══ CINEMATIC ARCHIVAL CEREMONY MODAL ══ */}
-      {ceremonyOpen && (
-        <div className="ac-overlay" onClick={() => setCeremonyOpen(false)}>
-          <div className="ac-modal" onClick={e => e.stopPropagation()}>
-            {/* Minimal Close button top right */}
-            <button className="ac-close" onClick={() => setCeremonyOpen(false)} aria-label="Close Ceremony">
-              <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1">
-                <line x1="1" y1="1" x2="13" y2="13" />
-                <line x1="13" y1="1" x2="1" y2="13" />
-              </svg>
-            </button>
-
-            {/* Institutional Header */}
-            <div className="ac-header">
-              <span className="ac-supra">ARCHIVE RECORD</span>
-              <h2 className="ac-title">Archive Entry Created</h2>
-              <p className="ac-desc">
-                This tonet has been preserved within your private archive and will remain accessible while availability permits.
-              </p>
-            </div>
-
-            {/* Main Split Content: TONET Data + Visual Layout */}
-            <div className="ac-split">
-              {/* Left: Curated Large TONET Image */}
-              <div className="ac-image-panel">
-                {product.imageUrl && (
-                  <img src={product.imageUrl} alt={product.title} className="ac-tonet-img" />
-                )}
-              </div>
-
-              {/* Right: Technical Archival Details */}
-              <div className="ac-details-panel">
-                <div className="ac-tech-grid">
-                  <div className="ac-tech-item">
-                    <span className="ac-tech-label">TONET Name</span>
-                    <span className="ac-tech-value ac-tech-value--name">{product.title.toUpperCase()}</span>
-                  </div>
-
-                  <div className="ac-tech-item">
-                    <span className="ac-tech-label">Collection</span>
-                    <span className="ac-tech-value">{getHouseState(product.handle)}</span>
-                  </div>
-
-                  <div className="ac-tech-item">
-                    <span className="ac-tech-label">Archive Reference</span>
-                    <span className="ac-tech-value ac-tech-value--ref">{getArchiveRef(product.handle)}</span>
-                  </div>
-
-                  <div className="ac-tech-item">
-                    <span className="ac-tech-label">Date Preserved</span>
-                    <span className="ac-tech-value">
-                      {new Date().toLocaleDateString('en-GB', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      }).toUpperCase()}
-                    </span>
-                  </div>
-
-                  <div className="ac-tech-item">
-                    <span className="ac-tech-label">Archive Position</span>
-                    <span className="ac-tech-value">
-                      Position {items.findIndex(i => i.handle === product.handle) + 1 > 0 ? items.findIndex(i => i.handle === product.handle) + 1 : items.length + 1} of {Math.max(items.length, items.findIndex(i => i.handle === product.handle) + 1)}
-                    </span>
-                  </div>
-
-                  <div className="ac-tech-item">
-                    <span className="ac-tech-label">Collection Status</span>
-                    <span className="ac-tech-value">
-                      {product.variants.some(v => v.availableForSale) ? 'ACTIVE COLLECTION' : 'PERMANENT ARCHIVE'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="ac-divider" />
-
-                {/* Availability Section */}
-                <div className="ac-avail-section">
-                  <span className="ac-section-label">Archive Availability</span>
-                  <p className="ac-avail-desc">
-                    This tonet remains temporarily preserved inside the House for private consideration.
-                  </p>
-
-                  <div className="ac-avail-status-block">
-                    <div className="ac-status-row">
-                      <span className="ac-status-label">Availability State</span>
-                      <span className={`ac-status-value ${!product.variants.some(v => v.availableForSale) ? 'ac-status-value--closed' : ''}`}>
-                        {product.variants.some(v => v.availableForSale) ? 'AVAILABLE' : 'PERMANENTLY ARCHIVED'}
-                      </span>
-                    </div>
-
-                    <div className="ac-status-row">
-                      <span className="ac-status-label">Estimated Window</span>
-                      <span className="ac-status-value">
-                        {product.variants.some(v => v.availableForSale) ? '48H ACTIVE PRESERVATION' : 'PERMANENTLY RETAINED'}
-                      </span>
-                    </div>
-
-                    {product.variants.some(v => v.availableForSale) ? (
-                      <div className="ac-timeline-wrap">
-                        <span className="ac-timeline-label">PRESERVATION STATUS · ACTIVE 48H WINDOW</span>
-                        <div className="ac-active-bar-container">
-                          <div className="ac-active-bar-fill" />
-                        </div>
-                        <div className="ac-timeline-footer">
-                          <span>Preserved</span>
-                          <span>Auto-Release in 48h</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="ac-timeline-wrap">
-                        <span className="ac-timeline-label">PRESERVATION STATUS · PERMANENT ARCHIVE</span>
-                        <div className="ac-active-bar-container ac-active-bar-container--permanent">
-                          <div className="ac-active-bar-fill ac-active-bar-fill--permanent" />
-                        </div>
-                        <div className="ac-timeline-footer">
-                          <span>Historical Record Only</span>
-                          <span>Acquisition Inactive</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="ac-divider" />
-
-                {/* House Notes Section */}
-                <div className="ac-notes-section">
-                  <span className="ac-section-label">House Notes</span>
-                  <p className="ac-notes-text">
-                    Archived tonets remain accessible for future consideration. Availability is not guaranteed and may change as pieces enter permanent archive status.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer Action Buttons */}
-            <div className="ac-actions">
-              <Link href="/archive" className="ac-btn-primary">
-                View Archive
-              </Link>
-              <button className="ac-btn-secondary" onClick={() => setCeremonyOpen(false)}>
-                Continue Through The House
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <style>{`
-        /* ══════════════════════════════════════
-           CINEMATIC ARCHIVAL CEREMONY MODAL
-        ══════════════════════════════════════ */
-
-        .ac-overlay {
-          position: fixed;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(12, 12, 12, 0.93); /* overlay background remaining 90-95% */
-          backdrop-filter: blur(12px); /* soft blur on background */
-          -webkit-backdrop-filter: blur(12px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 10000;
-          opacity: 0;
-          animation: ac-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .ac-modal {
-          background: #111111;
-          border: 1px solid rgba(243, 240, 234, 0.08);
-          width: 100%;
-          max-width: 820px;
-          padding: 48px;
-          position: relative;
-          color: rgba(255, 255, 255, 0.85);
-          box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
-          box-sizing: border-box;
-          opacity: 0;
-          transform: translateY(16px);
-          animation: ac-slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; /* cinematic fade + translateY */
-        }
-
-        .ac-close {
-          position: absolute;
-          top: 28px;
-          right: 28px;
-          background: none;
-          border: none;
-          color: rgba(255, 255, 255, 0.3);
-          cursor: pointer;
-          padding: 8px;
-          transition: color 0.4s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .ac-close:hover {
-          color: #ffffff;
-        }
-
-        .ac-header {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          border-bottom: 1px solid rgba(243, 240, 234, 0.05);
-          padding-bottom: 24px;
-          opacity: 0;
-          animation: ac-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards; /* sequential fade */
-        }
-
-        .ac-supra {
-          font-size: 7px;
-          font-weight: 300;
-          letter-spacing: 0.4em;
-          color: rgba(255, 255, 255, 0.35);
-          text-transform: uppercase;
-        }
-
-        .ac-title {
-          font-family: var(--font-brand);
-          font-size: clamp(18px, 3vw, 24px); /* prominent but refined */
-          font-weight: 300;
-          letter-spacing: 0.1em;
-          color: rgba(255, 255, 255, 0.85);
-          margin: 0;
-        }
-
-        .ac-desc {
-          font-size: 9.5px; /* small, muted editorial tone */
-          font-weight: 300;
-          letter-spacing: 0.06em;
-          line-height: 1.6;
-          color: rgba(255, 255, 255, 0.35);
-          margin: 0;
-          max-width: 600px;
-        }
-
-        .ac-split {
-          display: grid;
-          grid-template-columns: 220px 1fr;
-          gap: 48px;
-          align-items: start;
-        }
-
-        .ac-image-panel {
-          aspect-ratio: 3 / 4;
-          background: rgba(255, 255, 255, 0.015);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          border: 1px solid rgba(243, 240, 234, 0.04);
-          opacity: 0;
-          transform: scale(0.97);
-          animation: ac-img-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.48s forwards; /* tonet image appears last */
-        }
-
-        .ac-tonet-img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          filter: grayscale(0.15);
-          transition: filter 0.5s;
-        }
-        .ac-tonet-img:hover {
-          filter: grayscale(0);
-        }
-
-        .ac-details-panel {
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-          opacity: 0;
-          animation: ac-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.24s forwards; /* sequential fade */
-        }
-
-        .ac-tech-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 16px 24px;
-        }
-
-        .ac-tech-item {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .ac-tech-label {
-          font-size: 7px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.3em; /* high letter spacing */
-          color: rgba(255, 255, 255, 0.25);
-        }
-
-        .ac-tech-value {
-          font-size: 9.5px; /* thin typography */
-          font-weight: 300;
-          letter-spacing: 0.08em;
-          color: rgba(255, 255, 255, 0.65);
-        }
-        .ac-tech-value--name {
-          font-family: var(--font-brand);
-          letter-spacing: 0.1em;
-          color: rgba(255, 255, 255, 0.8);
-        }
-        .ac-tech-value--ref {
-          font-family: monospace;
-          letter-spacing: 0.1em;
-          color: rgba(255, 255, 255, 0.5);
-        }
-
-        .ac-divider {
-          height: 1px;
-          background: rgba(243, 240, 234, 0.05);
-        }
-
-        .ac-section-label {
-          font-size: 7px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.25em;
-          color: rgba(255, 255, 255, 0.35);
-          display: block;
-          margin-bottom: 8px;
-        }
-
-        .ac-avail-section {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .ac-avail-desc {
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.06em;
-          line-height: 1.5;
-          color: rgba(255, 255, 255, 0.35);
-          margin: 0;
-        }
-
-        .ac-avail-status-block {
-          background: rgba(255, 255, 255, 0.01);
-          border: 1px solid rgba(243, 240, 234, 0.03);
-          padding: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-top: 8px;
-        }
-
-        .ac-status-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-bottom: 1px solid rgba(243, 240, 234, 0.03);
-          padding-bottom: 8px;
-        }
-        .ac-status-row:last-of-type {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        .ac-status-label {
-          font-size: 7px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: rgba(255, 255, 255, 0.3);
-        }
-
-        .ac-status-value {
-          font-size: 8px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: rgba(255, 255, 255, 0.7);
-        }
-        .ac-status-value--closed {
-          color: rgba(255, 255, 255, 0.35); /* quiet monochromatic gray (no red alerts or retail colors) */
-        }
-
-        .ac-timeline-wrap {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          margin-top: 4px;
-        }
-
-        .ac-timeline-label {
-          font-size: 7px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.15em;
-          color: rgba(255, 255, 255, 0.25);
-        }
-
-        /* Monochromatic thin Visual Timeline Bar */
-        .ac-active-bar-container {
-          width: 100%;
-          height: 1px;
-          background: rgba(255, 255, 255, 0.08);
-          position: relative;
-          margin: 6px 0;
-        }
-        .ac-active-bar-fill {
-          position: absolute;
-          left: 0; top: 0; bottom: 0;
-          width: 65%;
-          background: rgba(255, 255, 255, 0.35);
-        }
-        .ac-active-bar-container--permanent {
-          background: rgba(255, 255, 255, 0.03);
-        }
-        .ac-active-bar-fill--permanent {
-          width: 100%;
-          background: rgba(255, 255, 255, 0.1);
-        }
-
-        .ac-timeline-footer {
-          display: flex;
-          justify-content: space-between;
-          font-size: 6.5px;
-          font-weight: 300;
-          letter-spacing: 0.12em;
-          color: rgba(255, 255, 255, 0.2);
-          text-transform: uppercase;
-        }
-
-        .ac-notes-section {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .ac-notes-text {
-          font-size: 8.5px; /* clearly separated, highly subtle house notes */
-          font-weight: 300;
-          letter-spacing: 0.06em;
-          line-height: 1.7;
-          color: rgba(255, 255, 255, 0.28);
-          margin: 0;
-        }
-
-        .ac-actions {
-          display: flex;
-          gap: 16px;
-          border-top: 1px solid rgba(243, 240, 234, 0.05);
-          padding-top: 24px;
-          margin-top: 12px;
-          opacity: 0;
-          animation: ac-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.36s forwards; /* sequential fade */
-        }
-
-        .ac-btn-primary {
-          flex: 1;
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.15); /* restrained primary border */
-          text-align: center;
-          text-decoration: none;
-          padding: 14px;
-          font-size: 9px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.3em;
-          color: rgba(255, 255, 255, 0.7);
-          cursor: pointer;
-          transition: border-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1), background 0.8s cubic-bezier(0.16, 1, 0.3, 1); /* slow and atmospheric */
-        }
-        .ac-btn-primary:hover {
-          border-color: rgba(255, 255, 255, 0.45);
-          color: #ffffff;
-          background: rgba(255, 255, 255, 0.015);
-        }
-
-        .ac-btn-secondary {
-          flex: 1.2;
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.05); /* restrained secondary border */
-          padding: 14px;
-          font-size: 9px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.3em;
-          color: rgba(255, 255, 255, 0.35);
-          cursor: pointer;
-          transition: border-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1), background 0.8s cubic-bezier(0.16, 1, 0.3, 1); /* slow and atmospheric */
-        }
-        .ac-btn-secondary:hover {
-          border-color: rgba(255, 255, 255, 0.15);
-          color: rgba(255, 255, 255, 0.7);
-          background: rgba(255, 255, 255, 0.005);
-        }
-
-        /* ── ANIMATIONS ── */
-        @keyframes ac-fade-in {
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes ac-slide-up {
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes ac-img-fade {
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-
-        @media (max-width: 767px) {
-          .ac-modal {
-            padding: 24px;
-            gap: 20px;
-            overflow-y: auto;
-            max-height: 90vh;
-            margin: 16px;
-          }
-          .ac-split {
-            grid-template-columns: 1fr;
-            gap: 24px;
-          }
-          .ac-image-panel {
-            max-width: 140px;
-            margin: 0 auto;
-          }
-          .ac-actions {
-            flex-direction: column;
-            gap: 10px;
-          }
-        }
-
-        /* ══════════════════════════════════════
-           SUITSUPPLY-STYLE PRODUCT PAGE
-        ══════════════════════════════════════ */
-
+        /* ══ ERD GLOBAL RESET ══ */
         html, body {
-          background: #ffffff !important;
+          background-color: #ffffff !important;
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          overflow-x: hidden;
         }
 
-        .ss-pdp-layout {
+        .erd-pdp-layout {
+          background-color: #ffffff;
+          min-height: calc(100vh - 112px);
+          width: 100vw;
           display: flex;
           flex-direction: column;
-          font-family: var(--font-primary);
-          color: #111;
-          background: #ffffff;
-        }
-        @media (min-width: 768px) {
-          .ss-pdp-layout { background: unset; }
+          align-items: center;
+          justify-content: flex-start;
+          padding: 0;
+          margin: 0;
+          box-sizing: border-box;
         }
 
-        /* ── GALLERY ── */
-        .ss-gallery {
-          position: relative;
-          background: #ffffff;
-          overflow: hidden;
-        }
-        /* Mobile: show carousel, hide desktop stack */
-        .ss-mobile-gallery { display: block; }
-        .ss-desktop-gallery { display: none; }
-        .ss-carousel {
+        .erd-pdp-grid {
+          display: grid;
+          grid-template-columns: 1fr 1.3fr 1fr;
+          align-items: center;
           width: 100%;
-          aspect-ratio: 3 / 4;
+          min-height: calc(100vh - 112px);
+          box-sizing: border-box;
+        }
+
+        /* ══ LEFT COLUMN (DESKTOP) ══ */
+        .erd-pdp-left {
           display: flex;
-          overflow: hidden;
-          user-select: none;
-          cursor: grab;
+          justify-content: center;
+          align-items: center;
+          padding: 40px;
+          height: 100%;
         }
-        .ss-carousel:active { cursor: grabbing; }
-        .ss-carousel-slide {
+
+        .erd-info-panel {
+          max-width: 400px;
           width: 100%;
-          flex-shrink: 0;
-          aspect-ratio: 3 / 4;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .erd-product-title {
+          font-family: Arial, sans-serif;
+          font-weight: 900;
+          font-size: 29px;
+          line-height: 0.9;
+          text-transform: uppercase;
+          text-align: center;
+          max-width: 340px;
+          color: #000000;
+          margin: 0 0 12px 0;
+          letter-spacing: -0.01em;
+        }
+
+        .erd-product-color {
+          font-family: Arial, sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          color: #000000;
+          text-align: center;
+          margin-bottom: 40px;
+          letter-spacing: 0.02em;
+        }
+
+        .erd-product-description {
+          font-family: Arial, sans-serif;
+          font-size: 10px;
+          line-height: 1.4;
+          font-weight: 400;
+          text-transform: uppercase;
+          max-width: 320px;
+          color: #000000;
+          text-align: justify;
+          letter-spacing: 0.015em;
+        }
+
+        /* ══ CENTER COLUMN (DESKTOP) ══ */
+        .erd-pdp-center {
+          position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #ffffff;
+          height: 100%;
+          width: 100%;
           overflow: hidden;
         }
-        .ss-gallery-img {
+
+        .erd-product-images-slider {
+          display: flex;
+          flex-direction: row;
           width: 100%;
           height: 100%;
-          object-fit: contain;
-          display: block;
-          pointer-events: none;
+          overflow-x: auto;
+          scrollbar-width: none;
+          scroll-snap-type: x mandatory;
+          align-items: center;
+          justify-content: flex-start;
         }
-        /* Dots */
-        .ss-carousel-dots {
-          position: absolute;
-          bottom: 14px;
-          left: 0; right: 0;
-          display: flex;
-          justify-content: center;
-          gap: 14px;
-          z-index: 5;
-        }
-        .ss-carousel-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          border: none;
-          background: rgba(0,0,0,0.25);
-          padding: 0;
-          cursor: pointer;
-          transition: background 0.2s, transform 0.2s;
-        }
-        .ss-carousel-dot.active {
-          background: #111;
-          transform: scale(1.3);
-        }
-        /* Arrow buttons */
-        .ss-carousel-arrow {
+        .erd-product-images-slider::-webkit-scrollbar {
           display: none;
         }
 
-        /* ── INFO PANEL ── */
-        .ss-info {
-          background: #ffffff;
-        }
-        .product-info-column {
-          padding: 24px 20px 28px 20px;
+        .erd-product-img {
+          width: 100%;
+          height: auto;
+          max-height: 70vh;
+          object-fit: contain;
+          pointer-events: none;
+          scroll-snap-align: center;
+          flex-shrink: 0;
         }
 
-        .ss-title {
+        .erd-desktop-image-indicator {
+          position: absolute;
+          bottom: 24px;
+          left: 24px;
+          right: 24px;
+          display: flex;
+          justify-content: space-between;
+          font-family: Arial, sans-serif;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          color: #000000;
+          text-transform: uppercase;
+          pointer-events: none;
+          z-index: 10;
+        }
+
+        /* ══ RIGHT COLUMN (DESKTOP) ══ */
+        .erd-pdp-right {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 40px;
+          height: 100%;
+        }
+
+        .erd-purchase-panel {
+          width: 240px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .erd-sizes-row {
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+          margin-bottom: 28px;
+          gap: 0;
+        }
+
+        .erd-size-btn {
+          flex: 1;
+          background: none;
+          border: 1px solid transparent;
+          padding: 8px 0;
+          cursor: pointer;
+          font-family: Arial, sans-serif;
           font-size: 12px;
-          font-weight: 300;
-          line-height: 1.4;
-          margin: 0 0 8px 0;
-          letter-spacing: 0.32em;
-          text-transform: uppercase;
+          font-weight: 700;
+          color: #000000;
+          transition: opacity 0.2s ease;
+          border-radius: 0;
           text-align: center;
-          font-family: var(--font-primary);
         }
-        /* Editorial subtext */
-        .ss-editorial-subtext {
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.5em;
+        .erd-size-btn:hover {
+          opacity: 0.6;
+          background: none;
+          transform: none;
+        }
+        .erd-size-btn.selected {
+          border: none;
+          border-bottom: 2px solid #000000;
+          padding-bottom: 8px;
+        }
+
+        .erd-add-btn {
+          width: 100%;
+          height: 44px;
+          background: #000000;
+          color: #ffffff;
+          border: none;
+          font-family: Arial, sans-serif;
+          font-size: 12px;
+          font-weight: 700;
           text-transform: uppercase;
-          color: rgba(0,0,0,0.32);
-          text-align: center;
-          margin: 0 0 30px 0;
-          font-family: var(--font-primary);
-        }
-        .ss-price-row {
+          cursor: pointer;
+          transition: opacity 0.2s ease;
+          border-radius: 0;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 16px;
-          margin-bottom: 22px; /* reduced vertical gap (from 28px) */
-        }
-        .ss-price {
-          font-size: 10px;
-          font-weight: 300;
-          font-family: var(--font-primary);
-          color: rgba(0,0,0,0.38);
-          white-space: nowrap;
-          letter-spacing: 0.12em;
-        }
-        .ss-selected-shade-metadata {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .ss-metadata-swatch {
-          width: 8px;
-          height: 8px;
-          display: inline-block;
-          flex-shrink: 0;
-          border: 1px solid rgba(0, 0, 0, 0.15);
-        }
-        .ss-metadata-name {
-          font-size: 10px;
-          font-weight: 300;
-          font-family: var(--font-primary);
-          color: rgba(0, 0, 0, 0.38);
-          text-transform: capitalize;
-          letter-spacing: 0.12em;
-        }
-        .ss-subtitle {
-          font-size: 10px;
-          font-weight: 300;
-          font-family: var(--font-primary);
-          color: rgba(0,0,0,0.32);
-          line-height: 1.5;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.02em;
         }
 
-        /* Refined Shade Selection */
-        .ss-shade-section {
-          margin-top: 18px; /* reduced vertical gap (from 24px) */
-          margin-bottom: 40px;
-          font-family: var(--font-primary);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        @media (min-width: 768px) {
-          .ss-shade-section {
-            align-items: flex-start;
-          }
-        }
-        .ss-shade-label {
-          display: block;
-          font-size: 8px; /* technical, extremely precise size */
-          font-weight: 400;
-          letter-spacing: 0.42em; /* wider technical letter tracking */
-          color: rgba(0, 0, 0, 0.48); /* slightly more authoritative metadata tone */
-          text-transform: uppercase;
-          margin-bottom: 18px; /* intentional spacing to list */
-        }
-        .ss-shade-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          align-items: center;
-        }
-        @media (min-width: 768px) {
-          .ss-shade-list {
-            align-items: flex-start;
-          }
-        }
-        .ss-shade-option {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          background: transparent;
-          border: none;
-          padding: 10px 0; /* generous tap-targets for mobile consistency */
-          cursor: pointer;
-          text-align: left;
-          opacity: 0.45; /* increased opacity from 0.35 (+10% visibility) */
-          transition: opacity 0.25s ease;
-          width: fit-content;
-        }
-        .ss-shade-option:hover {
+        .erd-add-btn:hover:not(:disabled) {
           opacity: 0.85;
+          background: #000000;
+          transform: none;
         }
-        .ss-shade-option.active {
-          opacity: 1;
-        }
-        .ss-shade-swatch {
-          width: 8px; /* precise metadata-aligned 8px swatch */
-          height: 8px;
-          display: inline-block;
-          flex-shrink: 0;
-          border: 1px solid rgba(0, 0, 0, 0.15);
-          transition: border-color 0.25s ease;
-        }
-        .ss-shade-option.active .ss-shade-swatch {
-          border-color: rgba(0, 0, 0, 0.8);
-        }
-        .ss-shade-name {
-          font-size: 9.5px; /* microtypography rhythm adjustment */
-          font-weight: 300;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          color: rgba(0, 0, 0, 0.7); /* restrained secondary contrast */
-          display: inline-flex;
-          align-items: center;
-          transition: color 0.25s ease, font-weight 0.25s ease;
-        }
-        .ss-shade-option.active .ss-shade-name {
-          font-weight: 400; /* subtle weight shift */
-          color: #111111; /* full contrast when active */
-          text-decoration: underline;
-          text-underline-offset: 4px;
-          text-decoration-thickness: 1px;
-        }
-        .ss-shade-selected-tag {
-          font-size: 7.5px; /* micro miniature size */
-          letter-spacing: 0.18em;
-          color: rgba(0, 0, 0, 0.22); /* extremely restrained, quiet selected word */
-          margin-left: 12px;
-          font-weight: 300;
+        .erd-add-btn:disabled {
+          background: #cccccc;
+          color: #666666;
+          cursor: not-allowed;
         }
 
-        /* ══════════════════════════════════════
-           DESKTOP: side-by-side layout
-           Gallery = 52%, Info = 48%
-        ══════════════════════════════════════ */
-        @media (min-width: 768px) {
-          .ss-pdp-layout {
-            flex-direction: row;
-            min-height: 100vh;
-            background: #ffffff;
-          }
-
-          /* Desktop: hide mobile carousel, show stacked images */
-          .ss-mobile-gallery { display: none; }
-          .ss-desktop-gallery { display: block; }
-
-          /* Gallery column */
-          .ss-gallery {
-            width: 52%;
-            flex-shrink: 0;
-            background: transparent;
-            overflow: visible;
-          }
-
-          /* Each image block: full width, 3:4 */
-          .ss-desktop-img-block {
-            width: 100%;
-            aspect-ratio: 3 / 4;
-            background: #ffffff;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .ss-desktop-img-block .ss-gallery-img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-          }
-
-          /* Info panel: sticky on the right, from header to bottom */
-          .ss-info {
-            width: 48%;
-            position: sticky;
-            top: 60px;
-            height: calc(100vh - 60px);
-            overflow: hidden;
-            padding: 0;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            background: #ffffff;
-          }
-          .product-info-column {
-            padding: 72px;
-            max-height: calc(100vh - 60px);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-          }
-          .product-info-column::-webkit-scrollbar {
-            display: none;
-          }
-
-          .ss-mobile-sticky { display: none; }
-        }
-
-        @media (min-width: 1200px) {
-          .product-info-column {
-            padding: 96px;
-          }
-        }
-
-        /* ── DESKTOP EDITORIAL ALIGNMENT ── */
-        @media (min-width: 768px) {
-          .ss-title,
-          .ss-editorial-subtext { text-align: left; }
-          .ss-price-row { justify-content: flex-start; }
-          .ss-actions { margin-top: 36px; }
-          .ss-shade-section { margin-bottom: 36px; }
-        }
-
-
-        /* ── CAROUSEL IMAGE BLOCKS (Previously Considered) ── */
-        .rec-img-wrap {
-          position: relative;
+        /* ══ RELATED PRODUCTS (DESKTOP) ══ */
+        .erd-related-section {
           width: 100%;
-          aspect-ratio: 3 / 4;
-          background: #ffffff;
-          border-radius: 4px;
-          overflow: hidden;
-          transition: box-shadow 0.3s ease, transform 0.3s ease;
+          max-width: 1400px;
+          padding: 80px 40px;
+          box-sizing: border-box;
         }
-        .rec-img {
+        .erd-related-heading {
+          font-family: Arial, sans-serif;
+          font-size: 20px;
+          font-weight: 950;
+          text-transform: uppercase;
+          color: #000000;
+          margin: 0 0 40px 0;
+          letter-spacing: -0.01em;
+        }
+        .erd-related-carousel {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 24px;
+          width: 100%;
+        }
+        .erd-related-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          text-decoration: none;
+          text-align: center;
+        }
+        .erd-related-img-wrap {
+          width: 100%;
+          aspect-ratio: 6 / 10;
+          background: transparent;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .erd-related-img {
           width: 100%;
           height: 100%;
           object-fit: contain;
-          display: block;
-          border-radius: 4px;
-          transition: transform 0.3s ease;
+          background: transparent;
         }
-        .rec-card {
-          display: block;
-          text-decoration: none;
-          color: inherit;
-        }
-        .rec-card:hover .rec-img-wrap {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
-        }
-        .rec-card:hover .rec-img {
-          transform: scale(1.01);
-        }
-        .rec-meta {
-          padding-top: 14px;
+        .erd-related-info {
           display: flex;
           flex-direction: column;
           align-items: center;
-          text-align: center;
+          gap: 4px;
+          margin-top: 16px;
         }
-        .rec-title {
-          font-family: Georgia, serif;
+        .erd-related-title {
+          font-family: Arial, sans-serif;
           font-size: 11px;
-          font-weight: 300;
-          font-style: italic;
-          letter-spacing: 0.04em;
-          color: #444;
-          text-align: center;
-          line-height: 1.4;
-        }
-        .rec-price {
-          font-family: var(--font-primary), sans-serif;
-          font-size: 10px;
-          font-weight: 300;
-          color: #888;
-          letter-spacing: 0.08em;
-          text-align: center;
-          margin-top: 4px;
-        }
-
-        /* ── COMPLETE THE OUTFIT ── */
-        .outfit-section {
-          background: #ffffff;
-        }
-        .outfit-label {
-          font-size: 16px;
-          font-weight: 600;
-          letter-spacing: 0.14em;
-        }
-
-        /* ══ RECOMMENDED ══ */
-        .rec-section {
-          padding: 80px 0 100px;
-          font-family: var(--font-primary);
-          overflow: hidden;
-        }
-        .rec-label {
-          font-size: 8px;
-          font-weight: 300;
+          font-weight: 900;
+          color: #000000;
           text-transform: uppercase;
-          letter-spacing: 0.5em;
-          color: rgba(0,0,0,0.32);
-          margin: 0 0 44px;
-          padding-left: 0;
-          text-align: center;
+          letter-spacing: -0.01em;
+          line-height: 1.2;
         }
-        .rec-carousel-wrap {
-          overflow: hidden;
-        }
-        .rec-carousel {
-          display: flex;
-          flex-direction: row;
-          gap: 48px;
-          overflow-x: auto;
-          scroll-snap-type: x mandatory;
-          -webkit-overflow-scrolling: touch;
-          cursor: grab;
-          user-select: none;
-          padding-left: 40px;
-          padding-right: 40px;
-          padding-bottom: 24px;
-          scroll-padding-left: 40px;
-          will-change: transform;
-        }
-        .rec-carousel:active { cursor: grabbing; }
-        .rec-carousel.dragging { cursor: grabbing; }
-        .rec-carousel.dragging * { pointer-events: none; user-select: none; }
-        .rec-carousel::-webkit-scrollbar { display: none; }
-        .rec-carousel { scrollbar-width: none; }
-        .rec-carousel-item {
-          flex: 0 0 calc(33.333% - 32px);
-          min-width: calc(33.333% - 32px);
-          scroll-snap-align: start;
-        }
-
-        /* ══ TONET HOUSE CAROUSEL ══ */
-        .tonet-house-carousel {
-          padding: 120px 0 140px;
-          background: #ffffff !important;
-          font-family: var(--font-primary), sans-serif;
-          overflow: hidden;
-        }
-        .tonet-house-carousel__header {
-          font-family: var(--font-primary), sans-serif;
-          font-size: 9.5px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.52em;
-          color: rgba(0,0,0,0.45);
-          margin: 0 0 80px;
-          padding-left: 0;
-          text-align: center;
-        }
-        .tonet-house-carousel__wrap {
-          overflow: hidden;
-          width: 100%;
-        }
-        .tonet-house-carousel__track {
-          display: flex;
-          flex-direction: row;
-          gap: 56px;
-          overflow-x: auto;
-          scroll-snap-type: x mandatory;
-          -webkit-overflow-scrolling: touch;
-          cursor: grab;
-          user-select: none;
-          padding-left: 80px;
-          padding-right: 80px;
-          padding-bottom: 24px;
-          scroll-padding-left: 80px;
-          will-change: transform;
-          scrollbar-width: none;
-        }
-        .tonet-house-carousel__track:active { cursor: grabbing; }
-        .tonet-house-carousel__track.dragging { cursor: grabbing; }
-        .tonet-house-carousel__track.dragging * { pointer-events: none; user-select: none; }
-        .tonet-house-carousel__track::-webkit-scrollbar { display: none; }
-        .tonet-house-carousel__item {
-          flex: 0 0 calc(33.333% - 38px);
-          min-width: calc(33.333% - 38px);
-          scroll-snap-align: start;
-        }
-        /* ══ THE HOUSE PHILOSOPHY ══ */
-        .ss-philosophy {
-          padding: 100px 32px;
-          background: #0d0d0d;
-          text-align: center;
-        }
-        .ss-philosophy-inner {
-          max-width: 560px;
-          margin: 0 auto;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 28px;
-        }
-        .ss-philosophy-eyebrow {
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.5em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.2);
-          font-family: var(--font-primary);
-        }
-        .ss-philosophy-text {
-          font-size: 13px;
-          font-weight: 300;
-          line-height: 1.9;
-          letter-spacing: 0.03em;
-          color: rgba(255,255,255,0.48);
-          font-family: var(--font-primary);
-          margin: 0;
-        }
-        .ss-philosophy-note {
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.4em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.16);
-          font-family: var(--font-primary);
-        }
-
-        /* ══ ARCHIVAL RECORD — Garment Documentation ══ */
-        .tn-archival {
-          background: #111111;
-          padding: 120px 40px;
-          font-family: var(--font-primary);
-          opacity: 0;
-          transform: translateY(28px);
-          transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-                      transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-          will-change: opacity, transform;
-        }
-        .tn-archival--visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .tn-archival__inner {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: flex;
-          flex-direction: column;
-          gap: 80px;
-        }
-
-        /* Top statement */
-        .tn-archival__statement {
-          max-width: 720px;
-          margin: 0 auto;
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-        }
-        .tn-archival__eyebrow {
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.5em;
-          text-transform: uppercase;
-          color: rgba(231, 228, 223, 0.25);
-        }
-        .tn-archival__text {
-          font-size: 14px;
-          font-weight: 300;
-          line-height: 2.2;
-          letter-spacing: 0.04em;
-          color: rgba(231, 228, 223, 0.55);
-          margin: 0;
-        }
-
-        /* Three-column grid */
-        .tn-archival__grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 48px;
-          align-items: start;
-        }
-        .tn-archival__col {
-          display: flex;
-          flex-direction: column;
-          gap: 28px;
-        }
-        .tn-archival__col--center {
-          text-align: center;
-          align-items: center;
-          border-left: 1px solid rgba(231, 228, 223, 0.05);
-          border-right: 1px solid rgba(231, 228, 223, 0.05);
-          padding: 0 48px;
-        }
-        .tn-archival__col-label {
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.45em;
-          text-transform: uppercase;
-          color: rgba(231, 228, 223, 0.22);
-        }
-        .tn-archival__col-body {
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-        .tn-archival__meta-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          gap: 16px;
-          border-bottom: 1px solid rgba(231, 228, 223, 0.04);
-          padding-bottom: 10px;
-        }
-        .tn-archival__meta-key {
-          font-size: 8.5px;
-          font-weight: 300;
-          letter-spacing: 0.28em;
-          text-transform: uppercase;
-          color: rgba(231, 228, 223, 0.28);
-          flex-shrink: 0;
-        }
-        .tn-archival__meta-val {
-          font-size: 9.5px;
-          font-weight: 300;
-          letter-spacing: 0.06em;
-          color: rgba(231, 228, 223, 0.65);
-          text-align: right;
-        }
-
-        /* Center quote */
-        .tn-archival__quote {
-          font-family: Georgia, serif;
-          font-size: 15px;
-          font-weight: 300;
-          font-style: italic;
-          line-height: 1.9;
-          letter-spacing: 0.03em;
-          color: rgba(231, 228, 223, 0.48);
-          margin: 0;
-          max-width: 280px;
-        }
-        .tn-archival__quote-source {
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.35em;
-          text-transform: uppercase;
-          color: rgba(231, 228, 223, 0.18);
-          margin-top: 8px;
-        }
-
-        @media (max-width: 1024px) {
-          .tn-archival { padding: 100px 32px; }
-          .tn-archival__inner { gap: 64px; }
-          .tn-archival__col--center { padding: 0 32px; }
-        }
-
-        @media (max-width: 767px) {
-          html, body { background: #ffffff !important; }
-          .ss-gallery,
-          .ss-gallery-item,
-          .ss-info,
-          .outfit-section,
-          .ss-mobile-img-cell { background: #ffffff !important; }
-          .rec-section { background: #ffffff !important; padding: 60px 0 80px; }
-          .ss-philosophy { padding: 80px 24px; }
-          .ss-philosophy-text { font-size: 12px; }
-          .rec-carousel {
-            gap: 24px !important;
-            padding-left: 24px !important;
-            padding-right: 24px !important;
-            scroll-padding-left: 24px !important;
-          }
-          .rec-carousel-item {
-            flex: 0 0 75vw !important;
-            min-width: 75vw !important;
-          }
-
-          /* TONET HOUSE CAROUSEL MOBILE */
-          .tonet-house-carousel {
-            background: #ffffff !important;
-            padding: 80px 0 100px !important;
-          }
-          .tonet-house-carousel__header {
-            margin-bottom: 48px !important;
-          }
-          .tonet-house-carousel__track {
-            gap: 24px !important;
-            padding-left: 24px !important;
-            padding-right: 24px !important;
-            scroll-padding-left: 24px !important;
-          }
-          .tonet-house-carousel__item {
-            flex: 0 0 75vw !important;
-            min-width: 75vw !important;
-          }
-
-          /* ARCHIVAL RECORD MOBILE */
-          .tn-archival {
-            padding: 80px 24px;
-          }
-          .tn-archival__inner {
-            gap: 56px;
-          }
-          .tn-archival__text {
-            font-size: 12px;
-            line-height: 2;
-          }
-          .tn-archival__grid {
-            grid-template-columns: 1fr;
-            gap: 48px;
-          }
-          .tn-archival__col--center {
-            border-left: none;
-            border-right: none;
-            padding: 48px 0;
-            border-top: 1px solid rgba(231, 228, 223, 0.05);
-            border-bottom: 1px solid rgba(231, 228, 223, 0.05);
-          }
-          .tn-archival__quote {
-            font-size: 13px;
-            max-width: 260px;
-          }
-        }
-        /* ══ AVAILABILITY REQUEST MODAL ══ */
-        .arm-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 5000;
-          background: rgba(0,0,0,0.72);
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding: 24px;
-          animation: modal-fade-in 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        @keyframes modal-fade-in {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-        .arm-modal {
-          background: linear-gradient(
-            180deg,
-            rgba(12,12,12,0.98) 0%,
-            rgba(7,7,7,0.99) 100%
-          );
-          border: 1px solid rgba(255,255,255,0.04);
-          border-radius: 0;
-          width: 100%;
-          max-width: 440px;
-          padding: 40px 36px;
-          box-sizing: border-box;
-          margin-top: 18vh;
-          box-shadow:
-            0 0 0 1px rgba(255,255,255,0.02),
-            0 40px 120px rgba(0,0,0,0.65);
-          animation: modal-slide-in 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        @keyframes modal-slide-in {
-          from { opacity: 0; transform: translateY(10px) scale(0.985); filter: blur(4px); }
-          to   { opacity: 1; transform: translateY(0) scale(1);   filter: blur(0); }
-        }
-        .arm-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 32px;
-        }
-        .arm-title {
-          font-family: var(--font-primary);
+        .erd-related-color {
+          font-family: Arial, sans-serif;
           font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.5em;
+          font-weight: 700;
+          color: #000000;
           text-transform: uppercase;
-          padding-right: 0.5em;
-          color: rgba(255,255,255,0.55);
-        }
-        .arm-close {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #fff;
-          opacity: 0.35;
-          display: flex;
-          align-items: center;
-          padding: 6px;
-          transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .arm-close:hover { opacity: 0.7; }
-        .arm-desc {
-          font-family: var(--font-primary);
-          font-size: 10px;
-          font-weight: 300;
-          line-height: 1.7;
-          letter-spacing: 0.01em;
-          color: rgba(255,255,255,0.24);
-          margin: 0 0 32px 0;
-        }
-        .arm-field-group {
-          margin-bottom: 32px;
-        }
-        .arm-field {
-          margin-bottom: 28px;
-        }
-        .arm-field-label {
-          display: block;
-          font-family: var(--font-primary);
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.42em;
-          text-transform: uppercase;
-          padding-right: 0.42em;
-          color: rgba(255,255,255,0.22);
-          margin-bottom: 14px;
-        }
-        .arm-optional {
-          letter-spacing: 0;
-          text-transform: none;
-          font-size: 9px;
-          color: rgba(255,255,255,0.14);
-        }
-        .arm-sizes {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-        .arm-size-pill {
-          padding: 9px 18px;
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.3em;
-          padding-right: calc(18px + 0.3em);
-          border: 1px solid rgba(255,255,255,0.14);
-          background: transparent;
-          color: rgba(255,255,255,0.38);
-          border-radius: 0;
-          cursor: pointer;
-          transition: border-color 0.22s, background 0.22s, color 0.22s;
-        }
-        .arm-size-pill:hover {
-          border-color: rgba(255,255,255,0.35);
-          color: rgba(255,255,255,0.65);
-        }
-        .arm-size-pill.selected {
-          border-color: rgba(255,255,255,0.7);
-          background: rgba(255,255,255,0.06);
-          color: rgba(255,255,255,0.88);
-        }
-        .arm-no-sizes {
-          font-family: var(--font-primary);
-          font-size: 10px;
-          font-weight: 300;
-          color: rgba(255,255,255,0.2);
-          letter-spacing: 0.04em;
-        }
-        .arm-input {
-          width: 100%;
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
-          padding: 0 0 10px 0;
-          font-family: var(--font-primary);
-          font-size: 12px;
-          font-weight: 300;
-          color: rgba(255,255,255,0.7);
-          outline: none;
           letter-spacing: 0.02em;
-          transition: border-color 0.3s;
-          box-sizing: border-box;
         }
-        .arm-input::placeholder { color: rgba(255,255,255,0.18); }
-        .arm-input:focus { border-bottom-color: rgba(255,255,255,0.38); }
-        .arm-cta {
-          width: 100%;
-          height: 48px;
-          margin-top: 36px;
-          background: transparent;
-          border: 1px solid rgba(255,255,255,0.25);
-          color: rgba(255,255,255,0.65);
-          font-family: var(--font-primary);
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.45em;
-          padding-right: 0.45em;
-          text-transform: uppercase;
-          cursor: pointer;
-          border-radius: 0;
-          transition: background 0.5s, color 0.5s, border-color 0.5s;
-        }
-        .arm-cta:hover:not(:disabled) {
-          background: rgba(255,255,255,0.06);
-          border-color: rgba(255,255,255,0.5);
-          color: rgba(255,255,255,0.9);
-        }
-        .arm-cta:disabled { opacity: 0.28; cursor: not-allowed; }
-        .arm-success {
-          text-align: center;
-          padding: 24px 0 8px;
-          animation: arm-success-appear 350ms cubic-bezier(0.22,1,0.36,1) forwards;
-        }
-        @keyframes arm-success-appear {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .arm-success-title {
-          display: block;
-          font-family: var(--font-brand);
-          font-size: 22px;
-          font-weight: 300;
-          letter-spacing: 0.04em;
-          color: rgba(255,255,255,0.65);
-          margin-bottom: 18px;
-        }
-        .arm-success-sub {
-          font-family: var(--font-primary);
-          font-size: 10px;
-          font-weight: 300;
-          letter-spacing: 0.06em;
-          line-height: 1.9;
-          color: rgba(255,255,255,0.22);
-          margin: 0;
+        .erd-related-price {
+          font-family: Arial, sans-serif;
+          font-size: 9px;
+          font-weight: 700;
+          color: #000000;
+          letter-spacing: 0.02em;
         }
 
-        /* ══ SIZE GUIDE MODAL ══ */
-        .sg-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 5000;
-          background: rgba(0,0,0,0.72);
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          padding: 24px;
-          animation: modal-fade-in 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        /* Responsive displays */
+        .erd-mobile-only {
+          display: none !important;
         }
-        .sg-modal {
-          background: linear-gradient(
-            180deg,
-            rgba(12,12,12,0.98) 0%,
-            rgba(7,7,7,0.99) 100%
-          );
-          border: 1px solid rgba(255,255,255,0.04);
-          border-radius: 0;
-          width: 100%;
-          max-width: 440px;
-          padding: 40px 36px;
-          box-sizing: border-box;
-          margin-top: 18vh;
-          box-shadow:
-            0 0 0 1px rgba(255,255,255,0.02),
-            0 40px 120px rgba(0,0,0,0.65);
-          animation: modal-slide-in 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        .erd-desktop-only {
+          display: grid !important;
         }
-        .sg-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 20px;
+        div.erd-desktop-only {
+          display: grid !important;
         }
-        .sg-title {
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.5em;
-          text-transform: uppercase;
-          padding-right: 0.5em;
-          color: rgba(255,255,255,0.55);
+        .erd-related-section.erd-desktop-only {
+          display: block !important;
         }
-        .sg-close {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #fff;
-          opacity: 0.35;
-          display: flex;
-          align-items: center;
-          padding: 6px;
-          transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .sg-close:hover { opacity: 0.7; }
-        .sg-subtext {
-          font-family: var(--font-primary);
-          font-size: 10px;
-          font-weight: 300;
-          line-height: 1.7;
-          letter-spacing: 0.01em;
-          color: rgba(255,255,255,0.24);
-          margin: 0 0 32px 0;
-        }
-        .sg-table {
-          display: flex;
-          flex-direction: column;
-        }
-        .sg-table-row {
-          display: grid;
-          grid-template-columns: 44px 1fr 1fr;
-          align-items: center;
-          padding: 16px 0;
-          border-bottom: 1px solid rgba(255,255,255,0.035);
-          gap: 12px;
-        }
-        .sg-table-row:first-child {
-          border-top: 1px solid rgba(255,255,255,0.035);
-        }
-        .sg-size-label {
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.38em;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.65);
-          padding-right: 0.38em;
-        }
-        .sg-measurement {
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.1em;
-          color: rgba(255,255,255,0.28);
-        }
-        .sg-fit-notes {
-          margin-top: 32px;
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .sg-fit-note {
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.06em;
-          color: rgba(255,255,255,0.18);
-          margin: 0;
-          font-style: italic;
-        }
+
+        /* ══ RESPONSIVE MOBILE PROPORTIONS ══ */
         @media (max-width: 767px) {
-          .arm-overlay, .sg-overlay {
-            align-items: flex-end;
+          .erd-mobile-only {
+            display: block !important;
+          }
+          .erd-desktop-only {
+            display: none !important;
+          }
+          div.erd-desktop-only {
+            display: none !important;
+          }
+          .erd-related-section.erd-desktop-only {
+            display: none !important;
+          }
+
+          .erd-pdp-layout {
+            min-height: 100vh;
+            width: 100vw;
+            display: block;
             padding: 0;
+            margin: 0;
+            box-sizing: border-box;
           }
-          .arm-modal, .sg-modal {
-            margin-top: 0;
-            border-radius: 24px 24px 0 0;
-            max-width: 100%;
+
+          /* Mobile pdp container */
+          .erd-mobile-pdp {
             width: 100%;
-            padding: 32px 24px 48px;
-            animation: modal-slide-up 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            background-color: #ffffff;
           }
-        }
-        .ss-shade-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-          width: 100%;
-          margin-top: 12px;
-        }
-        @media (max-width: 767px) {
-          .ss-shade-grid {
+
+          .erd-mobile-first-fold {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh; /* dynamic viewport height if supported */
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+          }
+
+          /* 12% Header Spacer */
+          .erd-mobile-header-spacer {
+            height: 12vh;
+            width: 100%;
+            flex-shrink: 0;
+          }
+
+          /* 10% Product Title Block */
+          .erd-mobile-title-block {
+            height: 10vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            padding: 0 16px;
           }
-        }
-        .ss-shade-section .ss-shade-option {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 24px;
-          height: 24px;
-          background: transparent;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          padding: 0;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-          opacity: 1;
-        }
-        .ss-shade-section .ss-shade-option:hover {
-          border-color: rgba(0, 0, 0, 0.3);
-        }
-        .ss-shade-section .ss-shade-option.active {
-          border-color: #111111;
-          background: rgba(0, 0, 0, 0.02);
-        }
-        .ss-shade-section .ss-shade-swatch {
-          width: 14px;
-          height: 14px;
-          display: block;
-          border: 1px solid rgba(0, 0, 0, 0.04);
-        }
 
-        .ss-minimal-metadata {
-          font-size: 9px;
-          font-weight: 300;
-          font-family: var(--font-primary);
-          color: rgba(0,0,0,0.25);
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
+          .erd-mobile-title {
+            font-family: Arial, sans-serif;
+            font-weight: 900;
+            font-size: 26px;
+            line-height: 0.85; /* Extremely tight line-height */
+            text-transform: uppercase;
+            text-align: center;
+            margin: 0;
+            max-width: 320px;
+            letter-spacing: -0.02em;
+            color: #000000;
+          }
 
-        .ss-sizes-select-area {
-          margin-top: 24px;
-          margin-bottom: 24px;
-          width: 100%;
-        }
-        .ss-inline-sizes {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
-          gap: 8px;
-          margin-top: 14px;
-          width: 100%;
-        }
-        .ss-inline-size {
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          letter-spacing: 0.25em;
-          padding-left: 0.25em;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          background: transparent;
-          cursor: pointer;
-          color: rgba(0, 0, 0, 0.55);
-          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-          position: relative;
-        }
-        .ss-inline-size:hover:not(.sold-out) {
-          border-color: rgba(0, 0, 0, 0.3);
-          color: rgba(0, 0, 0, 0.9);
-        }
-        .ss-inline-size.active {
-          background: #111111;
-          color: #ffffff;
-          border-color: #111111;
-        }
-        .ss-inline-size.sold-out {
-          color: rgba(0, 0, 0, 0.25);
-          background: rgba(0, 0, 0, 0.01);
-          border-color: rgba(0, 0, 0, 0.04);
-          cursor: pointer;
-        }
-        .ss-inline-size.sold-out::after {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to top right, transparent calc(50% - 0.5px), rgba(0,0,0,0.15) 50%, transparent calc(50% + 0.5px));
-          pointer-events: none;
-        }
-        .ss-inline-size.sold-out:hover {
-          border-color: rgba(0, 0, 0, 0.2);
-          color: rgba(0, 0, 0, 0.5);
-        }
+          .erd-mobile-colorway {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #000000;
+            text-align: center;
+            margin-top: 6px;
+            letter-spacing: 0.02em;
+          }
 
-        .ss-size-guide-link {
-          font-family: var(--font-primary);
-          font-size: 8px;
-          font-weight: 300;
-          letter-spacing: 0.32em;
-          text-transform: uppercase;
-          color: rgba(0, 0, 0, 0.25);
-          background: none;
-          border: none;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-          padding: 0 0 2px 0;
-          cursor: pointer;
-          transition: color 0.3s, border-color 0.3s;
-        }
-        .ss-size-guide-link:hover {
-          color: rgba(0, 0, 0, 0.6);
-          border-bottom-color: rgba(0, 0, 0, 0.25);
-        }
+          /* 2% Negative Space Spacer */
+          .erd-mobile-space-spacer {
+            height: 2vh;
+            width: 100%;
+            flex-shrink: 0;
+          }
 
-        @media (max-width: 767px) {
-          .ss-sizes-select-area {
+          /* 42% Product Image */
+          .erd-mobile-image-container {
+            position: relative;
+            height: 42vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+          }
+
+          .erd-mobile-images-slider {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            height: 42vh;
+            overflow-x: auto;
+            scrollbar-width: none;
+            scroll-snap-type: x mandatory;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16vw;
+            padding: 0 8vw;
+            box-sizing: border-box;
+          }
+          .erd-mobile-images-slider::-webkit-scrollbar {
+            display: none;
+          }
+
+          .erd-mobile-hero-img {
+            width: 84vw;
+            height: 42vh;
+            object-fit: contain;
+            background: transparent;
+            scroll-snap-align: center;
+            flex-shrink: 0;
+          }
+
+          .erd-mobile-image-indicator {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 24px;
+            font-family: Arial, sans-serif;
+            font-size: 8.5px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #000000;
+            text-transform: uppercase;
+            pointer-events: none;
+            z-index: 10;
+          }
+
+          /* 10% Purchase Controls */
+          .erd-mobile-purchase-container {
+            height: 10vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            padding: 0 16px;
+            gap: 6px;
+          }
+
+          .erd-mobile-sizes {
+            display: flex;
+            justify-content: space-between;
+            width: 220px;
+            gap: 0;
+          }
+
+          .erd-mobile-size-btn {
+            flex: 1;
+            background: none;
+            border: 1px solid transparent;
+            padding: 4px 0;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #000000;
+            border-radius: 0;
+            text-align: center;
+          }
+          
+          .erd-mobile-size-btn.selected {
+            border: 1px solid #000000;
+          }
+
+          .erd-mobile-add-btn {
+            width: 220px;
+            height: 34px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.02em;
+          }
+
+          /* 24% Description Preview */
+          .erd-mobile-desc-preview {
+            height: 24vh;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 16px 24px;
+            flex-shrink: 0;
+            overflow: hidden;
+          }
+
+          .erd-mobile-desc-text {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            line-height: 1.4;
+            font-weight: 400;
+            text-transform: uppercase;
+            color: #000000;
+            text-align: left;
+            margin: 0;
+            width: 100%;
+          }
+
+          /* Mobile Related Products (scrolling area) */
+          .erd-mobile-related-section {
+            width: 100%;
+            padding: 40px 0 80px 0;
+            box-sizing: border-box;
+          }
+
+          .erd-mobile-related-heading {
+            font-family: Arial, sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #000000;
+            margin: 0 0 24px 13.5vw;
+            letter-spacing: -0.01em;
+          }
+
+          .erd-mobile-related-carousel {
+            display: flex;
+            flex-direction: row;
+            gap: 27vw;
+            overflow-x: auto;
+            scrollbar-width: none;
+            scroll-snap-type: x mandatory;
+            padding: 0 13.5vw;
+            box-sizing: border-box;
+          }
+          .erd-mobile-related-carousel::-webkit-scrollbar {
+            display: none;
+          }
+
+          .erd-mobile-related-card {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 73vw;
+            flex-shrink: 0;
+            text-decoration: none;
+            text-align: center;
+            scroll-snap-align: center;
           }
-          .ss-inline-sizes {
-            justify-content: center;
-            max-width: 320px;
+
+          .erd-mobile-related-img {
+            width: 100%;
+            height: 80vw;
+            object-fit: contain;
+            background: transparent;
           }
-        }
 
-        .ss-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-top: 32px;
-          margin-bottom: 32px;
-          width: 100%;
-        }
-        .ss-cta-btn {
-          width: 100%;
-          height: 48px;
-          background: #111111;
-          color: #ffffff;
-          border: none;
-          border-radius: 0;
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.35em;
-          padding-left: 0.35em;
-          cursor: pointer;
-          transition: background 0.3s ease, opacity 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .ss-cta-btn:hover:not(:disabled) {
-          background: #222222;
-        }
-        .ss-cta-btn:disabled {
-          background: #f5f5f5;
-          color: rgba(0,0,0,0.25);
-          cursor: not-allowed;
-          border: 1px solid rgba(0,0,0,0.05);
-        }
-        .ss-archive-btn {
-          width: 100%;
-          height: 48px;
-          background: transparent;
-          color: #111111;
-          border: 1px solid rgba(0,0,0,0.12);
-          border-radius: 0;
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          text-transform: uppercase;
-          letter-spacing: 0.35em;
-          padding-left: 0.35em;
-          cursor: pointer;
-          transition: border-color 0.3s ease, background-color 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .ss-archive-btn:hover {
-          border-color: rgba(0,0,0,0.4);
-          background-color: rgba(0,0,0,0.02);
-        }
-        .ss-archive-btn--in {
-          background: rgba(0, 0, 0, 0.03);
-          border-color: rgba(0,0,0,0.08);
-          color: rgba(0, 0, 0, 0.45);
-        }
+          .erd-mobile-related-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            margin-top: 12px;
+          }
 
-        .ss-accordions {
-          margin-top: 48px;
-          border-top: 1px solid rgba(0, 0, 0, 0.06);
-          width: 100%;
-        }
-        .ss-accordion-item {
-          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-        }
-        .ss-accordion-header {
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 20px 0;
-          background: none;
-          border: none;
-          font-family: var(--font-primary);
-          font-size: 9px;
-          font-weight: 300;
-          color: rgba(0, 0, 0, 0.55);
-          cursor: pointer;
-          text-align: left;
-          letter-spacing: 0.35em;
-          text-transform: uppercase;
-          transition: color 0.4s;
-        }
-        .ss-accordion-header:focus { outline: none; }
-        .ss-accordion-header:hover { color: rgba(0, 0, 0, 0.85); }
-        .ss-accordion-icon {
-          font-size: 10px;
-          font-weight: 300;
-          color: rgba(0, 0, 0, 0.25);
-          transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
-          line-height: 1;
-        }
-        .ss-accordion-icon.open { transform: rotate(45deg); }
-        .ss-accordion-body {
-          overflow: hidden;
-          max-height: 0;
-          opacity: 0;
-          transform: translateY(4px);
-          transition: max-height 250ms cubic-bezier(0.22, 1, 0.36, 1),
-                      opacity 250ms cubic-bezier(0.22, 1, 0.36, 1),
-                      transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .ss-accordion-body.open {
-          max-height: 2000px;
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .ss-accordion-body-inner {
-          padding-bottom: 24px;
-          padding-top: 4px;
-        }
-        .ss-accordion-text {
-          font-size: 9.5px;
-          font-family: var(--font-primary);
-          font-weight: 300;
-          line-height: 1.8;
-          color: rgba(0, 0, 0, 0.45);
-          margin: 0;
-          letter-spacing: 0.05em;
-        }
-        
-        .ss-details-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          padding: 10px 0;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.03);
-          gap: 16px;
-        }
-        .ss-details-row:last-child {
-          border-bottom: none;
-        }
-        .ss-details-label {
-          font-size: 7.5px;
-          font-weight: 400;
-          text-transform: uppercase;
-          letter-spacing: 0.3em;
-          color: rgba(0, 0, 0, 0.35);
-          width: 100px;
-          flex-shrink: 0;
-        }
-        .ss-details-value {
-          font-size: 9.5px;
-          font-weight: 300;
-          letter-spacing: 0.06em;
-          color: rgba(0, 0, 0, 0.55);
-          text-align: right;
-        }
+          .erd-mobile-related-title {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            font-weight: 900;
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
+          }
 
-        .ss-care-line {
-          display: block;
-          position: relative;
-          padding-left: 12px;
-        }
-        .ss-care-line::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 8px;
-          width: 3px;
-          height: 3px;
-          border-radius: 50%;
-          background: rgba(0, 0, 0, 0.18);
-        }
+          .erd-mobile-related-color {
+            font-family: Arial, sans-serif;
+            font-size: 7.5px;
+            font-weight: 700;
+            color: #000000;
+            text-transform: uppercase;
+          }
 
-        button:focus-visible {
-          outline: 1px solid rgba(0, 0, 0, 0.25);
-          outline-offset: 2px;
-        }
-        .ss-shade-option:focus-visible {
-          outline: 1px solid rgba(0, 0, 0, 0.4);
-          outline-offset: 2px;
+          .erd-mobile-related-price {
+            font-family: Arial, sans-serif;
+            font-size: 7.5px;
+            font-weight: 700;
+            color: #000000;
+          }
         }
       `}</style>
     </>

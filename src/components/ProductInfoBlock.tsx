@@ -49,7 +49,7 @@ export default function ProductInfoBlock({ title, badge, subtitle, onClick, bord
           margin-bottom: 2px;
         }
         .pib-title {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.10em;
@@ -59,7 +59,7 @@ export default function ProductInfoBlock({ title, badge, subtitle, onClick, bord
         }
         .pib-block:hover .pib-title { color: #fff; }
         .pib-badge {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 400;
           color: #768194;
           text-transform: uppercase;
@@ -68,7 +68,7 @@ export default function ProductInfoBlock({ title, badge, subtitle, onClick, bord
         }
         .pib-block:hover .pib-badge { color: rgba(255,255,255,0.6); }
         .pib-sub {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 400;
           letter-spacing: 0.02em;
           color: #555;
@@ -77,7 +77,7 @@ export default function ProductInfoBlock({ title, badge, subtitle, onClick, bord
         }
         .pib-block:hover .pib-sub { color: rgba(255,255,255,0.75); }
         .pib-arrow {
-          font-size: 18px;
+          font-size: 15.3px;
           color: #0000cc;
           flex-shrink: 0;
           margin-left: 12px;

@@ -130,7 +130,7 @@ export default function TransitionProvider({
         /* Centered label in Coolvetica */
         .tn-ov-lbl {
           font-family: var(--font-coolvetica), sans-serif;
-          font-size: clamp(24px, 3.5vw, 44px);
+          font-size: clamp(20.4px, 2.975vw, 37.4px);
           font-weight: 300;
           letter-spacing: 0.12em;
           text-transform: uppercase;

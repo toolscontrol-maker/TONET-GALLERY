@@ -69,7 +69,7 @@ export default function ProductInfoDrawer({ isOpen, onClose, title, heroImage, c
           flex-shrink: 0;
         }
         .pid-title {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.1em;
@@ -78,7 +78,7 @@ export default function ProductInfoDrawer({ isOpen, onClose, title, heroImage, c
         .pid-close {
           background: none; border: none;
           font-family: inherit;
-          font-size: 11px; font-weight: 400;
+          font-size: 9.35px; font-weight: 400;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           color: #0033bb; cursor: pointer;
@@ -99,7 +99,7 @@ export default function ProductInfoDrawer({ isOpen, onClose, title, heroImage, c
         }
         .pid-body {
           padding: 20px 16px;
-          font-size: 12px;
+          font-size: 10.2px;
           line-height: 1.75;
           color: #222;
         }

@@ -137,7 +137,7 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
         }
         .hc-season {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.35em;
           color: rgba(255,255,255,0.25);
@@ -146,7 +146,7 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
         }
         .hc-title {
           font-family: var(--font-primary);
-          font-size: clamp(22px, 2.8vw, 36px);
+          font-size: clamp(18.7px, 2.38vw, 30.6px);
           font-weight: 200;
           letter-spacing: 0.18em;
           color: rgba(255,255,255,0.85);
@@ -161,7 +161,7 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
         }
         .hc-editorial-sub {
           font-family: var(--font-primary);
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.14em;
           color: rgba(255,255,255,0.35);
@@ -170,7 +170,7 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
         }
         .hc-tab {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.42em;
           color: rgba(255,255,255,0.25);
@@ -241,7 +241,7 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
         }
         .hc-name {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.14em;
           color: rgba(0, 0, 0, 0.65);
@@ -252,7 +252,7 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
         }
         .hc-price {
           font-family: var(--font-primary);
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 400;
           color: #000000;
           letter-spacing: 0.06em;
@@ -280,7 +280,7 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
         }
         .hc-size {
           font-family: var(--font-primary);
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.08em;
           color: rgba(0, 0, 0, 0.5);
@@ -299,7 +299,7 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
           display: block;
           text-align: center;
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.35em;
           color: rgba(255,255,255,0.3);
@@ -324,9 +324,9 @@ export default function HomeCollection({ products }: HomeCollectionProps) {
         @media (max-width: 767px) {
           .hc { padding: 80px 20px 60px; }
           .hc-grid { grid-template-columns: 1fr; gap: 2px; }
-          .hc-title { font-size: 22px; margin-bottom: 32px; }
+          .hc-title { font-size: 18.7px; margin-bottom: 32px; }
           .hc-tabs { gap: 20px; }
-          .hc-tab { font-size: 9px; letter-spacing: 0.35em; }
+          .hc-tab { font-size: 7.65px; letter-spacing: 0.35em; }
         }
       `}</style>
     </section>

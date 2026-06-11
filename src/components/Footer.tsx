@@ -106,7 +106,7 @@ export default function Footer() {
           flex-direction: column;
         }
         .ft-nl-label {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.32em;
           color: rgba(255,255,255,0.45);
@@ -127,7 +127,7 @@ export default function Footer() {
           border: none;
           outline: none;
           font-family: inherit;
-          font-size: 13px;
+          font-size: 11.05px;
           font-weight: 300;
           color: #fff;
           padding: 0;
@@ -138,7 +138,7 @@ export default function Footer() {
           background: transparent;
           border: none;
           color: #333333;
-          font-size: 18px;
+          font-size: 15.3px;
           cursor: pointer;
           padding: 0 0 0 12px;
           line-height: 1;
@@ -146,7 +146,7 @@ export default function Footer() {
         }
         .ft-nl-btn:hover { color: #999; }
         .ft-nl-sub {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           color: #2c2c2c;
           margin: 0;
@@ -177,7 +177,7 @@ export default function Footer() {
         }
         .ft-nav-col { flex: 1; }
         .ft-col-head {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 400;
           letter-spacing: 0.2em;
           color: #303030;
@@ -193,7 +193,7 @@ export default function Footer() {
           gap: 22px;
         }
         .ft-links li a {
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 300;
           color: #3c3c3c;
           letter-spacing: 0.03em;
@@ -209,13 +209,13 @@ export default function Footer() {
           padding: 28px 100px;
         }
         .ft-copy {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           color: #262626;
           letter-spacing: 0.08em;
         }
         .ft-locale {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           color: #262626;
           letter-spacing: 0.12em;

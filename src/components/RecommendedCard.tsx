@@ -95,7 +95,7 @@ export default function RecommendedCard({ product }: Props) {
         }
         .tonet-house-carousel__title {
           font-family: var(--font-primary), sans-serif;
-          font-size: 9.5px;
+          font-size: 8.075px;
           font-weight: 300;
           text-transform: uppercase;
           letter-spacing: 0.14em;
@@ -107,7 +107,7 @@ export default function RecommendedCard({ product }: Props) {
         }
         .tonet-house-carousel__archive-ref {
           font-family: var(--font-primary), sans-serif;
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           letter-spacing: 0.1em;
           color: #888;

@@ -80,7 +80,7 @@ export default async function Home() {
         }
         .tn-mani-body {
           font-family: var(--font-primary);
-          font-size: 14px;
+          font-size: 11.9px;
           font-weight: 300;
           line-height: 2.4;
           color: rgba(255,255,255,0.5);
@@ -89,7 +89,7 @@ export default async function Home() {
         }
         .tn-mani-sig {
           font-family: var(--font-primary);
-          font-size: 9px;
+          font-size: 7.65px;
           font-weight: 300;
           letter-spacing: 0.45em;
           color: rgba(255,255,255,0.18);
@@ -124,7 +124,7 @@ export default async function Home() {
         }
         .tn-edit-a-over {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.48em;
           color: rgba(255,255,255,0.2);
@@ -133,7 +133,7 @@ export default async function Home() {
         }
         .tn-edit-a-headline {
           font-family: var(--font-primary);
-          font-size: clamp(28px, 3.8vw, 52px);
+          font-size: clamp(23.8px, 3.23vw, 44.2px);
           font-weight: 200;
           letter-spacing: 0.12em;
           color: rgba(255,255,255,0.82);
@@ -143,7 +143,7 @@ export default async function Home() {
         }
         .tn-edit-a-body {
           font-family: var(--font-primary);
-          font-size: 13px;
+          font-size: 11.05px;
           font-weight: 300;
           line-height: 2.2;
           color: rgba(255,255,255,0.38);
@@ -153,7 +153,7 @@ export default async function Home() {
         }
         .tn-edit-a-cta {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.4em;
           color: rgba(255,255,255,0.38);
@@ -209,7 +209,7 @@ export default async function Home() {
         }
         .tn-edit-b-headline {
           font-family: var(--font-primary);
-          font-size: clamp(32px, 5vw, 72px);
+          font-size: clamp(27.2px, 4.25vw, 61.2px);
           font-weight: 200;
           letter-spacing: 0.14em;
           color: #fff;
@@ -219,7 +219,7 @@ export default async function Home() {
         }
         .tn-edit-b-sub {
           font-family: var(--font-primary);
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.42em;
           color: rgba(255,255,255,0.35);
@@ -233,13 +233,13 @@ export default async function Home() {
         }
         @media (max-width: 767px) {
           .tn-mani { padding: 100px 28px; }
-          .tn-mani-body { font-size: 13px; line-height: 2.2; }
+          .tn-mani-body { font-size: 11.05px; line-height: 2.2; }
           .tn-edit-a { grid-template-columns: 1fr; }
           .tn-edit-a-img { min-height: 55dvh; }
           .tn-edit-a-text { padding: 60px 24px; }
           .tn-edit-b { height: 75dvh; }
           .tn-edit-b-headline {
-            font-size: clamp(24px, 8vw, 48px);
+            font-size: clamp(20.4px, 6.8vw, 40.8px);
             letter-spacing: 0.1em;
           }
         }

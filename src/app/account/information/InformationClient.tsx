@@ -49,7 +49,6 @@ export default function InformationClient() {
           <Link href="/account" className="info-tab">The Residence</Link>
           <Link href="/account/orders" className="info-tab">Acquisitions</Link>
           <Link href="/account/information" className="info-tab info-tab--active">House Record</Link>
-          <Link href="/archive" className="info-tab">Archive</Link>
         </nav>
 
         <h1 className="info-title">House Record</h1>
@@ -118,7 +117,7 @@ export default function InformationClient() {
           padding-bottom: 1px;
         }
         .info-tab {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           text-decoration: none;
           color: rgba(255,255,255,0.3);
@@ -137,14 +136,14 @@ export default function InformationClient() {
 
         .info-title {
           font-family: var(--font-brand);
-          font-size: clamp(24px, 4vw, 36px);
+          font-size: clamp(20.4px, 3.4vw, 30.6px);
           font-weight: 300;
           margin: 0 0 16px;
           letter-spacing: 0.15em;
           color: rgba(255,255,255,0.7);
         }
         .info-desc {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 300;
           letter-spacing: 0.08em;
           color: rgba(255,255,255,0.35);
@@ -157,7 +156,7 @@ export default function InformationClient() {
           max-width: 420px;
         }
         .info-label {
-          font-size: 8px;
+          font-size: 6.8px;
           font-weight: 300;
           text-transform: uppercase;
           letter-spacing: 0.25em;
@@ -169,7 +168,7 @@ export default function InformationClient() {
           border: none;
           border-bottom: 1px solid rgba(255,255,255,0.1);
           padding: 12px 0;
-          font-size: 11px;
+          font-size: 9.35px;
           font-family: var(--font-primary);
           font-weight: 300;
           color: rgba(255,255,255,0.8);
@@ -197,7 +196,7 @@ export default function InformationClient() {
           accent-color: #ffffff;
         }
         .info-checkbox span {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           letter-spacing: 0.06em;
           color: rgba(255,255,255,0.4);
@@ -208,7 +207,7 @@ export default function InformationClient() {
           background: transparent;
           border: 1px solid rgba(255,255,255,0.15);
           padding: 14px;
-          font-size: 9px;
+          font-size: 7.65px;
           font-family: var(--font-primary);
           font-weight: 300;
           text-transform: uppercase;
@@ -228,7 +227,7 @@ export default function InformationClient() {
         }
 
         .info-saved {
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 300;
           color: rgba(255,255,255,0.5);
           margin-bottom: 16px;

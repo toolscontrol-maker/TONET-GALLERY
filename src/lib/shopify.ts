@@ -204,6 +204,51 @@ export async function getCollections(max = 20): Promise<CollectionSummary[]> {
 }
 
 export async function getCollection(handle: string): Promise<CollectionDetail | null> {
+  const normHandle = handle.toLowerCase();
+  const virtualHandles = ['men', 'women', 'homme', 'femme', 'tops', 'bottom', 'bottoms', 'strange'];
+  
+  if (virtualHandles.includes(normHandle)) {
+    const allProducts = await getProducts();
+    let products = allProducts;
+
+    if (normHandle === 'tops') {
+      products = allProducts.filter(p => {
+        const title = p.title.toLowerCase();
+        const isBottoms = title.includes('shorts') || title.includes('pants') || title.includes('trousers') || title.includes('jogger');
+        return !isBottoms; // Tops and Outerwear
+      });
+    } else if (normHandle === 'bottom' || normHandle === 'bottoms') {
+      products = allProducts.filter(p => {
+        const title = p.title.toLowerCase();
+        const isBottoms = title.includes('shorts') || title.includes('pants') || title.includes('trousers') || title.includes('jogger');
+        return isBottoms;
+      });
+    } else if (normHandle === 'strange') {
+      products = allProducts.filter(p => {
+        const title = p.title.toLowerCase();
+        return title.includes('splatter') || 
+               title.includes('painted') || 
+               title.includes('distressed') || 
+               title.includes('frayed') || 
+               title.includes('gradient') || 
+               title.includes('tiger') || 
+               title.includes('lace') || 
+               title.includes('dye') || 
+               title.includes('raw');
+      });
+      if (products.length === 0) products = allProducts;
+    }
+
+    return {
+      id: `virtual-${normHandle}`,
+      handle: normHandle,
+      title: normHandle.toUpperCase(),
+      description: `Virtual collection for ${normHandle.toUpperCase()}`,
+      imageUrl: '',
+      products,
+    };
+  }
+
   const data = await shopifyFetch<{ collectionByHandle: Record<string, any> | null }>(
     `query GetCollection($handle: String!) {
       collectionByHandle(handle: $handle) {

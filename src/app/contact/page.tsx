@@ -53,7 +53,7 @@ export default function ContactPage() {
       <style>{`
         .contact-wrap {
           font-family: Arial, Helvetica, sans-serif;
-          font-size: 12px;
+          font-size: 10.2px;
           color: #111;
           min-height: 100vh;
           padding-top: 60px;
@@ -71,7 +71,7 @@ export default function ContactPage() {
         .contact-tabs::-webkit-scrollbar { display: none; }
         .contact-tab {
           padding: 14px 20px;
-          font-size: 11px;
+          font-size: 9.35px;
           text-transform: none;
           color: #555;
           text-decoration: none;
@@ -93,14 +93,14 @@ export default function ContactPage() {
         }
 
         .contact-heading {
-          font-size: 22px;
+          font-size: 18.7px;
           font-weight: 400;
           margin: 0 0 18px 0;
           letter-spacing: -0.01em;
         }
 
         .contact-intro {
-          font-size: 12px;
+          font-size: 10.2px;
           line-height: 1.75;
           color: #333;
           margin-bottom: 36px;
@@ -124,26 +124,26 @@ export default function ContactPage() {
           margin-bottom: 4px;
         }
         .contact-option-title {
-          font-size: 12px;
+          font-size: 10.2px;
           color: #0033bb;
           font-weight: 400;
         }
         .contact-badge {
-          font-size: 10px;
+          font-size: 8.5px;
           color: #888;
         }
         .contact-option-phone {
-          font-size: 12px;
+          font-size: 10.2px;
           color: #111;
           margin: 2px 0 4px;
         }
         .contact-option-sub {
-          font-size: 11px;
+          font-size: 9.35px;
           color: #666;
           margin: 0;
         }
         .contact-email {
-          font-size: 12px;
+          font-size: 10.2px;
           color: #111;
           text-decoration: none;
         }

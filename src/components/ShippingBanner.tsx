@@ -72,7 +72,7 @@ export default function ShippingBanner() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: "7.5px",
+      fontSize: "6.375px",
       fontWeight: 300,
       letterSpacing: "0.45em",
       color: "rgba(255, 255, 255, 0.45)",
@@ -81,6 +81,11 @@ export default function ShippingBanner() {
       borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
       paddingLeft: "0.45em",
       boxSizing: "border-box",
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1100,
     }}>
       Complimentary shipping to your country
     </div>

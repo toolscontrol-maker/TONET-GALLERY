@@ -32,7 +32,7 @@ export default function AnnouncementBar() {
           animation: marquee 400s linear infinite;
         }
         .marquee-text {
-          font-size: 0.6rem;
+          font-size: 0.51rem;
           text-transform: capitalize;
           letter-spacing: 1px;
         }

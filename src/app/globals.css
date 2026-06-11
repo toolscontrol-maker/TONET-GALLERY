@@ -22,13 +22,13 @@
   --font-ui: var(--font-jost), 'Jost', system-ui, sans-serif;
 
   /* Scale */
-  --t-hero:  60px;  /* hero display */
-  --t-h1:    32px;  /* page title */
-  --t-h2:    22px;  /* section title */
-  --t-h3:    14px;  /* section heading / label */
-  --t-prod:  13px;  /* product name / price */
-  --t-btn:   11px;  /* buttons / accordions */
-  --t-meta:  10px;  /* metadata / footer */
+  --t-hero:  51px;  /* hero display */
+  --t-h1:    27px;  /* page title */
+  --t-h2:    19px;  /* section title */
+  --t-h3:    12px;  /* section heading / label */
+  --t-prod:  11px;  /* product name / price */
+  --t-btn:   9px;  /* buttons / accordions */
+  --t-meta:  8.5px;  /* metadata / footer */
 
   /* Weights */
   --w-regular:  300;
@@ -46,11 +46,11 @@
   --tk-footer:  0.03em;
 
   /* Kept for back-compat */
-  --t-xl:  18px;
-  --t-lg:  14px;
-  --t-md:  12px;
-  --t-sm:  11px;
-  --t-xs:  10px;
+  --t-xl:  15px;
+  --t-lg:  12px;
+  --t-md:  10px;
+  --t-sm:  9px;
+  --t-xs:  8.5px;
   --w-semibold: 600;
   --tk-tight:  0em;
   --tk-base:   0.015em;

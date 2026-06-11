@@ -57,7 +57,7 @@ export default function ProductDetails() {
           color: var(--text-color);
           text-align: left;
           padding: var(--spacing-md) 0;
-          font-size: 1.1rem;
+          font-size: 0.935rem;
           font-weight: 400;
           display: flex;
           justify-content: space-between;
@@ -69,7 +69,7 @@ export default function ProductDetails() {
           background: transparent;
         }
         .accordion-header .icon {
-          font-size: 1.5rem;
+          font-size: 1.275rem;
           font-weight: 300;
           transition: transform var(--transition-normal);
         }
@@ -90,7 +90,7 @@ export default function ProductDetails() {
           min-height: 0;
           padding-bottom: var(--spacing-md);
           color: var(--secondary-text-color);
-          font-size: 0.95rem;
+          font-size: 0.807rem;
           line-height: 1.6;
         }
         .inner-content p {

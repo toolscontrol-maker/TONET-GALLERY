@@ -184,7 +184,7 @@ export default function NotifyMeModal({
           border-bottom: 1px solid #e8e8e8;
         }
         .nm-title {
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.12em;
@@ -192,7 +192,7 @@ export default function NotifyMeModal({
         .nm-close-btn {
           background: none;
           border: none;
-          font-size: 10px;
+          font-size: 8.5px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.10em;
@@ -214,7 +214,7 @@ export default function NotifyMeModal({
           gap: 14px;
         }
         .nm-subtitle {
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 400;
           line-height: 1.6;
           color: #333;
@@ -229,7 +229,7 @@ export default function NotifyMeModal({
         }
         .nm-size-btn {
           padding: 14px 8px;
-          font-size: 11px;
+          font-size: 9.35px;
           font-family: inherit;
           font-weight: 400;
           text-transform: uppercase;
@@ -251,7 +251,7 @@ export default function NotifyMeModal({
         .nm-email {
           width: 100%;
           padding: 14px 12px;
-          font-size: 11px;
+          font-size: 9.35px;
           font-family: inherit;
           font-weight: 400;
           text-transform: uppercase;
@@ -273,7 +273,7 @@ export default function NotifyMeModal({
           display: flex;
           gap: 12px;
           align-items: flex-start;
-          font-size: 11px;
+          font-size: 9.35px;
           font-weight: 400;
           line-height: 1.55;
           color: #333;
@@ -294,7 +294,7 @@ export default function NotifyMeModal({
 
         /* Error */
         .nm-error {
-          font-size: 11px;
+          font-size: 9.35px;
           color: #cc0000;
           margin: 0;
           letter-spacing: 0.04em;
@@ -308,7 +308,7 @@ export default function NotifyMeModal({
           color: #fff;
           border: none;
           border-radius: 0;
-          font-size: 11px;
+          font-size: 9.35px;
           font-family: inherit;
           font-weight: 500;
           text-transform: uppercase;
@@ -330,14 +330,14 @@ export default function NotifyMeModal({
           text-align: center;
         }
         .nm-success-title {
-          font-size: 13px;
+          font-size: 11.05px;
           font-weight: 500;
           text-transform: uppercase;
           letter-spacing: 0.08em;
           margin: 0;
         }
         .nm-success-sub {
-          font-size: 12px;
+          font-size: 10.2px;
           font-weight: 400;
           line-height: 1.6;
           color: #555;
@@ -350,7 +350,7 @@ export default function NotifyMeModal({
           color: #fff;
           border: none;
           border-radius: 0;
-          font-size: 11px;
+          font-size: 9.35px;
           font-family: inherit;
           font-weight: 500;
           text-transform: uppercase;
