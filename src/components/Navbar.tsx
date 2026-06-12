@@ -187,6 +187,9 @@ export default function Navbar() {
       {isIrlOpen && (
         <div className="irl-modal-overlay" onClick={closeIrl}>
           <div className="irl-modal-card" onClick={(e) => e.stopPropagation()}>
+            {/* Background Map */}
+            <div className="irl-modal-bg-map" />
+
             {/* Self-drawing border SVG */}
             <svg className="irl-card-border-svg">
               <rect x="0" y="0" width="100%" height="100%" rx="0" fill="none" className="irl-card-border-rect" />
@@ -643,6 +646,26 @@ export default function Navbar() {
           overflow: hidden;
           box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
           animation: irlScaleUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* ══ BACKGROUND MAP ══ */
+        .irl-modal-bg-map {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-image: url('/rodeo_drive_map.png');
+          background-size: cover;
+          background-position: center;
+          opacity: 0;
+          z-index: 1;
+          pointer-events: none;
+          animation: irlMapFadeIn 1.5s ease-out 0.4s forwards;
+        }
+
+        @keyframes irlMapFadeIn {
+          to { opacity: 0.15; }
         }
 
         @keyframes irlScaleUp {
