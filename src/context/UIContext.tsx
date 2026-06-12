@@ -19,6 +19,9 @@ interface UIContextType {
   isIrlOpen: boolean;
   openIrl: () => void;
   closeIrl: () => void;
+  isPrivacyOpen: boolean;
+  openPrivacy: () => void;
+  closePrivacy: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -28,6 +31,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isIrlOpen, setIsIrlOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
@@ -46,8 +50,11 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const openIrl = () => setIsIrlOpen(true);
   const closeIrl = () => setIsIrlOpen(false);
 
+  const openPrivacy = () => setIsPrivacyOpen(true);
+  const closePrivacy = () => setIsPrivacyOpen(false);
+
   return (
-    <UIContext.Provider value={{ isCartOpen, openCart, closeCart, toggleCart, isSearchOpen, openSearch, closeSearch, isMenuOpen, openMenu, closeMenu, menuSearchMode, openMenuWithSearch, clearMenuSearchMode, isIrlOpen, openIrl, closeIrl }}>
+    <UIContext.Provider value={{ isCartOpen, openCart, closeCart, toggleCart, isSearchOpen, openSearch, closeSearch, isMenuOpen, openMenu, closeMenu, menuSearchMode, openMenuWithSearch, clearMenuSearchMode, isIrlOpen, openIrl, closeIrl, isPrivacyOpen, openPrivacy, closePrivacy }}>
       {children}
     </UIContext.Provider>
   );

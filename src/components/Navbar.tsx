@@ -22,7 +22,7 @@ const COUNTRY_CODES = [
 ];
 
 export default function Navbar() {
-  const { openCart, openMenu, isSearchOpen, openSearch, closeSearch, isIrlOpen, openIrl, closeIrl } = useUI();
+  const { openCart, openMenu, isSearchOpen, openSearch, closeSearch, isIrlOpen, openIrl, closeIrl, isPrivacyOpen, closePrivacy } = useUI();
   const { cartCount } = useCart();
   const pathname = usePathname();
   const router = useRouter();
@@ -344,6 +344,135 @@ export default function Navbar() {
                   <p className="irl-success-message">YOUR APPLICATION HAS BEEN FILED.</p>
                 )}
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PRIVACY POLICY MODAL DIALOG WITH IDENTICAL LUXURY FLORAL/DRAWING ANIMATIONS */}
+      {isPrivacyOpen && (
+        <div className="irl-modal-overlay" onClick={closePrivacy}>
+          <div className="irl-modal-card privacy-modal-card" onClick={(e) => e.stopPropagation()}>
+            {/* Self-drawing border SVG */}
+            <svg className="irl-card-border-svg">
+              <rect x="0" y="0" width="100%" height="100%" rx="0" fill="none" className="irl-card-border-rect" />
+            </svg>
+
+            {/* Close button */}
+            <button className="irl-modal-close" onClick={closePrivacy} aria-label="Close modal">
+              &times;
+            </button>
+
+            {/* Falling Petals container */}
+            <div className="irl-petals-container">
+              {[
+                { type: "petal-black" },
+                { type: "petal-r" },
+                { type: "petal-black" },
+                { type: "petal-o" },
+                { type: "petal-y" },
+                { type: "petal-black" },
+                { type: "petal-g" },
+                { type: "petal-b" },
+                { type: "petal-black" },
+                { type: "petal-i" },
+                { type: "petal-v" },
+                { type: "petal-black" }
+              ].map((petal, i) => (
+                <div key={i} className={`irl-petal ${petal.type} petal-${i + 1}`} />
+              ))}
+            </div>
+
+            {/* Floral Art SVGs */}
+            <div className="irl-floral-decor left-decor">
+              <svg viewBox="0 0 100 200" fill="none" stroke="currentColor">
+                <path d="M10,200 C30,150 10,100 40,50 C50,30 30,10 40,0" strokeWidth="1" className="drawing-path vine-stem" />
+                <path d="M22,165 Q35,165 28,155 Z" fill="currentColor" className="blooming-leaf leaf-1" />
+                <path d="M15,125 Q2,125 8,115 Z" fill="currentColor" className="blooming-leaf leaf-2" />
+                <path d="M26,85 Q38,80 30,70 Z" fill="currentColor" className="blooming-leaf leaf-3" />
+                <path d="M42,40 Q55,35 48,25 Z" fill="currentColor" className="blooming-leaf leaf-4" />
+                <g className="blooming-flower flower-1" style={{ transformOrigin: '28px 155px' }}>
+                  <circle cx="28" cy="155" r="4" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                  <circle cx="28" cy="155" r="1" fill="currentColor" />
+                </g>
+                <g className="blooming-flower flower-2" style={{ transformOrigin: '30px 70px' }}>
+                  <circle cx="30" cy="70" r="4" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                  <circle cx="30" cy="70" r="1" fill="currentColor" />
+                </g>
+                <g className="blooming-flower flower-3" style={{ transformOrigin: '40px 0px' }}>
+                  <path d="M40,0 C35,-5 35,-12 40,-15 C45,-12 45,-5 40,0 Z" fill="none" stroke="currentColor" strokeWidth="0.75" />
+                  <path d="M40,0 C32,-3 32,-10 38,-13 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                  <path d="M40,0 C48,-3 48,-10 42,-13 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                </g>
+              </svg>
+            </div>
+
+            <div className="irl-floral-decor right-decor">
+              <svg viewBox="0 0 100 200" fill="none" stroke="currentColor">
+                <path d="M90,200 C70,150 90,100 60,50 C50,30 70,10 60,0" strokeWidth="1" className="drawing-path vine-stem" />
+                <path d="M78,165 Q65,165 72,155 Z" fill="currentColor" className="blooming-leaf leaf-1" />
+                <path d="M85,125 Q98,125 92,115 Z" fill="currentColor" className="blooming-leaf leaf-2" />
+                <path d="M74,85 Q62,80 70,70 Z" fill="currentColor" className="blooming-leaf leaf-3" />
+                <path d="M58,40 Q45,35 52,25 Z" fill="currentColor" className="blooming-leaf leaf-4" />
+                <g className="blooming-flower flower-1" style={{ transformOrigin: '72px 155px' }}>
+                  <circle cx="72" cy="155" r="4" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                  <circle cx="72" cy="155" r="1" fill="currentColor" />
+                </g>
+                <g className="blooming-flower flower-2" style={{ transformOrigin: '70px 70px' }}>
+                  <circle cx="70" cy="70" r="4" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                  <circle cx="70" cy="70" r="1" fill="currentColor" />
+                </g>
+                <g className="blooming-flower flower-3" style={{ transformOrigin: '60px 0px' }}>
+                  <path d="M60,0 C55,-5 55,-12 60,-15 C65,-12 65,-5 60,0 Z" fill="none" stroke="currentColor" strokeWidth="0.75" />
+                  <path d="M60,0 C52,-3 52,-10 58,-13 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                  <path d="M60,0 C68,-3 68,-10 62,-13 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                </g>
+              </svg>
+            </div>
+
+            {/* Modal content */}
+            <div className="irl-modal-content privacy-modal-content">
+              {/* Skull SVG */}
+              <div className="irl-skull-wrap">
+                <svg className="irl-skull-svg" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                  <path d="M 25 45 C 25 15, 75 15, 75 45 C 75 58, 68 62, 65 72 C 65 76, 35 76, 35 72 C 32 62, 25 58, 25 45 Z" strokeWidth="1.5" className="drawing-path skull-main" />
+                  <path d="M 36 45 C 33 40, 47 40, 44 45 C 42 48, 38 48, 36 45 Z" fill="currentColor" className="blooming-leaf leaf-1 skull-eye-l" />
+                  <path d="M 56 45 C 53 40, 67 40, 64 45 C 62 48, 58 48, 56 45 Z" fill="currentColor" className="blooming-leaf leaf-2 skull-eye-r" />
+                  <path d="M 47 55 L 50 51 L 53 55 L 50 58 Z" fill="currentColor" className="blooming-leaf leaf-3 skull-nose" />
+                  <path d="M 40 68 L 60 68" strokeWidth="1.2" className="drawing-path skull-teeth-line" />
+                  <path d="M 44 65 L 44 71" strokeWidth="1" className="drawing-path skull-tooth" />
+                  <path d="M 48 65 L 48 71" strokeWidth="1" className="drawing-path skull-tooth" />
+                  <path d="M 52 65 L 52 71" strokeWidth="1" className="drawing-path skull-tooth" />
+                  <path d="M 56 65 L 56 71" strokeWidth="1" className="drawing-path skull-tooth" />
+                </svg>
+              </div>
+              <h3 className="irl-subtitle">HOUSE OF TONET</h3>
+              <h2 className="irl-title">PRIVACY POLICY</h2>
+              <div className="irl-divider" />
+              
+              <div className="privacy-scroll-area">
+                <p>
+                  <strong>1. Data Curation</strong><br />
+                  At TONET GALLERY, privacy is an art form. We curate personal information with the same restraint we apply to our permanent collections. We only store information necessary to verify acquisition requests and invitations.
+                </p>
+                <p>
+                  <strong>2. Information We Collect</strong><br />
+                  - Geographic location: Used to identify active showrooms and provide regional availability information.<br />
+                  - Contact channels: Verified telephone numbers and email addresses for secure logistics, application requests, and private circles.
+                </p>
+                <p>
+                  <strong>3. Storage & Confidentiality</strong><br />
+                  All collector profiles and transaction logs are handled via encrypted, private links. We do not sell, trade, or distribute your identity. Access is temporary, confidentiality is permanent.
+                </p>
+                <p>
+                  <strong>4. Cookie Usage</strong><br />
+                  We use cookies strictly to authenticate session states, preserve your preferences, and maintain secure access to the Archive database.
+                </p>
+                <p>
+                  <strong>5. Rights of the Collector</strong><br />
+                  You may request the absolute erasure of your collector record at any time. Simply initiate a contact request through our Beverly Hills, Mayfair, or Avenue Montaigne communication channels.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1113,9 +1242,62 @@ export default function Navbar() {
           font-weight: 700;
         }
         
+        .privacy-modal-card {
+          max-width: 500px;
+          height: 620px;
+        }
+        .privacy-modal-content {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 50px 30px 40px 30px !important;
+          box-sizing: border-box;
+        }
+        .privacy-scroll-area {
+          flex: 1;
+          width: 100%;
+          overflow-y: auto;
+          text-align: left;
+          padding-right: 12px;
+          margin-top: 10px;
+          font-family: var(--font-primary), sans-serif;
+          font-size: 10px;
+          line-height: 1.8;
+          color: rgba(255, 255, 255, 0.65);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+          opacity: 0;
+          transform: translateY(15px);
+          animation: revealText 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.2s forwards;
+        }
+        .privacy-scroll-area::-webkit-scrollbar {
+          width: 3px;
+        }
+        .privacy-scroll-area::-webkit-scrollbar-thumb {
+          background-color: rgba(255, 255, 255, 0.15);
+        }
+        .privacy-scroll-area p {
+          margin-bottom: 20px;
+        }
+        .privacy-scroll-area strong {
+          color: #ffffff;
+          font-family: var(--font-brand), sans-serif;
+          letter-spacing: 0.05em;
+        }
+        
         @media (max-width: 767px) {
           body {
             padding-top: 0 !important;
+          }
+          .privacy-modal-card {
+            height: 80vh;
+            max-height: 520px;
+          }
+          .privacy-modal-content {
+            padding: 40px 20px 30px 20px !important;
           }
         }
       `}</style>

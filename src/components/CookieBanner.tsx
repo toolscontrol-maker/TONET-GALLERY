@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useUI } from '@/context/UIContext';
 
 const CONSENT_KEY = 'tonet_consent';
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
   const [dismissing, setDismissing] = useState(false);
+  const { openPrivacy } = useUI();
 
   useEffect(() => {
     if (!localStorage.getItem(CONSENT_KEY)) {
@@ -32,7 +34,7 @@ export default function CookieBanner() {
           <p className="ck-body">
             This house uses data to curate your experience
             with the care it deserves.{' '}
-            <Link href="/privacy" className="ck-link">Privacy Policy</Link>
+            <a href="#privacy" className="ck-link" onClick={(e) => { e.preventDefault(); openPrivacy(); }}>Privacy Policy</a>
           </p>
         </div>
         <div className="ck-actions">
