@@ -22,7 +22,7 @@ const COUNTRY_CODES = [
 ];
 
 export default function Navbar() {
-  const { openCart, openMenu, isSearchOpen, openSearch, closeSearch, isIrlOpen, openIrl, closeIrl, isPrivacyOpen, closePrivacy } = useUI();
+  const { isCartOpen, openCart, openMenu, isSearchOpen, openSearch, closeSearch, isIrlOpen, openIrl, closeIrl, isPrivacyOpen, closePrivacy } = useUI();
   const { cartCount } = useCart();
   const pathname = usePathname();
   const router = useRouter();
@@ -107,12 +107,12 @@ export default function Navbar() {
           {/* CENTER: Navigation */}
           <div className="erd-header-center erd-desktop-only">
             <nav className="erd-nav">
-              <Link href="/collection/tops">TOPS</Link>
-              <Link href="/collection/bottom">BOTTOM</Link>
-              <Link href="/collection/strange">STRANGE</Link>
+              <Link href="/collection/tops" className={pathname === "/collection/tops" ? "active" : ""}>TOPS</Link>
+              <Link href="/collection/bottom" className={pathname === "/collection/bottom" ? "active" : ""}>BOTTOM</Link>
+              <Link href="/collection/strange" className={pathname === "/collection/strange" ? "active" : ""}>STRANGE</Link>
               <a
                 href="#irl"
-                className="erd-nav-irl-link"
+                className={`erd-nav-irl-link ${isIrlOpen ? "active" : ""}`}
                 onClick={(e) => {
                   e.preventDefault();
                   openIrl();
@@ -151,14 +151,14 @@ export default function Navbar() {
                 />
               </form>
             ) : (
-              <button className="erd-action-btn" onClick={openSearch} aria-label="Search">
+              <button className={`erd-action-btn ${isSearchOpen ? "active" : ""}`} onClick={openSearch} aria-label="Search">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
               </button>
             )}
-            <button className="erd-action-btn" onClick={openCart} aria-label="Cart" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <button className={`erd-action-btn ${isCartOpen ? "active" : ""}`} onClick={openCart} aria-label="Cart" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />
@@ -166,7 +166,7 @@ export default function Navbar() {
               </svg>
               {cartCount > 0 && <span className="erd-cart-count">{cartCount}</span>}
             </button>
-            <Link href="/account" className="erd-action-link" aria-label="Account" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <Link href="/account" className={`erd-action-link ${pathname.startsWith("/account") || pathname === "/login" ? "active" : ""}`} aria-label="Account" style={{ display: 'inline-flex', alignItems: 'center' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
@@ -548,7 +548,17 @@ export default function Navbar() {
           text-transform: uppercase;
           color: #000000;
           text-decoration: none;
-          transition: opacity 0.2s ease;
+          padding: 8px 14px;
+          background-color: transparent;
+          transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .erd-nav a.active {
+          background-color: #000000;
+          color: #ffffff !important;
+          opacity: 1 !important;
         }
         .erd-nav a:hover {
           opacity: 0.6;
@@ -585,7 +595,7 @@ export default function Navbar() {
         .erd-action-btn {
           background: none;
           border: none;
-          padding: 0;
+          padding: 8px 12px;
           margin: 0;
           cursor: pointer;
           font-family: var(--font-helvetica-thin-cond), sans-serif;
@@ -594,8 +604,11 @@ export default function Navbar() {
           letter-spacing: 0.06em;
           text-transform: uppercase;
           color: #000000;
-          transition: opacity 0.2s ease;
+          transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
           border-radius: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
         .erd-action-btn:hover {
           opacity: 0.6;
@@ -613,10 +626,28 @@ export default function Navbar() {
           text-transform: uppercase;
           color: #000000;
           text-decoration: none;
-          transition: opacity 0.2s ease;
+          padding: 8px 12px;
+          background-color: transparent;
+          transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
         .erd-action-link:hover {
           opacity: 0.6;
+        }
+        .erd-action-btn.active,
+        .erd-action-link.active {
+          background-color: #000000;
+          color: #ffffff !important;
+          opacity: 1 !important;
+        }
+        body:has(.tonet-flagship) .erd-nav a.active,
+        body:has(.tonet-flagship) .erd-action-btn.active,
+        body:has(.tonet-flagship) .erd-action-link.active {
+          background-color: #fafafa !important;
+          color: #000000 !important;
+          opacity: 1 !important;
         }
 
         /* Add top padding to body to prevent content from going behind the fixed header */
