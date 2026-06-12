@@ -638,13 +638,13 @@ export default function Navbar() {
           width: 90%;
           max-width: 420px;
           height: 580px;
-          background: #ffffff;
+          background: #000000;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
           animation: irlScaleUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
@@ -665,7 +665,7 @@ export default function Navbar() {
         }
 
         @keyframes irlMapFadeIn {
-          to { opacity: 0.15; }
+          to { opacity: 0.35; }
         }
 
         @keyframes irlScaleUp {
@@ -691,7 +691,7 @@ export default function Navbar() {
         }
 
         .irl-card-border-rect {
-          stroke: #000000;
+          stroke: #ffffff;
           stroke-width: 1.5px;
           stroke-dasharray: 2000;
           stroke-dashoffset: 2000;
@@ -715,7 +715,7 @@ export default function Navbar() {
           font-weight: 300;
           line-height: 1;
           cursor: pointer;
-          color: #000000;
+          color: #ffffff;
           z-index: 20;
           opacity: 0;
           animation: fadeInClose 0.5s ease 1.2s forwards;
@@ -738,8 +738,8 @@ export default function Navbar() {
           bottom: 15px;
           pointer-events: none;
           z-index: 2;
-          color: #000000;
-          opacity: 0.8;
+          color: #ffffff;
+          opacity: 0.7;
         }
 
         .left-decor {
@@ -886,7 +886,7 @@ export default function Navbar() {
           letter-spacing: 0.05em;
           line-height: 0.9;
           text-transform: uppercase;
-          color: #000000;
+          color: #ffffff;
           margin-bottom: 20px;
           opacity: 0;
           transform: translateY(15px);
@@ -911,7 +911,7 @@ export default function Navbar() {
           font-weight: 700;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          background: linear-gradient(90deg, #000000 0%, #ff3b30 25%, #ffcc00 50%, #34c759 75%, #000000 100%);
+          background: linear-gradient(90deg, #ffffff 0%, #ff3b30 25%, #ffcc00 50%, #34c759 75%, #ffffff 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -927,7 +927,7 @@ export default function Navbar() {
           font-weight: 400;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: #555555;
+          color: #cccccc;
           margin-bottom: 36px;
           opacity: 0;
           transform: translateY(15px);
@@ -935,7 +935,7 @@ export default function Navbar() {
         }
 
         .irl-date-box {
-          border: 1px solid #000000;
+          border: 1px solid #ffffff;
           padding: 8px 20px;
           opacity: 0;
           transform: translateY(15px);
@@ -946,7 +946,7 @@ export default function Navbar() {
           font-family: var(--font-coolvetica), sans-serif;
           font-size: 14px;
           letter-spacing: 0.08em;
-          color: #000000;
+          color: #ffffff;
           text-transform: uppercase;
         }
 
@@ -967,7 +967,7 @@ export default function Navbar() {
           width: 60px;
           height: 60px;
           margin-bottom: 16px;
-          color: #000000;
+          color: #ffffff;
           opacity: 0;
           transform: translateY(15px) scale(0.8);
           animation: revealSkull 1s cubic-bezier(0.25, 1, 0.5, 1) 0.4s forwards;
@@ -1023,7 +1023,7 @@ export default function Navbar() {
         .irl-input-group {
           display: flex;
           width: 100%;
-          border-bottom: 1.5px solid #000000;
+          border-bottom: 1.5px solid #ffffff;
           padding-bottom: 4px;
         }
 
@@ -1035,7 +1035,7 @@ export default function Navbar() {
           font-family: var(--font-coolvetica), sans-serif;
           font-size: 13px;
           letter-spacing: 0.05em;
-          color: #000000;
+          color: #ffffff;
           padding: 4px 0;
           width: 100%;
         }
@@ -1044,7 +1044,7 @@ export default function Navbar() {
           font-family: Arial, sans-serif;
           font-size: 9px;
           font-weight: 700;
-          color: #cccccc;
+          color: #888888;
           letter-spacing: 0.08em;
         }
 
@@ -1055,7 +1055,7 @@ export default function Navbar() {
           font-size: 9px;
           font-weight: 950;
           letter-spacing: 0.05em;
-          color: #000000;
+          color: #ffffff;
           cursor: pointer;
           padding: 0 4px;
           text-transform: uppercase;
@@ -1095,10 +1095,10 @@ export default function Navbar() {
           font-family: Arial, sans-serif;
           font-size: 11px;
           font-weight: 700;
-          color: #000000;
+          color: #ffffff;
           padding-right: 6px;
           margin-right: 8px;
-          border-right: 1.5px solid #000000;
+          border-right: 1.5px solid #ffffff;
           cursor: pointer;
           -webkit-appearance: none;
           -moz-appearance: none;
@@ -1107,8 +1107,8 @@ export default function Navbar() {
         }
 
         .irl-country-select option {
-          background-color: #ffffff;
-          color: #000000;
+          background-color: #000000;
+          color: #ffffff;
           font-family: Arial, sans-serif;
           font-weight: 700;
         }
