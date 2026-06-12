@@ -7,7 +7,7 @@ import { useUI } from "@/context/UIContext";
 import { useCart } from "@/context/CartContext";
 
 export default function MenuDrawer() {
-  const { isMenuOpen, closeMenu, openCart } = useUI();
+  const { isMenuOpen, closeMenu, openCart, openIrl } = useUI();
   const { cartCount } = useCart();
   const router = useRouter();
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -89,9 +89,17 @@ export default function MenuDrawer() {
             <Link href="/collection/strange" className="md-nav-item" onClick={closeMenu}>
               STRANGE
             </Link>
-            <Link href="/stores" className="md-nav-item" onClick={closeMenu}>
+            <a
+              href="#irl"
+              className="md-nav-item"
+              onClick={(e) => {
+                e.preventDefault();
+                closeMenu();
+                openIrl();
+              }}
+            >
               IRL
-            </Link>
+            </a>
           </nav>
         </div>
 

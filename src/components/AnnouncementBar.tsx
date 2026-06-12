@@ -1,5 +1,5 @@
 export default function AnnouncementBar() {
-  const text = "all units are limited, no restocks • ";
+  const text = "for a better expiriene visit us on deckstop • ";
   const repeatedText = text.repeat(20);
 
   return (

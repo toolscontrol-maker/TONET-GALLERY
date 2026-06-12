@@ -314,6 +314,21 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
     return text.toUpperCase();
   }, [product.description]);
 
+  // Extract first 4 product images (duplicating/cycling if there are fewer than 4)
+  const gridImages = useMemo(() => {
+    if (!product.images || product.images.length === 0) {
+      if (product.imageUrl) {
+        return [product.imageUrl, product.imageUrl, product.imageUrl, product.imageUrl];
+      }
+      return [];
+    }
+    const imgs = [];
+    for (let i = 0; i < 4; i++) {
+      imgs.push(product.images[i % product.images.length]);
+    }
+    return imgs;
+  }, [product.images, product.imageUrl]);
+
   // Format price
   const priceFormatted = useMemo(() => {
     const priceNum = parseFloat(String(selectedVariant?.price.amount || product.price));
@@ -353,6 +368,13 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
               <div className={`erd-product-color ${!hasMultipleColors ? 'erd-no-badge' : ''}`}>
                 {colorValues}
               </div>
+              {gridImages.length > 0 && (
+                <div className="erd-product-image-grid-box">
+                  {gridImages.map((img, idx) => (
+                    <img key={idx} src={img} alt={`${product.title} gallery ${idx + 1}`} />
+                  ))}
+                </div>
+              )}
               <div className="erd-product-description">
                 {cleanDescription || "PREMIUM GARMENT CRAFTED IN PORTUGAL. FINISHED WITH TRADITIONAL TECHNIQUES."}
               </div>
@@ -567,6 +589,13 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
 
           {/* BELOW THE FOLD CONTENT */}
           <div className="erd-mobile-below-fold">
+            {gridImages.length > 0 && (
+              <div className="erd-mobile-image-grid-box">
+                {gridImages.map((img, idx) => (
+                  <img key={idx} src={img} alt={`${product.title} gallery ${idx + 1}`} />
+                ))}
+              </div>
+            )}
             {/* Product Description */}
             <div className="erd-mobile-desc-wrap">
               <p className="erd-mobile-desc-text">
@@ -646,7 +675,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
 
         .erd-pdp-layout {
           background-color: #ffffff;
-          min-height: calc(100vh - 112px);
+          min-height: calc(100vh - 101px);
           width: 100vw;
           display: flex;
           flex-direction: column;
@@ -662,7 +691,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
           grid-template-columns: 1fr 1.3fr 1fr;
           align-items: center;
           width: 100%;
-          min-height: calc(100vh - 112px);
+          min-height: calc(100vh - 101px);
           box-sizing: border-box;
         }
 
@@ -726,7 +755,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
         }
 
         .erd-product-description {
-          font-family: var(--font-helvetica-roman), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
           font-size: 10px;
           line-height: 1.4;
           font-weight: 400;
@@ -735,6 +764,26 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
           color: #000000;
           text-align: justify;
           letter-spacing: 0.015em;
+        }
+
+        .erd-product-image-grid-box {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(2, 1fr);
+          gap: 8px;
+          aspect-ratio: 1 / 1;
+          width: 100%;
+          max-width: 320px;
+          margin-bottom: 24px;
+          border: 1px solid #eaeaea;
+          padding: 8px;
+          box-sizing: border-box;
+        }
+
+        .erd-product-image-grid-box img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         /* ══ CENTER COLUMN (DESKTOP) ══ */
@@ -1089,7 +1138,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
 
           /* Header Spacer (accounts for fixed brand bar) */
           .erd-mobile-header-spacer {
-            height: 140px;
+            height: 126px;
             width: 100%;
             flex-shrink: 0;
           }
@@ -1285,12 +1334,12 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
             width: 100%;
             display: flex;
             justify-content: center;
-            padding: 48px 32px 64px 32px;
+            padding: 32px 32px 64px 32px;
             box-sizing: border-box;
           }
 
           .erd-mobile-desc-text {
-            font-family: var(--font-helvetica-roman), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: 'Helvetica', 'Helvetica Neue', Arial, sans-serif;
             font-size: 9.5px;
             line-height: 1.6;
             font-weight: 400;
@@ -1302,6 +1351,27 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
             margin: 0;
             max-width: 340px;
             width: 100%;
+          }
+
+          .erd-mobile-image-grid-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 8px;
+            aspect-ratio: 1 / 1;
+            width: calc(100% - 64px);
+            max-width: 340px;
+            margin-top: 48px;
+            margin-bottom: 0px;
+            border: 1px solid #eaeaea;
+            padding: 8px;
+            box-sizing: border-box;
+          }
+
+          .erd-mobile-image-grid-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
           }
 
           /* Related Carousel */
