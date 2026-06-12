@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const TIMEZONE_COUNTRY: Record<string, string> = {
   "Europe/Madrid": "Spain",
@@ -59,13 +60,16 @@ function detectCountry(): string {
 
 export default function ShippingBanner() {
   const [country, setCountry] = useState("Spain");
+  const pathname = usePathname();
 
   useEffect(() => {
     setCountry(detectCountry());
   }, []);
 
+  if (pathname === "/") return null;
+
   return (
-    <div style={{
+    <div className="shipping-banner" style={{
       width: "100%",
       height: "22px",
       background: "#0b0b0b",
