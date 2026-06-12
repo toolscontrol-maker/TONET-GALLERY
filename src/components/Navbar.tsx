@@ -159,10 +159,8 @@ export default function Navbar() {
               </button>
             )}
             <button className={`erd-action-btn ${isCartOpen ? "active" : ""}`} onClick={openCart} aria-label="Cart" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <path d="M16 10a4 4 0 0 1-8 0" />
+              <svg width="21" height="21" viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.891 9.805h-3.79c0 0-6.17 4.831-6.17 12.108s6.486 7.347 6.486 7.347 1.688 0.125 3.125 0c0 0.062 6.525-0.865 6.525-7.353 0.001-6.486-6.176-12.102-6.176-12.102zM14.101 9.33h3.797v-1.424h-3.797v1.424zM17.84 7.432l1.928-4.747c0 0-1.217 1.009-1.928 1.009-0.713 0-1.84-0.979-1.84-0.979s-1.216 0.979-1.928 0.979-1.869-0.949-1.869-0.949l1.958 4.688h3.679z"></path>
               </svg>
               {cartCount > 0 && <span className="erd-cart-count">{cartCount}</span>}
             </button>
