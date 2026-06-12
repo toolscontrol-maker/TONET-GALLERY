@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
+  const pathname = usePathname();
+
+  if (pathname === "/") return null;
 
   return (
     <footer className="ft">
