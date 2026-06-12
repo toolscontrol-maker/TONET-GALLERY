@@ -617,7 +617,7 @@ export default function Navbar() {
           left: 0;
           right: 0;
           bottom: 0;
-          background-color: rgba(255, 255, 255, 0.75);
+          background-color: rgba(0, 0, 0, 0.82);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           z-index: 9999;
