@@ -479,7 +479,7 @@ export default function HomeClient({ products }: HomeClientProps) {
         .featured-image-frame img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
           transform: scale(1.08);
           transition: transform 14s ease, filter 1.6s ease;
           filter: brightness(80%);
