@@ -143,7 +143,7 @@ export default function SearchClient({ query, products, collections }: Props) {
         }
         .sr-img-wrap {
           aspect-ratio: 3/4;
-          background: #EEEDED;
+          background: #ffffff;
           overflow: hidden;
         }
         .sr-img {
