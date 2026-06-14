@@ -516,9 +516,6 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
               {product.images && product.images.length > 1 && (
                 <div className="erd-mobile-image-indicator">
                   <span>SLIDE LEFT / RIGHT</span>
-                  <span className="erd-mobile-image-counter">
-                    {activeImageIndex + 1} / {product.images.length}
-                  </span>
                 </div>
               )}
             </div>
@@ -549,41 +546,6 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
               >
                 {adding ? 'ADDING...' : `ADD TO CART — ${priceFormatted}`}
               </button>
-
-              <div className="erd-payment-carousel">
-                <div className="erd-payment-carousel-blur-left"></div>
-                <div className="erd-payment-carousel-track">
-                  <div className="erd-payment-carousel-group">
-                    <span>BITCOIN</span>
-                    <span className="dot">•</span>
-                    <span>SOLANA</span>
-                    <span className="dot">•</span>
-                    <span>CARD</span>
-                    <span className="dot">•</span>
-                    <span>BITCOIN</span>
-                    <span className="dot">•</span>
-                    <span>SOLANA</span>
-                    <span className="dot">•</span>
-                    <span>CARD</span>
-                    <span className="dot">•</span>
-                  </div>
-                  <div className="erd-payment-carousel-group">
-                    <span>BITCOIN</span>
-                    <span className="dot">•</span>
-                    <span>SOLANA</span>
-                    <span className="dot">•</span>
-                    <span>CARD</span>
-                    <span className="dot">•</span>
-                    <span>BITCOIN</span>
-                    <span className="dot">•</span>
-                    <span>SOLANA</span>
-                    <span className="dot">•</span>
-                    <span>CARD</span>
-                    <span className="dot">•</span>
-                  </div>
-                </div>
-                <div className="erd-payment-carousel-blur-right"></div>
-              </div>
             </div>
           </div>
 
