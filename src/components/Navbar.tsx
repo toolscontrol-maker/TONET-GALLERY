@@ -94,90 +94,77 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`erd-header ${isScrolled ? "scrolled" : ""}`}>
+      <header className={`erd-header ${isScrolled ? "scrolled" : ""} ${pathname !== "/" ? "has-banner" : ""}`}>
         <div className="erd-header-inner">
-          {/* LEFT: Logo */}
+          {/* LEFT: Navigation (Desktop only) or Hamburger (Mobile only) */}
           <div className="erd-header-left">
-            <Link href="/" className="erd-logo">
-              <span className="erd-logo-desktop">TONET GALLERY</span>
-              <span className="erd-logo-mobile">TONET<br />GALLERY</span>
-            </Link>
-          </div>
-
-          {/* CENTER: Navigation */}
-          <div className="erd-header-center erd-desktop-only">
-            <nav className="erd-nav">
-              <Link href="/collection/tops" className={pathname === "/collection/tops" ? "active" : ""}>TOPS</Link>
-              <Link href="/collection/bottom" className={pathname === "/collection/bottom" ? "active" : ""}>BOTTOM</Link>
-              <Link href="/collection/strange" className={pathname === "/collection/strange" ? "active" : ""}>STRANGE</Link>
-              <a
-                href="#irl"
-                className={`erd-nav-irl-link ${isIrlOpen ? "active" : ""}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  openIrl();
-                }}
-              >
-                <span className="erd-irl-badge">COMING SOON</span>
-                IRL
-              </a>
+            <button className="erd-mobile-menu-btn erd-mobile-only" onClick={openMenu} aria-label="Open menu">
+              <span className="erd-hamburger-line" />
+              <span className="erd-hamburger-line" />
+              <span className="erd-hamburger-line" />
+            </button>
+            <nav className="erd-nav erd-desktop-only">
+              <Link href="/collection/private-sale" className="nav-private-sale">PRIVATE SALE</Link>
+              <Link href="/collection/women" className={pathname === "/collection/women" ? "active" : ""}>WOMEN</Link>
+              <Link href="/collection/men" className={pathname === "/collection/men" ? "active" : ""}>MEN</Link>
+              <Link href="/collection/children" className={pathname === "/collection/children" ? "active" : ""}>CHILDREN</Link>
+              <Link href="/collection/curb" className={pathname === "/collection/curb" ? "active" : ""}>CURB</Link>
+              <Link href="/collection/maison-tonet" className={pathname === "/collection/maison-tonet" ? "active" : ""}>MAISON TONET</Link>
             </nav>
           </div>
 
-          {/* RIGHT: Actions */}
-          <div className="erd-header-right erd-desktop-only">
-            {isSearchOpen ? (
-              <form onSubmit={handleSearchSubmit} className="erd-search-inline-form">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  className="erd-search-inline-input"
-                  placeholder="SEARCH"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onBlur={() => {
-                    setTimeout(() => {
-                      closeSearch();
-                      setSearchQuery("");
-                    }, 200);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      closeSearch();
-                      setSearchQuery("");
-                    }
-                  }}
-                  autoFocus
-                />
-              </form>
-            ) : (
-              <button className={`erd-action-btn ${isSearchOpen ? "active" : ""}`} onClick={openSearch} aria-label="Search">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </button>
-            )}
-            <button className={`erd-action-btn ${isCartOpen ? "active" : ""}`} onClick={openCart} aria-label="Cart" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <svg width="21" height="21" viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17.891 9.805h-3.79c0 0-6.17 4.831-6.17 12.108s6.486 7.347 6.486 7.347 1.688 0.125 3.125 0c0 0.062 6.525-0.865 6.525-7.353 0.001-6.486-6.176-12.102-6.176-12.102zM14.101 9.33h3.797v-1.424h-3.797v1.424zM17.84 7.432l1.928-4.747c0 0-1.217 1.009-1.928 1.009-0.713 0-1.84-0.979-1.84-0.979s-1.216 0.979-1.928 0.979-1.869-0.949-1.869-0.949l1.958 4.688h3.679z"></path>
-              </svg>
-              {cartCount > 0 && <span className="erd-cart-count">{cartCount}</span>}
-            </button>
-            <Link href="/account" className={`erd-action-link ${pathname.startsWith("/account") || pathname === "/login" ? "active" : ""}`} aria-label="Account" style={{ display: 'inline-flex', alignItems: 'center' }}>
-              <svg width="21" height="21" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9.99994 1.5C9.99994 2.32843 9.32837 3 8.49994 3C7.67151 3 6.99994 2.32843 6.99994 1.5C6.99994 0.671573 7.67151 0 8.49994 0C9.32837 0 9.99994 0.671573 9.99994 1.5Z" fill="currentColor"/>
-                <path d="M2.8312 5.45056C3.07651 4.59195 3.86128 4 4.75424 4H7.73601L10.5455 5.40474L12.6286 4.57152L13.3713 6.42848L11.2883 7.2617C10.7579 7.47386 10.162 7.44908 9.65107 7.1936L9.50107 7.1186L8.96631 9.2576L9.83834 9.75591C10.6163 10.2005 11.0037 11.1082 10.7864 11.9775L9.78072 16H7.71917L8.84607 11.4924L7.14993 10.5232L5.78072 16H3.71917L6.21917 6H4.75424L4.18281 8H2.10278L2.8312 5.45056Z" fill="currentColor"/>
-              </svg>
+          {/* CENTER: Logo (Both Desktop and Mobile) */}
+          <div className="erd-header-center">
+            <Link href="/" className="erd-logo">
+              TONET
             </Link>
           </div>
 
-          {/* MOBILE HAMBURGER BUTTON */}
-          <button className="erd-mobile-menu-btn erd-mobile-only" onClick={openMenu} aria-label="Open menu">
-            <span className="erd-hamburger-line" />
-            <span className="erd-hamburger-line" />
-            <span className="erd-hamburger-line" />
-          </button>
+          {/* RIGHT: Actions (Desktop only) or Cart (Mobile only) */}
+          <div className="erd-header-right">
+            <button className="erd-mobile-cart-btn erd-mobile-only" onClick={openCart} aria-label="Cart">
+              BAG ({cartCount})
+            </button>
+            <div className="erd-desktop-actions erd-desktop-only">
+              <Link href="/account" className={`erd-action-link ${pathname.startsWith("/account") || pathname === "/login" ? "active" : ""}`}>
+                ACCOUNT
+              </Link>
+              
+              {isSearchOpen ? (
+                <form onSubmit={handleSearchSubmit} className="erd-search-inline-form">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    className="erd-search-inline-input"
+                    placeholder="SEARCH"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onBlur={() => {
+                      setTimeout(() => {
+                        closeSearch();
+                        setSearchQuery("");
+                      }, 200);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") {
+                        closeSearch();
+                        setSearchQuery("");
+                      }
+                    }}
+                    autoFocus
+                  />
+                </form>
+              ) : (
+                <button className="erd-action-btn" onClick={openSearch}>
+                  SEARCH
+                </button>
+              )}
+
+              <button className="erd-action-btn" onClick={openCart}>
+                SHOPPING BAG ({cartCount})
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -477,185 +464,153 @@ export default function Navbar() {
       )}
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&display=swap');
+
         .erd-header {
           position: fixed;
-          top: 20px;
+          top: 0;
           left: 0;
           right: 0;
-          height: 81px;
-          background: transparent;
+          height: 70px;
+          background: #ffffff;
+          border-bottom: 1px solid #e5e5e5;
           z-index: 1000;
           box-sizing: border-box;
           transition: top 0.2s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .erd-header.scrolled {
-          top: 0;
+        .erd-header.has-banner {
+          top: 22px;
         }
 
         .erd-header-inner {
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
+          position: relative;
+          display: flex;
           align-items: center;
+          justify-content: space-between;
           height: 100%;
+          padding: 0 40px;
         }
 
-        /* ══ LEFT: Logo ══ */
+        /* ══ LEFT: Navigation ══ */
         .erd-header-left {
           display: flex;
           align-items: center;
-          padding-left: 32px;
+          justify-content: flex-start;
+          z-index: 10;
+          margin-top: 4px; /* shift down for visual centering */
+        }
+        .erd-nav {
+          display: flex;
+          align-items: center;
+          gap: 28px;
+        }
+        .erd-nav a {
+          font-family: var(--font-helvetica-roman), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: #000000;
+          text-decoration: none;
+          padding: 8px 0;
+          transition: opacity 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .erd-nav a:hover {
+          opacity: 0.5;
+        }
+        .erd-nav a.nav-private-sale {
+          color: #c57a53; /* Elegant copper/rust-orange */
+        }
+        .erd-nav a.nav-private-sale:hover {
+          opacity: 0.7;
+        }
+
+        /* ══ CENTER: Logo ══ */
+        .erd-header-center {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 5;
+          margin-top: 4px; /* shift down for visual centering */
         }
         .erd-logo {
           font-family: var(--font-coolvetica), sans-serif;
           font-weight: 700;
           font-size: 24px;
           line-height: 0.95;
-          letter-spacing: 0.05em;
+          letter-spacing: normal;
           color: #000000;
           text-decoration: none;
           display: block;
           text-transform: uppercase;
         }
         .erd-logo:hover {
-          opacity: 1;
-        }
-        .erd-logo-desktop {
-          display: inline;
-        }
-        .erd-logo-mobile {
-          display: none;
+          opacity: 0.85;
         }
 
-        /* ══ CENTER: Navigation ══ */
-        .erd-header-center {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .erd-nav {
-          display: flex;
-          align-items: center;
-          gap: 36px;
-        }
-        .erd-nav a {
-          font-family: var(--font-helvetica-bold-cond), sans-serif;
-          font-size: 14px;
-          font-weight: 700;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
-          color: #000000;
-          text-decoration: none;
-          padding: 8px 14px;
-          background-color: transparent;
-          transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .erd-nav a.active {
-          background-color: #000000;
-          color: #ffffff !important;
-          opacity: 1 !important;
-        }
-        .erd-nav a:hover {
-          opacity: 0.6;
-        }
-        .erd-nav-irl-link {
-          position: relative;
-          display: inline-block;
-        }
-        .erd-irl-badge {
-          position: absolute;
-          top: -9px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-family: Arial, sans-serif;
-          font-size: 6px;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-          color: #888888;
-          text-transform: uppercase;
-          white-space: nowrap;
-          pointer-events: none;
-        }
-
+        /* ══ RIGHT: Actions ══ */
         .erd-header-right {
-          position: fixed;
-          top: 52px;
-          right: 32px;
           display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 16px;
-          z-index: 1000;
+          align-items: center;
+          justify-content: flex-end;
+          z-index: 10;
+          margin-top: 4px; /* shift down for visual centering */
         }
-        .erd-action-btn {
+        .erd-desktop-actions {
+          display: flex;
+          align-items: center;
+          gap: 28px;
+        }
+        .erd-action-btn,
+        .erd-action-link {
           background: none;
           border: none;
-          padding: 8px 12px;
+          padding: 8px 0;
           margin: 0;
           cursor: pointer;
-          font-family: var(--font-helvetica-thin-cond), sans-serif;
-          font-size: 15px;
+          font-family: var(--font-helvetica-roman), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          font-size: 11px;
           font-weight: 400;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           color: #000000;
-          transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+          transition: opacity 0.3s ease;
           border-radius: 0;
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          text-decoration: none;
         }
-        .erd-action-btn:hover {
-          opacity: 0.6;
+        .erd-action-btn:hover,
+        .erd-action-link:hover {
+          opacity: 0.5;
           background: none;
           transform: none;
         }
         .erd-action-btn:active {
           transform: none;
         }
-        .erd-action-link {
-          font-family: var(--font-helvetica-thin-cond), sans-serif;
-          font-size: 15px;
-          font-weight: 400;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: #000000;
-          text-decoration: none;
-          padding: 8px 12px;
-          background-color: transparent;
-          transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .erd-action-link:hover {
-          opacity: 0.6;
-        }
-        .erd-action-btn.active,
-        .erd-action-link.active {
-          background-color: #000000;
-          color: #ffffff !important;
-          opacity: 1 !important;
-        }
-        body:has(.tonet-flagship) .erd-nav a.active,
-        body:has(.tonet-flagship) .erd-action-btn.active,
-        body:has(.tonet-flagship) .erd-action-link.active {
-          background-color: #fafafa !important;
-          color: #000000 !important;
-          opacity: 1 !important;
-        }
 
         /* Add top padding to body to prevent content from going behind the fixed header */
         body {
-          padding-top: 101px !important;
+          padding-top: 92px !important;
+        }
+        body:has(.tonet-flagship) {
+          padding-top: 70px !important;
         }
 
         /* ══ INLINE SEARCH STYLES ══ */
         .erd-search-inline-form {
-          display: inline-block;
+          display: inline-flex;
+          align-items: center;
           margin: 0;
           padding: 0;
         }
@@ -663,14 +618,15 @@ export default function Navbar() {
         .erd-search-inline-input {
           background: transparent;
           border: none;
+          border-bottom: 1px solid #000000;
           outline: none;
-          padding: 0;
+          padding: 2px 0;
           margin: 0;
-          width: 100px;
-          font-family: var(--font-helvetica-thin-cond), sans-serif;
-          font-size: 15px;
+          width: 110px;
+          font-family: var(--font-helvetica-roman), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          font-size: 11px;
           font-weight: 400;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           color: #000000;
           text-align: right;
@@ -680,13 +636,6 @@ export default function Navbar() {
         .erd-search-inline-input::placeholder {
           color: #888888;
           opacity: 0.5;
-        }
-
-        .erd-cart-count {
-          font-family: var(--font-helvetica-thin-cond), sans-serif;
-          font-size: 11px;
-          font-weight: 700;
-          color: #000000;
         }
 
         /* ══ RESPONSIVE UTILITIES ══ */
@@ -699,36 +648,36 @@ export default function Navbar() {
 
         @media (max-width: 767px) {
           .erd-mobile-only {
-            display: block !important;
+            display: inline-flex !important;
           }
           .erd-desktop-only {
             display: none !important;
           }
 
           .erd-header {
-            height: 65px;
-            padding: 21px 16px;
-            background: transparent;
+            height: 60px;
+            padding: 0;
+            background: #ffffff;
           }
           .erd-header-inner {
+            position: relative;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: flex-start;
-            height: auto;
+            height: 100%;
             width: 100%;
+            padding: 0 16px;
           }
           .erd-header-left {
-            padding-left: 0;
+            justify-content: flex-start;
+          }
+          .erd-header-right {
+            justify-content: flex-end;
           }
           .erd-logo {
             font-size: 20px;
-            line-height: 0.9;
-          }
-          .erd-logo-desktop {
-            display: none;
-          }
-          .erd-logo-mobile {
-            display: block;
+            line-height: 0.95;
+            letter-spacing: normal;
           }
 
           .erd-mobile-menu-btn {
@@ -737,12 +686,12 @@ export default function Navbar() {
             padding: 0;
             margin: 0;
             cursor: pointer;
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 12px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: flex-start;
             border-radius: 0;
           }
           .erd-mobile-menu-btn:hover {
@@ -755,16 +704,32 @@ export default function Navbar() {
 
           .erd-hamburger-line {
             display: block;
-            width: 24px;
-            height: 2px;
+            width: 20px;
+            height: 1px;
             background: #000000;
-            margin: 3px 0;
+            margin: 0;
           }
 
-
+          .erd-mobile-cart-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            font-family: var(--font-helvetica-roman), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #000000;
+            transition: opacity 0.3s ease;
+          }
+          .erd-mobile-cart-btn:hover {
+            opacity: 0.6;
+          }
 
           body {
-            padding-top: 0 !important;
+            padding-top: 60px !important;
           }
         }
 

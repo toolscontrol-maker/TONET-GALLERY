@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 
 export default function ProductDetails() {
   const [activeTab, setActiveTab] = useState<string | null>(null);
@@ -14,7 +15,7 @@ export default function ProductDetails() {
       <div className="accordion-item">
         <button className="accordion-header" onClick={() => toggleTab('shipping')}>
           Shipping & Returns
-          <span className={`icon ${activeTab === 'shipping' ? 'open' : ''}`}>+</span>
+          <span className={`icon ${activeTab === 'shipping' ? 'open' : ''}`}><Plus size={16} strokeWidth={1.5} /></span>
         </button>
         <div className={`accordion-content ${activeTab === 'shipping' ? 'expanded' : ''}`}>
           <div className="inner-content">
@@ -27,7 +28,7 @@ export default function ProductDetails() {
       <div className="accordion-item">
         <button className="accordion-header" onClick={() => toggleTab('reviews')}>
           Reviews (3)
-          <span className={`icon ${activeTab === 'reviews' ? 'open' : ''}`}>+</span>
+          <span className={`icon ${activeTab === 'reviews' ? 'open' : ''}`}><Plus size={16} strokeWidth={1.5} /></span>
         </button>
         <div className={`accordion-content ${activeTab === 'reviews' ? 'expanded' : ''}`}>
           <div className="inner-content reviews-list">
@@ -69,8 +70,9 @@ export default function ProductDetails() {
           background: transparent;
         }
         .accordion-header .icon {
-          font-size: 1.275rem;
-          font-weight: 300;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           transition: transform var(--transition-normal);
         }
         .accordion-header .icon.open {

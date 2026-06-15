@@ -606,7 +606,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
           <div className="erd-related-section erd-desktop-only">
             <h2 className="erd-related-heading">RELATED</h2>
             <div className="erd-related-carousel">
-              {relatedProductsByTag.slice(0, 5).map((p) => (
+              {relatedProductsByTag.slice(0, 4).map((p) => (
                 <Link key={p.handle} href={`/product/${p.handle}`} className="erd-related-card">
                   {p.imageUrl && (
                     <div className="erd-related-img-wrap">
@@ -977,7 +977,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
         }
         .erd-related-carousel {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
+           grid-template-columns: repeat(4, 1fr);
           gap: 12px;
           width: 100%;
         }
@@ -1040,10 +1040,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
         .erd-mobile-only {
           display: none !important;
         }
-        .erd-desktop-only {
-          display: grid !important;
-        }
-        div.erd-desktop-only {
+        .erd-pdp-grid.erd-desktop-only {
           display: grid !important;
         }
         .erd-related-section.erd-desktop-only {
@@ -1055,10 +1052,7 @@ export default function ProductClient({ product, relatedProductsByTag }: Product
           .erd-mobile-only {
             display: block !important;
           }
-          .erd-desktop-only {
-            display: none !important;
-          }
-          div.erd-desktop-only {
+          .erd-pdp-grid.erd-desktop-only {
             display: none !important;
           }
           .erd-related-section.erd-desktop-only {

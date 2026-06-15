@@ -28,7 +28,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   );
 
   if (relatedProductsByTag.length === 0) {
-    relatedProductsByTag = allProducts.filter(p => p.handle !== product.handle).slice(0, 5);
+    relatedProductsByTag = allProducts.filter(p => p.handle !== product.handle).slice(0, 4);
   }
 
   return <ProductClient product={product} relatedProductsByTag={relatedProductsByTag} />;

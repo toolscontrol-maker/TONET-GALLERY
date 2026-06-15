@@ -111,9 +111,9 @@ export default function CartDrawer() {
                     {formatPrice(item.price * item.qty, 'EUR')}
                   </span>
                   <div className="cd-qty-row">
-                    <button className="cd-qty-btn" onClick={() => changeQty(item.id, -1)} aria-label="Decrease">-</button>
+                    <button className="cd-qty-btn" onClick={() => changeQty(item.id, -1)} aria-label="Decrease"><Minus size={12} strokeWidth={1.5} /></button>
                     <span className="cd-qty-val">{item.qty}</span>
-                    <button className="cd-qty-btn" onClick={() => changeQty(item.id, 1)} aria-label="Increase">+</button>
+                    <button className="cd-qty-btn" onClick={() => changeQty(item.id, 1)} aria-label="Increase"><Plus size={12} strokeWidth={1.5} /></button>
                   </div>
                 </div>
               </div>

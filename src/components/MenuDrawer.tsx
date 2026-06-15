@@ -68,9 +68,7 @@ export default function MenuDrawer() {
         {/* HEADER BAR */}
         <div className="md-header">
           <Link href="/" className="md-logo" onClick={closeMenu}>
-            <span>TONET</span>
-            <br />
-            <span>GALLERY</span>
+            TONET
           </Link>
           <button className="md-close-btn" onClick={closeMenu} aria-label="Close menu">
             ✕
@@ -80,26 +78,24 @@ export default function MenuDrawer() {
         {/* NAVIGATION LINKS */}
         <div className="md-nav-container">
           <nav className="md-nav">
-            <Link href="/collection/tops" className="md-nav-item" onClick={closeMenu}>
-              TOPS
+            <Link href="/collection/private-sale" className="md-nav-item private-sale" onClick={closeMenu}>
+              PRIVATE SALE
             </Link>
-            <Link href="/collection/bottom" className="md-nav-item" onClick={closeMenu}>
-              BOTTOM
+            <Link href="/collection/women" className="md-nav-item" onClick={closeMenu}>
+              WOMEN
             </Link>
-            <Link href="/collection/strange" className="md-nav-item" onClick={closeMenu}>
-              STRANGE
+            <Link href="/collection/men" className="md-nav-item" onClick={closeMenu}>
+              MEN
             </Link>
-            <a
-              href="#irl"
-              className="md-nav-item"
-              onClick={(e) => {
-                e.preventDefault();
-                closeMenu();
-                openIrl();
-              }}
-            >
-              IRL
-            </a>
+            <Link href="/collection/children" className="md-nav-item" onClick={closeMenu}>
+              CHILDREN
+            </Link>
+            <Link href="/collection/curb" className="md-nav-item" onClick={closeMenu}>
+              CURB
+            </Link>
+            <Link href="/collection/maison-tonet" className="md-nav-item" onClick={closeMenu}>
+              MAISON TONET
+            </Link>
           </nav>
         </div>
 
@@ -180,7 +176,7 @@ export default function MenuDrawer() {
           bottom: 0;
           width: 370px;
           max-width: 100vw;
-          background: #0c0c0c;
+          background: #ffffff;
           display: flex;
           flex-direction: column;
           z-index: 1001;
@@ -205,8 +201,8 @@ export default function MenuDrawer() {
           font-weight: 700;
           font-size: 20px;
           line-height: 0.95;
-          letter-spacing: 0.05em;
-          color: #ffffff;
+          letter-spacing: normal;
+          color: #121212;
           text-decoration: none;
           text-transform: uppercase;
         }
@@ -217,8 +213,8 @@ export default function MenuDrawer() {
           padding: 0 !important;
           margin: 0 !important;
           cursor: pointer;
-          color: #ffffff !important;
-          font-size: 20px !important;
+          color: #121212 !important;
+          font-size: 18px !important;
           line-height: 1 !important;
           transform: none !important;
           border-radius: 0 !important;
@@ -245,14 +241,17 @@ export default function MenuDrawer() {
         }
 
         .md-nav-item {
-          font-family: var(--font-helvetica-thin-cond), sans-serif;
-          font-size: 28px;
+          font-family: var(--font-helvetica-roman), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          font-size: 18px;
           font-weight: 400;
-          letter-spacing: 0.06em;
-          color: #ffffff;
+          letter-spacing: 0.12em;
+          color: #121212;
           text-transform: uppercase;
           text-decoration: none;
           transition: opacity 0.2s ease;
+        }
+        .md-nav-item.private-sale {
+          color: #c57a53;
         }
         .md-nav-item:hover {
           opacity: 0.6;
@@ -279,7 +278,7 @@ export default function MenuDrawer() {
           font-weight: 400 !important;
           letter-spacing: 0.06em !important;
           text-transform: uppercase !important;
-          color: #888888 !important;
+          color: #666666 !important;
           text-decoration: none !important;
           transform: none !important;
           border-radius: 0 !important;
@@ -289,7 +288,7 @@ export default function MenuDrawer() {
 
         .md-action-btn:hover,
         .md-action-link:hover {
-          color: #ffffff !important;
+          color: #121212 !important;
           opacity: 1 !important;
         }
 
@@ -312,13 +311,13 @@ export default function MenuDrawer() {
           font-weight: 400;
           letter-spacing: 0.06em;
           text-transform: uppercase;
-          color: #ffffff;
+          color: #121212;
           text-align: center;
-          caret-color: #ffffff;
+          caret-color: #121212;
         }
 
         .md-inline-search-input::placeholder {
-          color: #888888;
+          color: #999999;
           opacity: 0.5;
         }
 
@@ -329,7 +328,7 @@ export default function MenuDrawer() {
           font-weight: 700;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #444444;
+          color: #999999;
           text-align: center;
           padding-bottom: 32px;
         }
